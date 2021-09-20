@@ -89,9 +89,9 @@ public class BurpLeaksScanner {
                             Pattern regex_pattern = Pattern.compile(regex);
                             Matcher regex_matcher = regex_pattern.matcher(responseBody);
 
-                            if (regex_matcher.find()) {
+                            while (regex_matcher.find()) {
                                 // create a new log entry with the message details
-                                addLogEntry(httpProxyItem, entry.getDescription() + " - " + entry.getRegex(), regex_matcher.group(0));
+                                addLogEntry(httpProxyItem, entry.getDescription() + " - " + entry.getRegex(), regex_matcher.group());
                             }
 
                         }

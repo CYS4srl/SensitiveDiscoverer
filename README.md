@@ -4,10 +4,23 @@
 
 Burp Suite is a useful tool used to do web application security testing. While Burp Suite provides a lot of
 functionalities, it does not offer the opportunity to scan for particular pattern or file extension inside HTTP messages
-and is very tedius to check every message manually.
+and is very tedious to check every message manually.
 CYS4-SensitiveDiscoverer is a Burp Suite tool used to extract Regular Expression or File Extension form HTTP response automatically or
 at the end of all tests or during the test. The plugin will be available with a pre-defined set of Regular Expression
-and File Extension, but the you can choose which of them activate or deacvtivate and also create your own lists.
+and File Extension, but then you can choose which of them activate or deactivate and also create your own lists.
+
+## How to compile from source code
+
+The extension was compiled with IntelliJ 2021.2.2, with OpenJDK version 16.0.1.
+
+The BApp could be compiled with a Maven by following the below steps:
+
+1. View > Tool Windows > Maven
+2. On the new right panel expand the Lifecycle folder
+3. Double-click on install
+
+Using Maven configuration will be generated a .jar file that will include all the dependencies. 
+
 
 ## Installation
 
@@ -20,7 +33,7 @@ To install CYS4-SensitiveDiscoverer manually, you have to:
 
 ## Usage
 
-The default configuration has a list of regural expression and file extension. To see the predefined list go to Options
+The default configuration has a list of regular expression and file extension. To see the predefined list go to Options
 TAB. Here you can choose which of them activate or not or you can choose to insert your own regular expression or file
 extension. For both of them there are a list of actions to interact with them The actions are:
 
@@ -40,7 +53,7 @@ extension. For both of them there are a list of actions to interact with them Th
 
 ## Credits
 
-CYS4 was born in 2015 from a collaboration with an Israeli company in the world of Cyber ​​Security, then detaching its team ensuring the focus on innovation and quality towards a national context.
+CYS4 was born in 2015 from a collaboration with an Israeli company in the world of Cyber Security, then detaching its team ensuring the focus on innovation and quality towards a national context.
 
 Check out our [blog](https://blog.cys4.com/) for more information.
 

@@ -262,7 +262,7 @@
   {
     "active": true,
     "description": "Google Cloud API Key",
-    "regular_expression": "AIza[0-9A-Za-z\\\\-_]{35}"
+    "regular_expression": "AIza[0-9A-Za-z\\\\\\-\\_]{35}"
   },
   {
     "active": true,
@@ -516,7 +516,7 @@
   },
   {
     "active": true,
-    "description": "Authorization Bearer",
+    "description": "Authorization Bearer - 1",
     "regular_expression": "Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"
   },
   {
@@ -528,5 +528,11 @@
     "active": true,
     "description": "Authorization Basic",
     "regular_expression": "Basic\\s[a-zA-Z0-9+\\/]+\\=*"
+  },
+  {
+    "active": true,
+    "description": "Authorization Bearer - 2",
+    "regular_expression": "Bearer\\s[A-Za-z0-9\\-_=]+\\.[A-Za-z0-9\\-_=]+(\\.[A-Za-z0-9\\-_.+/=]+)?"
   }
+]
 ]
