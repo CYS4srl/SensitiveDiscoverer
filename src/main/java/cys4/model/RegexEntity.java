@@ -11,17 +11,20 @@ import java.util.regex.Pattern;
 public class RegexEntity {
     private Boolean active;
     private final String regular_expression;
+    private Pattern regex_compiled;
     private final String description;
 
     public RegexEntity(String description, String regex) {
         this.active = true;
         this.regular_expression = regex;
+        this.regex_compiled = null;
         this.description = description;
     }
 
     public RegexEntity(String description, String regex, Boolean active) {
         this.active = active;
         this.regular_expression = regex;
+        this.regex_compiled = null;
         this.description = description;
     }
 
@@ -31,6 +34,17 @@ public class RegexEntity {
 
     public String getRegex() {
         return regular_expression;
+    }
+
+    public Pattern getRegexCompiled() {
+        return this.regex_compiled;
+    }
+
+    public boolean compileRegex() {
+        if (this.regular_expression == null || this.regular_expression == "") return false;
+
+        this.regex_compiled = Pattern.compile(this.getRegex());
+        return true;
     }
 
     public String getDescription() {

@@ -20,13 +20,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -43,6 +42,12 @@ public class MainUI implements ITab {
     private ITextEditor originalResponseViewer;
     private static IBurpExtenderCallbacks callbacks;
 
+    /**
+     * Analyze Proxy History
+     */
+    private Thread analyzeProxyHistoryThread;
+    private boolean isAnalysisRunning;
+
     private List<LogEntity> _lLogEntries;
     private List<RegexEntity> _lRegexes;
     private List<ExtensionEntity> _lExtensions;
@@ -54,14 +59,16 @@ public class MainUI implements ITab {
 
     public MainUI(List<RegexEntity> regexList, List<ExtensionEntity> extensionList, IBurpExtenderCallbacks callbacks) {
 
-
-
         this._lLogEntries = new ArrayList<>();
 
         // Dipendency Injection
         this._lRegexes = regexList;
         this._lExtensions = extensionList;
         this.callbacks = callbacks;
+
+        // Analyze Proxy History
+        this.analyzeProxyHistoryThread = null;
+        this.isAnalysisRunning = false;
 
         // init the other UI elements
         logTableEntriesUI = new LogTableEntriesUI(this._lLogEntries);
@@ -604,19 +611,39 @@ public class MainUI implements ITab {
             JButton btnStartAnalysis = new JButton("Analyze HTTP History");
             buttonPanelLog.add(btnStartAnalysis, BorderLayout.NORTH);
 
+            JProgressBar progressBar = new JProgressBar(0, 1);
+            buttonPanelLog.add(progressBar, BorderLayout.NORTH);
+
             btnStartAnalysis.addActionListener(actionEvent -> {
-                if (!btnStartAnalysis.getModel().isSelected()) {
+                if (!isAnalysisRunning) {
                     if (callbacks.getProxyHistory().length > 0) {
-                        new Thread(() -> {
-                            btnStartAnalysis.setSelected(true);
+                        this.isAnalysisRunning = true;
+                        this.analyzeProxyHistoryThread = new Thread(() -> {
+                            String previousText = btnStartAnalysis.getText();
+                            btnStartAnalysis.setText("Stop analysis");
                             logTableEntryUI.setAutoCreateRowSorter(false);
-                            burpLeaksScanner.analyzeProxyHistory();
-                            btnStartAnalysis.setSelected(false);
+
+                            burpLeaksScanner.analyzeProxyHistory(progressBar);
+
+                            btnStartAnalysis.setText(previousText);
                             logTableEntryUI.setAutoCreateRowSorter(true);
-                        }).start();
+                            this.analyzeProxyHistoryThread = null;
+                            this.isAnalysisRunning = false;
+                        });
+                        this.analyzeProxyHistoryThread.start();
+
                         logTableEntryUI.validate();
                         logTableEntryUI.repaint();
+                    }
+                } else {
+                    if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
 
+                    try {
+                        burpLeaksScanner.interruptScan = true;
+                        this.analyzeProxyHistoryThread.join();
+                        burpLeaksScanner.interruptScan = false;
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
                     }
                 }
 

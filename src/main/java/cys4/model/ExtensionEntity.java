@@ -10,13 +10,15 @@ import java.util.regex.Pattern;
 
 public class ExtensionEntity {
     private Boolean active;
-    private final String extension;
+    private String extension;
+    private Pattern extension_regex_compiled;
     private final String description;
 
     public ExtensionEntity(String description, String extension) {
         this.active = true;
         this.extension = extension;
         this.description = description;
+        this.extension_regex_compiled = null;
     }
 
     public boolean isActive() {
@@ -33,6 +35,21 @@ public class ExtensionEntity {
 
     public String getExtension() {
         return this.extension;
+    }
+
+    public Pattern getRegexCompiled() {
+        return this.extension_regex_compiled;
+    }
+
+    public boolean compileRegex() {
+        if (this.extension == null || this.extension == "") return false;
+
+        if (this.extension.charAt(this.extension.length() - 1) != '$') {
+            this.extension += '$';
+        }
+
+        this.extension_regex_compiled = Pattern.compile(this.extension);
+        return true;
     }
 
     //
