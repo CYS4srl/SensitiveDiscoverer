@@ -533,5 +533,10 @@
     "active": true,
     "description": "Authorization Bearer - 2",
     "regular_expression": "Bearer\\s[A-Za-z0-9\\-_=]+\\.[A-Za-z0-9\\-_=]+(\\.[A-Za-z0-9\\-_.+/=]+)?"
+  },
+  {
+    "active": true,
+    "description": "Tokens",
+    "regular_expression": "(?i)([a-z0-9]+){0,}((_|-){0,}(\\s){0,})(key|pass|credentials|auth|cred|creds|secret|password|access|token|api)(\\s){0,}(=|:|is|>){1,}"
   }
 ]
