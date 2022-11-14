@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class RegexEntity {
     private Boolean active;
     private final String regular_expression;
-    private Pattern regex_compiled;
+    private transient Pattern regex_compiled = null;
     private final String description;
 
     public RegexEntity(String description, String regex) {

@@ -16,8 +16,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 import java.util.stream.Collectors;
 
 
@@ -34,7 +33,7 @@ public class BurpLeaksSeed {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntity>>() {}.getType();
         List<RegexEntity> lDeserializedJson = _gson.fromJson(Utils.readResourceFile("regex.json"), tArrayListRegexEntity);
 
-        for (RegexEntity element:lDeserializedJson)
+        for (RegexEntity element: lDeserializedJson)
             regexes.add(new RegexEntity(element.getDescription(), element.getRegex()));
     }
 

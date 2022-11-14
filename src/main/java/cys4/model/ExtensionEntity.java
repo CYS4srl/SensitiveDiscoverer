@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class ExtensionEntity {
     private Boolean active;
     private String extension;
-    private Pattern extension_regex_compiled;
+    private transient Pattern extension_regex_compiled;
     private final String description;
 
     public ExtensionEntity(String description, String extension) {

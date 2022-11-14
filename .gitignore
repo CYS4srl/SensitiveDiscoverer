@@ -48,6 +48,6 @@ src/build/
 .idea
 *.jar
 *.lst
-
+.vscode
 
 target/maven-status/maven-compiler-plugin/compile/default-compile/
