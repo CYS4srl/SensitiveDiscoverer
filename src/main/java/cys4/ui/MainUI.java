@@ -54,7 +54,9 @@ public class MainUI implements ITab {
 
     private BurpLeaksScanner burpLeaksScanner;
 
-    // check if the options for the scope is selected or not
+    /**
+     * Check if the options for the scope is selected or not
+     */
     private static boolean inScope = false;
 
     public MainUI(List<RegexEntity> regexList, List<ExtensionEntity> extensionList, IBurpExtenderCallbacks callbacks) {
@@ -82,8 +84,7 @@ public class MainUI implements ITab {
         LoadConfigFile();
     }
 
-    private void LoadConfigFile()
-    {
+    private void LoadConfigFile() {
         // load the prop files
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             assert (input != null);
@@ -116,8 +117,8 @@ public class MainUI implements ITab {
         return splitPane;
     }
 
+    //TODO: docs & refactor
     public void createUI() {
-
         // Updates the UI in async method
         SwingUtilities.invokeLater(() -> {
             // main panel; it shows logger and options tabs
@@ -607,8 +608,12 @@ public class MainUI implements ITab {
             //   begin   LOGGER PANEL
 
             // buttons: Analyze Http History and Clear Logs
+            //TODO: move strings to a single place
+            final String textAnalysisStart = "Analyze HTTP History";
+            final String textAnalysisStop = "Stop analysis";
+            final String textAnalysisStopping = "Stopping the analysis...";
 
-            JButton btnStartAnalysis = new JButton("Analyze HTTP History");
+            JButton btnStartAnalysis = new JButton(textAnalysisStart);
             buttonPanelLog.add(btnStartAnalysis, BorderLayout.NORTH);
 
             JProgressBar progressBar = new JProgressBar(0, 1);
@@ -620,7 +625,7 @@ public class MainUI implements ITab {
                         this.isAnalysisRunning = true;
                         this.analyzeProxyHistoryThread = new Thread(() -> {
                             String previousText = btnStartAnalysis.getText();
-                            btnStartAnalysis.setText("Stop analysis");
+                            btnStartAnalysis.setText(textAnalysisStop);
                             logTableEntryUI.setAutoCreateRowSorter(false);
 
                             burpLeaksScanner.analyzeProxyHistory(progressBar);
@@ -632,23 +637,32 @@ public class MainUI implements ITab {
                         });
                         this.analyzeProxyHistoryThread.start();
 
-                        logTableEntryUI.validate();
-                        logTableEntryUI.repaint();
+                        //TODO: are they needed?
+                        // logTableEntryUI.validate();
+                        // logTableEntryUI.repaint();
                     }
                 } else {
                     if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
 
-                    try {
-                        burpLeaksScanner.interruptScan = true;
-                        this.analyzeProxyHistoryThread.join();
-                        burpLeaksScanner.interruptScan = false;
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
+                    btnStartAnalysis.setEnabled(false);
+                    btnStartAnalysis.setText(textAnalysisStopping);
+                    burpLeaksScanner.interruptScan = true;
+
+                    new Thread(() -> {
+                        try {
+                            this.analyzeProxyHistoryThread.join();
+                            burpLeaksScanner.interruptScan = false;
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                        btnStartAnalysis.setEnabled(true);
+                        btnStartAnalysis.setText(textAnalysisStart);
+                    }).start();
                 }
 
-                tabPanelLogger.validate();
-                tabPanelLogger.repaint();
+                //TODO: are they needed?
+                // tabPanelLogger.validate();
+                // tabPanelLogger.repaint();
             });
 
             JButton btnClearLogs = new JButton("Clear Logs");
@@ -728,10 +742,6 @@ public class MainUI implements ITab {
         });
     }
 
-    //
-    // implement ITab
-    //
-
     @Override
     public String getTabCaption() {
         return getNameExtension();
@@ -741,6 +751,4 @@ public class MainUI implements ITab {
     public Component getUiComponent() {
         return getSplitPane();
     }
-
-
 }
