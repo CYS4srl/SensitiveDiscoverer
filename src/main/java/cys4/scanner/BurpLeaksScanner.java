@@ -82,6 +82,9 @@ public class BurpLeaksScanner {
         for (IHttpRequestResponse httpProxyItem : httpRequests) {
             executor.execute(() -> {
                 analyzeSingleMessage(httpProxyItem);
+
+                if (interruptScan) return;
+
                 synchronized (analyzeLock) {
                     this.analyzedItems++;
                 }
@@ -96,7 +99,7 @@ public class BurpLeaksScanner {
                 if (this.interruptScan)
                     executor.shutdownNow();
 
-                Thread.sleep(500);
+                Thread.sleep(200);
             }
         } catch (InterruptedException e) {
             executor.shutdownNow();
@@ -119,34 +122,35 @@ public class BurpLeaksScanner {
         // convert from bytes to string the body of the request
         String responseBody = helpers.bytesToString(httpProxyItem.getResponse());
         for (RegexEntity entry : regexList) {
+            if (this.interruptScan) return;
 
             // if the box related to the regex in the Options tab of the extension is checked
-            if (entry != null && entry.isActive()) {
-                Matcher regex_matcher = entry.getRegexCompiled().matcher(responseBody);
+            if (!entry.isActive()) continue;
 
-                while (regex_matcher.find()) {
-                    // create a new log entry with the message details
-                    addLogEntry(
-                        httpProxyItem,
-                        entry.getDescription() + " - " + entry.getRegex(),
-                        regex_matcher.group());
-                }
-
+            Matcher regex_matcher = entry.getRegexCompiled().matcher(responseBody);
+            while (regex_matcher.find()) {
+                addLogEntry(
+                    httpProxyItem,
+                    entry.getDescription() + " - " + entry.getRegex(),
+                    regex_matcher.group());
             }
         }
 
         for (ExtensionEntity entry : extensionList) {
-            if (entry.isActive()) {
-                String extension = entry.getExtension();
+            if (this.interruptScan) return;
 
-                Matcher extension_matcher = entry.getRegexCompiled().matcher(requestURL.toString());
-                // add the new entry if do not exist
-                if (extension_matcher.find()) {
-                    addLogEntry(
-                        httpProxyItem,
-                        "EXT " + entry.getDescription() + " - " + extension,
-                        extension);
-                }
+            // if the box related to the extensions in the Options tab of the extension is checked
+            if (!entry.isActive()) continue;
+
+            String extension = entry.getExtension();
+
+            Matcher extension_matcher = entry.getRegexCompiled().matcher(requestURL.toString());
+            // add the new entry if do not exist
+            if (extension_matcher.find()) {
+                addLogEntry(
+                    httpProxyItem,
+                    "EXT " + entry.getDescription() + " - " + extension,
+                    extension);
             }
         }
     }
