@@ -2,7 +2,6 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-
 package cys4.model;
 
 import burp.IHttpRequestResponsePersisted;

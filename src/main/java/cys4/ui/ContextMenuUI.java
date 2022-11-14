@@ -4,7 +4,6 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.ui;
 
-import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.ITextEditor;
 import cys4.model.LogEntity;
@@ -120,5 +119,3 @@ public class ContextMenuUI extends JPopupMenu {
         }));
     }
 }
-
-

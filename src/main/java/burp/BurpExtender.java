@@ -5,7 +5,6 @@ import cys4.model.ExtensionEntity;
 import cys4.model.RegexEntity;
 import cys4.seed.BurpLeaksSeed;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class BurpExtender implements IBurpExtender {
 
         // get regexes and extensions
         BurpLeaksSeed bls = new BurpLeaksSeed();
-    
+
         this._lRegexes = BurpLeaksSeed.getRegex();
         this._lExtensions = BurpLeaksSeed.getExtensions();
 
@@ -50,6 +49,6 @@ public class BurpExtender implements IBurpExtender {
 
         // set our extension name
         callbacks.setExtensionName(mainUI.getNameExtension());
-    
+
     }
 }

@@ -2,7 +2,6 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-
 package cys4.model;
 
 import java.util.regex.Matcher;
@@ -83,5 +82,4 @@ public class RegexEntity {
         Matcher regex_matcher = regex_pattern.matcher(lineWithRegex);
         return regex_matcher.find();
     }
-
 }
