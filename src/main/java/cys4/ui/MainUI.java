@@ -24,6 +24,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -69,15 +70,9 @@ public class MainUI implements ITab {
         this.analyzeProxyHistoryThread = null;
         this.isAnalysisRunning = false;
 
-        // init the other UI elements
-        //TODO: Move to initialize()
+        // Logger elements
         this.logEntries = new ArrayList<>();
-        logTableEntriesUI = new LogTableEntriesUI(this.logEntries);
-        originalRequestViewer = callbacks.createTextEditor();
-        originalResponseViewer = callbacks.createTextEditor();
-        logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this.logEntries, this.originalRequestViewer, this.originalResponseViewer);
-
-        burpLeaksScanner = new BurpLeaksScanner(this, callbacks, logEntries, this.regexList, this.extensionsList);
+        this.burpLeaksScanner = new BurpLeaksScanner(this, callbacks, logEntries, this.regexList, this.extensionsList);
 
         LoadConfigFile();
     }
@@ -132,9 +127,6 @@ public class MainUI implements ITab {
     }
 
     private void _initialize() {
-        // main panel; it shows logger and options tabs
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
         JTabbedPane tabbedPane = new JTabbedPane();
         JPanel tabPanelLogger = createLoggerPanel();
         JPanel tabPaneOptions = createOptionsPanel();
@@ -142,18 +134,70 @@ public class MainUI implements ITab {
         tabbedPane.addTab("Logger", tabPanelLogger);
         tabbedPane.addTab("Options", tabPaneOptions);
 
+        // main panel; it shows logger and options tabs
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.add(tabbedPane);
+        callbacks.customizeUiComponent(splitPane);
 
         // add the custom tab to Burp's UI
         callbacks.addSuiteTab(MainUI.this);
     }
 
-    //TODO: resetRegex and resetExtensions don't work
-    //TODO: refactor
     private JPanel createLoggerPanel() {
-        //   begin   LOGGER PANEL
         JPanel tabPanelLogger = new JPanel();
-        tabPanelLogger.setLayout(new BoxLayout(tabPanelLogger, BoxLayout.Y_AXIS));
+        tabPanelLogger.setLayout(new BorderLayout());
+
+        JScrollPane scrollPaneLogger = setupLogger_LogTable();
+
+        // panel that contains the buttonsPanel and the loggerPane
+        JPanel buttonsLoggerPanel = createLogger_ButtonPanel(tabPanelLogger, scrollPaneLogger);
+
+        // Request / Response viewers under the logger
+        JSplitPane requestResponseSplitPane = createLogger_RequestResponse();
+
+        // panel that contains all the graphical elements in the Logger Panel
+        JSplitPane mainLoggerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, buttonsLoggerPanel, requestResponseSplitPane);
+        tabPanelLogger.add(mainLoggerPanel);
+
+
+        callbacks.customizeUiComponent(logTableEntryUI);
+        callbacks.customizeUiComponent(mainLoggerPanel);
+        callbacks.customizeUiComponent(scrollPaneLogger);
+        callbacks.customizeUiComponent(requestResponseSplitPane);
+
+        return tabPanelLogger;
+    }
+
+    /**
+     * Panel that contains the buttonsPanel and the loggerPane
+     * @param tabPanelLogger
+     * @param scrollPaneLogger
+     * @return
+     */
+    private JPanel createLogger_ButtonPanel(JPanel tabPanelLogger, JScrollPane scrollPaneLogger) {
+        JPanel buttonPanelLog = new JPanel();
+        buttonPanelLog.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+
+        createLogger_AnalyzeHTTPHistory(tabPanelLogger)
+            .forEach((component) -> buttonPanelLog.add(component, BorderLayout.NORTH));
+
+        JButton btn = createLogger_ClearLogs(scrollPaneLogger);
+        buttonPanelLog.add(btn, BorderLayout.NORTH);
+
+        JPanel buttonsLoggerPanel = new JPanel();
+        buttonsLoggerPanel.setLayout(new BoxLayout(buttonsLoggerPanel, BoxLayout.Y_AXIS));
+        buttonsLoggerPanel.setLayout(new BorderLayout());
+        buttonsLoggerPanel.add(buttonPanelLog, BorderLayout.NORTH);
+        buttonsLoggerPanel.add(scrollPaneLogger, BorderLayout.CENTER);
+
+        return buttonsLoggerPanel;
+    }
+
+    private JScrollPane setupLogger_LogTable() {
+        logTableEntriesUI = new LogTableEntriesUI(this.logEntries);
+        originalRequestViewer = this.callbacks.createTextEditor();
+        originalResponseViewer = this.callbacks.createTextEditor();
+        logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this.logEntries, this.originalRequestViewer, this.originalResponseViewer);
 
         // when you right click on a logTable entry, it will appear a context menu defined here
         MouseAdapter contextMenu = new MouseAdapter() {
@@ -178,28 +222,73 @@ public class MainUI implements ITab {
             }
         };
         logTableEntryUI.addMouseListener(contextMenu);
+
         ListSelectionModel listSelectionModel = logTableEntryUI.getSelectionModel();
         logTableEntryUI.setSelectionModel(listSelectionModel);
-        JScrollPane scrollPaneLogger = new JScrollPane(logTableEntryUI);
-        tabPanelLogger.setLayout(new BorderLayout());
 
+        return new JScrollPane(logTableEntryUI);
+    }
 
-        // Button Panel for starting analysis
-        JPanel buttonPanelLog = new JPanel();
-        buttonPanelLog.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        tabPanelLogger.add(buttonPanelLog);
+    private JSplitPane createLogger_RequestResponse() {
+        JSplitPane requestResponseSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        requestResponseSplitPane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        JPanel requestResponsePanel = new JPanel();
+        requestResponsePanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        requestResponsePanel.add(requestResponseSplitPane);
 
-        // buttons: Analyze Http History and Clear Logs
+        JPanel originalRequestPanel = new JPanel();
+        JLabel originalRequestLabel = new JLabel("Request");
+        originalRequestLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
+        originalRequestLabel.setForeground(new Color(255, 102, 51));
+        originalRequestPanel.add(originalRequestLabel);
+        originalRequestPanel.add(originalRequestViewer.getComponent());
+
+        JPanel originalResponsePanel = new JPanel();
+        JLabel originalResponseLabel = new JLabel("Response");
+        originalResponseLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
+        originalResponseLabel.setForeground(new Color(255, 102, 51));
+        originalResponsePanel.add(originalResponseLabel);
+        originalResponsePanel.add(originalResponseViewer.getComponent());
+
+        originalRequestPanel.setLayout(new BoxLayout(originalRequestPanel, BoxLayout.PAGE_AXIS));
+        originalResponsePanel.setLayout(new BoxLayout(originalResponsePanel, BoxLayout.PAGE_AXIS));
+
+        requestResponseSplitPane.setLeftComponent(originalRequestPanel);
+        requestResponseSplitPane.setRightComponent(originalResponsePanel);
+        requestResponseSplitPane.setResizeWeight(0.50);
+        requestResponseSplitPane.setMaximumSize(new Dimension(2000, 500));
+
+        return requestResponseSplitPane;
+    }
+
+    private JButton createLogger_ClearLogs(JScrollPane scrollPaneLogger) {
+        JButton btnClearLogs = new JButton("Clear Logs");
+        btnClearLogs.addActionListener(e -> {
+            int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the logs in the list?");
+            if (dialog == JOptionPane.YES_OPTION) {
+                logEntries.clear();
+                logTableEntriesUI.clear();
+
+                originalResponseViewer.setText(new byte[0]);
+                originalResponseViewer.setSearchExpression("");
+                originalRequestViewer.setText(new byte[0]);
+            }
+
+            scrollPaneLogger.validate();
+            scrollPaneLogger.repaint();
+        });
+
+        return btnClearLogs;
+    }
+
+    private List<JComponent> createLogger_AnalyzeHTTPHistory(JPanel tabPanelLogger) {
         //TODO: move strings to a single place
         final String textAnalysisStart = "Analyze HTTP History";
         final String textAnalysisStop = "Stop analysis";
         final String textAnalysisStopping = "Stopping the analysis...";
 
         JButton btnAnalysis = new JButton(textAnalysisStart);
-        buttonPanelLog.add(btnAnalysis, BorderLayout.NORTH);
-
         JProgressBar progressBar = new JProgressBar(0, 1);
-        buttonPanelLog.add(progressBar, BorderLayout.NORTH);
 
         btnAnalysis.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
@@ -247,77 +336,10 @@ public class MainUI implements ITab {
             tabPanelLogger.repaint();
         });
 
-        JButton btnClearLogs = new JButton("Clear Logs");
-        buttonPanelLog.add(btnClearLogs, BorderLayout.NORTH);
-        btnClearLogs.addActionListener(e -> {
-            int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the logs in the list?");
-            if (dialog == JOptionPane.YES_OPTION) {
-                logEntries.clear();
-                logTableEntriesUI.clear();
-
-                originalResponseViewer.setText(new byte[0]);
-                originalResponseViewer.setSearchExpression("");
-                originalRequestViewer.setText(new byte[0]);
-            }
-
-            scrollPaneLogger.validate();
-            scrollPaneLogger.repaint();
-        });
-
-        // Request / Response viewers under the logger
-        JSplitPane requestResponseSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        requestResponseSplitPane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        JPanel requestResponsePanel = new JPanel();
-        requestResponsePanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        requestResponsePanel.add(requestResponseSplitPane);
-
-        // the 2 panels under the logger
-
-        JPanel originalRequestPanel = new JPanel();
-        JLabel originalRequestLabel = new JLabel("Request");
-        originalRequestLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
-        originalRequestLabel.setForeground(new Color(255, 102, 51));
-        originalRequestPanel.add(originalRequestLabel);
-        originalRequestPanel.add(originalRequestViewer.getComponent());
-
-        JPanel originalResponsePanel = new JPanel();
-        JLabel originalResponseLabel = new JLabel("Response");
-        originalResponseLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
-        originalResponseLabel.setForeground(new Color(255, 102, 51));
-        originalResponsePanel.add(originalResponseLabel);
-        originalResponsePanel.add(originalResponseViewer.getComponent());
-
-        originalRequestPanel.setLayout(new BoxLayout(originalRequestPanel, BoxLayout.PAGE_AXIS));
-        originalResponsePanel.setLayout(new BoxLayout(originalResponsePanel, BoxLayout.PAGE_AXIS));
-
-        requestResponseSplitPane.setLeftComponent(originalRequestPanel);
-        requestResponseSplitPane.setRightComponent(originalResponsePanel);
-        requestResponseSplitPane.setResizeWeight(0.50);
-        requestResponseSplitPane.setMaximumSize(new Dimension(2000, 500));
-
-        // panel that contains the 2 analysis buttons and the logger
-        JPanel buttonsLoggerPanel = new JPanel();
-        buttonsLoggerPanel.setLayout(new BoxLayout(buttonsLoggerPanel, BoxLayout.Y_AXIS));
-        buttonsLoggerPanel.setLayout(new BorderLayout());
-        buttonsLoggerPanel.add(buttonPanelLog, BorderLayout.NORTH);
-        buttonsLoggerPanel.add(scrollPaneLogger, BorderLayout.CENTER);
-
-        // panel that contains all the graphical elements in the Logger Panel
-        JSplitPane mainLoggerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, buttonsLoggerPanel, requestResponseSplitPane);
-        tabPanelLogger.add(mainLoggerPanel);
-
-        // END of Logger Panel
-
-        // customize our UI components
-        callbacks.customizeUiComponent(splitPane);
-        callbacks.customizeUiComponent(logTableEntryUI);
-        callbacks.customizeUiComponent(mainLoggerPanel);
-        callbacks.customizeUiComponent(scrollPaneLogger);
-        callbacks.customizeUiComponent(requestResponseSplitPane);
-
-        return tabPanelLogger;
+        return Arrays.asList(btnAnalysis, progressBar);
     }
 
+    //TODO: resetRegex and resetExtensions don't work
     //TODO: refactor
     private JPanel createOptionsPanel() {
         JPanel tabPaneOptions = new JPanel();

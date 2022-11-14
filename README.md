@@ -28,7 +28,7 @@ The compiled extension will be in the "/target" folder.
 As an alternative, run the following command:
 
 ```bash
-mvn clean install
+mvn clean package
 ```
 
 ## Installation
