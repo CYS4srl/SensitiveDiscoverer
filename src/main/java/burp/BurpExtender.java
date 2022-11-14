@@ -41,5 +41,7 @@ public class BurpExtender implements IBurpExtender {
 
         // set our extension name
         callbacks.setExtensionName(mainUI.getNameExtension());
+
+        callbacks.printOutput("Extension loaded successfully!");
     }
 }
