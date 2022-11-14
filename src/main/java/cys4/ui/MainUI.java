@@ -98,17 +98,23 @@ public class MainUI implements ITab {
         }
     }
 
-    // GetNameExtension return the name of the extension from the configuration file
+    /**
+     * GetNameExtension return the name of the extension from the configuration file
+     */
     public String getNameExtension() {
         return _PROPERTIES_PluginProperties.getProperty("ui.name.extension_name");
     }
 
-    // isInScope return true if the option is selected
-    public static boolean isInScope() {
+    /**
+     * isInScopeSelected return true if the option is selected
+     */
+    public static boolean isInScopeSelected() {
         return inScope;
     }
 
-    // used by the burp extender to add a new entry
+    /**
+     * used by the burp extender to add a new entry
+     */
     public void logTableEntriesUIAddNewRow(int row) {
         logTableEntriesUI.addNewRow(row);
     }
@@ -613,24 +619,24 @@ public class MainUI implements ITab {
             final String textAnalysisStop = "Stop analysis";
             final String textAnalysisStopping = "Stopping the analysis...";
 
-            JButton btnStartAnalysis = new JButton(textAnalysisStart);
-            buttonPanelLog.add(btnStartAnalysis, BorderLayout.NORTH);
+            JButton btnAnalysis = new JButton(textAnalysisStart);
+            buttonPanelLog.add(btnAnalysis, BorderLayout.NORTH);
 
             JProgressBar progressBar = new JProgressBar(0, 1);
             buttonPanelLog.add(progressBar, BorderLayout.NORTH);
 
-            btnStartAnalysis.addActionListener(actionEvent -> {
+            btnAnalysis.addActionListener(actionEvent -> {
                 if (!isAnalysisRunning) {
                     if (callbacks.getProxyHistory().length > 0) {
                         this.isAnalysisRunning = true;
                         this.analyzeProxyHistoryThread = new Thread(() -> {
-                            String previousText = btnStartAnalysis.getText();
-                            btnStartAnalysis.setText(textAnalysisStop);
+                            String previousText = btnAnalysis.getText();
+                            btnAnalysis.setText(textAnalysisStop);
                             logTableEntryUI.setAutoCreateRowSorter(false);
 
                             burpLeaksScanner.analyzeProxyHistory(progressBar);
 
-                            btnStartAnalysis.setText(previousText);
+                            btnAnalysis.setText(previousText);
                             logTableEntryUI.setAutoCreateRowSorter(true);
                             this.analyzeProxyHistoryThread = null;
                             this.isAnalysisRunning = false;
@@ -644,8 +650,8 @@ public class MainUI implements ITab {
                 } else {
                     if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
 
-                    btnStartAnalysis.setEnabled(false);
-                    btnStartAnalysis.setText(textAnalysisStopping);
+                    btnAnalysis.setEnabled(false);
+                    btnAnalysis.setText(textAnalysisStopping);
                     burpLeaksScanner.interruptScan = true;
 
                     new Thread(() -> {
@@ -655,8 +661,8 @@ public class MainUI implements ITab {
                         } catch (InterruptedException e1) {
                             e1.printStackTrace();
                         }
-                        btnStartAnalysis.setEnabled(true);
-                        btnStartAnalysis.setText(textAnalysisStart);
+                        btnAnalysis.setEnabled(true);
+                        btnAnalysis.setText(textAnalysisStart);
                     }).start();
                 }
 

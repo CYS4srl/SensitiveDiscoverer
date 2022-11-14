@@ -17,8 +17,10 @@ import cys4.model.RegexEntity;
 import cys4.ui.MainUI;
 
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -106,52 +108,44 @@ public class BurpLeaksScanner {
      * @param httpProxyItem
      */
     private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem) {
+        URL requestURL = helpers.analyzeRequest(httpProxyItem).getUrl();
 
-        /*
-         * the condition check if the inScope variable is true or false; in the first
-         * case it checks if the httpProxyItem respects the "in scope" condition
-         */
-        if ((httpProxyItem.getResponse() != null)
-                && (!mainUI.isInScope() || callbacks.isInScope(helpers.analyzeRequest(httpProxyItem).getUrl()))) {
-            IResponseInfo httpProxyItemResponse = helpers.analyzeResponse(httpProxyItem.getResponse());
+        if (Objects.isNull(httpProxyItem.getResponse())) return;
+        if (MainUI.isInScopeSelected() && (!callbacks.isInScope(requestURL))) return;
 
-            String mimeType = httpProxyItemResponse.getStatedMimeType().toUpperCase();
-            // try to get the mime type from body instead of header
-            if (mimeType.equals("")) {
-                mimeType = httpProxyItemResponse.getInferredMimeType().toUpperCase();
-            }
+        IResponseInfo response = helpers.analyzeResponse(httpProxyItem.getResponse());
+        if (!isValidMimeType(response.getStatedMimeType(), response.getInferredMimeType())) return;
 
-            //TODO: too indented
-            if (isValidMimeType(mimeType)) {
+        // convert from bytes to string the body of the request
+        String responseBody = helpers.bytesToString(httpProxyItem.getResponse());
+        for (RegexEntity entry : regexList) {
 
-                // convert from bytes to string the body of the request
-                String responseBody = helpers.bytesToString(httpProxyItem.getResponse());
-                for (RegexEntity entry : regexList) {
+            // if the box related to the regex in the Options tab of the extension is checked
+            if (entry != null && entry.isActive()) {
+                Matcher regex_matcher = entry.getRegexCompiled().matcher(responseBody);
 
-                    // if the box related to the regex in the Options tab of the extension is checked
-                    if (entry != null && entry.isActive()) {
-                        Matcher regex_matcher = entry.getRegexCompiled().matcher(responseBody);
-
-                        while (regex_matcher.find()) {
-                            // create a new log entry with the message details
-                            addLogEntry(httpProxyItem, entry.getDescription() + " - " + entry.getRegex(),
-                                    regex_matcher.group());
-                        }
-
-                    }
+                while (regex_matcher.find()) {
+                    // create a new log entry with the message details
+                    addLogEntry(
+                        httpProxyItem,
+                        entry.getDescription() + " - " + entry.getRegex(),
+                        regex_matcher.group());
                 }
 
-                for (ExtensionEntity entry : extensionList) {
-                    if (entry.isActive()) {
-                        String requestURL = helpers.analyzeRequest(httpProxyItem).getUrl().toString();
-                        String extension = entry.getExtension();
+            }
+        }
 
-                        Matcher extension_matcher = entry.getRegexCompiled().matcher(requestURL);
-                        // add the new entry if do not exist
-                        if (extension_matcher.find()) {
-                            addLogEntry(httpProxyItem, "EXT " + entry.getDescription() + " - " + extension, extension);
-                        }
-                    }
+        for (ExtensionEntity entry : extensionList) {
+            if (entry.isActive()) {
+                String extension = entry.getExtension();
+
+                Matcher extension_matcher = entry.getRegexCompiled().matcher(requestURL.toString());
+                // add the new entry if do not exist
+                if (extension_matcher.find()) {
+                    addLogEntry(
+                        httpProxyItem,
+                        "EXT " + entry.getDescription() + " - " + extension,
+                        extension);
                 }
             }
         }
@@ -174,7 +168,16 @@ public class BurpLeaksScanner {
         }
     }
 
-    private boolean isValidMimeType(String currentMimeType) {
+    /**
+     * Checks if the MimeType is inside the list of valid mime types "mime_types.json".
+     * If the stated mime type in the header isBlank, then the inferred mime type is used.
+     * @param statedMimeType Stated mime type from a IResponseInfo object
+     * @param inferredMimeType Inferred mime type from a IResponseInfo object
+     * @return True if the mime type is valid
+     */
+    private boolean isValidMimeType(String statedMimeType, String inferredMimeType) {
+        String mimeType = statedMimeType.isBlank() ? inferredMimeType : statedMimeType;
+
         if (null == l_blacklistedMimeTypes) {
             l_blacklistedMimeTypes = new ArrayList<>();
             if (null == _gson) {
@@ -189,6 +192,6 @@ public class BurpLeaksScanner {
                 l_blacklistedMimeTypes.add(element);
         }
 
-        return !l_blacklistedMimeTypes.contains(currentMimeType);
+        return !l_blacklistedMimeTypes.contains(mimeType.toUpperCase());
     }
 }
