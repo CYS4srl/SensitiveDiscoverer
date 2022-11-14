@@ -18,9 +18,6 @@ public class LogTableEntriesUI extends AbstractTableModel {
         this.logEntries = logEntries;
     }
 
-    //
-    // extend AbstractTableModel
-    //
     @Override
     public int getRowCount() {
         return logEntries.size();

@@ -21,7 +21,6 @@ public class BurpLeaksSeed {
     private static Gson _gson;
 
     private static void fill() {
-
         if(null == _gson) _gson= new Gson();
 
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntity>>() {}.getType();
@@ -32,7 +31,6 @@ public class BurpLeaksSeed {
     }
 
     private static void fill_ext() {
-
         if(null == _gson) _gson= new Gson();
 
         Type tArrayListExtensionEntity = new TypeToken<ArrayList<ExtensionEntity>>() {}.getType();

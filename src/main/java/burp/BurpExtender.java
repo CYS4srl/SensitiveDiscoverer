@@ -17,23 +17,15 @@ public class BurpExtender implements IBurpExtender {
     private List<ExtensionEntity> _lExtensions;
     private MainUI mainUI;
 
-    // Implement default constructor
     public BurpExtender()
     {
         _lRegexes = new ArrayList<>();
         _lExtensions = new ArrayList<>();
     }
 
-    //
-    // implement IBurpExtender
-    //
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
-
-
         // get regexes and extensions
-        BurpLeaksSeed bls = new BurpLeaksSeed();
-
         this._lRegexes = BurpLeaksSeed.getRegex();
         this._lExtensions = BurpLeaksSeed.getExtensions();
 
@@ -49,6 +41,5 @@ public class BurpExtender implements IBurpExtender {
 
         // set our extension name
         callbacks.setExtensionName(mainUI.getNameExtension());
-
     }
 }

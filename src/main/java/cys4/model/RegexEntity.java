@@ -54,7 +54,6 @@ public class RegexEntity {
         this.active = value;
     }
 
-    // Overriding equals() to compare two Complex objects
     @Override
     public boolean equals(Object o) {
 
@@ -73,9 +72,11 @@ public class RegexEntity {
         return this.getRegex().equals(((RegexEntity) o).getRegex());
     }
 
-    //
-    //  function to check if the regexes added are in the form of <Description; Regex>
-    //
+    /**
+     * Check if the regexes added are in the form of <Description; Regex>
+     * @param lineWithRegex Line to check against the format
+     * @return a boolean with wether the format is respected
+     */
     public static boolean regexIsInCorrectFormat(String lineWithRegex) {
         String regex = "^[\"|'].*[\"|'],(\\s)?[\"|'].+[\"|']$";
         Pattern regex_pattern = Pattern.compile(regex);

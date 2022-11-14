@@ -52,9 +52,11 @@ public class ExtensionEntity {
         return true;
     }
 
-    //
-    //  function to check if the extensions added are in the form of <Description,.Extension>
-    //
+    /**
+     * Check if the extensions added are in the form of <Description; .Extension>
+     * @param lineWithRegex Line to check against the format
+     * @return a boolean with wether the format is respected
+     */
     public static boolean extIsInCorrectFormat(String lineWithRegex) {
         String regex = "^[\"|'].*[\"|'],(\\s)?[\"|'](^)?\\..+[\"|']$";
         Pattern regex_pattern = Pattern.compile(regex);
