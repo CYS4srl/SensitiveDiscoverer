@@ -40,7 +40,7 @@ public class MainUI implements ITab {
     private JSplitPane splitPane;
     private ITextEditor originalRequestViewer;
     private ITextEditor originalResponseViewer;
-    private static IBurpExtenderCallbacks callbacks;
+    private IBurpExtenderCallbacks callbacks;
 
     /**
      * Analyze Proxy History
@@ -48,9 +48,9 @@ public class MainUI implements ITab {
     private Thread analyzeProxyHistoryThread;
     private boolean isAnalysisRunning;
 
-    private List<LogEntity> _lLogEntries;
-    private List<RegexEntity> _lRegexes;
-    private List<ExtensionEntity> _lExtensions;
+    private List<LogEntity> logEntries;
+    private List<RegexEntity> regexList;
+    private List<ExtensionEntity> extensionsList;
 
     private BurpLeaksScanner burpLeaksScanner;
 
@@ -59,27 +59,25 @@ public class MainUI implements ITab {
      */
     private static boolean inScope = false;
 
-    public MainUI(List<RegexEntity> regexList, List<ExtensionEntity> extensionList, IBurpExtenderCallbacks callbacks) {
-
-        this._lLogEntries = new ArrayList<>();
-
-        // Dipendency Injection
-        this._lRegexes = regexList;
-        this._lExtensions = extensionList;
+    public MainUI(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
+
+        this.regexList = BurpLeaksSeed.getRegex();
+        this.extensionsList = BurpLeaksSeed.getExtensions();
 
         // Analyze Proxy History
         this.analyzeProxyHistoryThread = null;
         this.isAnalysisRunning = false;
 
         // init the other UI elements
-        logTableEntriesUI = new LogTableEntriesUI(this._lLogEntries);
-
+        //TODO: Move to initialize()
+        this.logEntries = new ArrayList<>();
+        logTableEntriesUI = new LogTableEntriesUI(this.logEntries);
         originalRequestViewer = callbacks.createTextEditor();
         originalResponseViewer = callbacks.createTextEditor();
-        logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this._lLogEntries, this.originalRequestViewer, this.originalResponseViewer);
+        logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this.logEntries, this.originalRequestViewer, this.originalResponseViewer);
 
-        burpLeaksScanner = new BurpLeaksScanner(this, callbacks, _lLogEntries, this._lRegexes, this._lExtensions );
+        burpLeaksScanner = new BurpLeaksScanner(this, callbacks, logEntries, this.regexList, this.extensionsList);
 
         LoadConfigFile();
     }
@@ -123,30 +121,39 @@ public class MainUI implements ITab {
         return splitPane;
     }
 
-    public void createUI() {
+    /**
+     * Main funciton which initializes the extension and creates the UI
+     */
+    public void initialize() {
         // Updates the UI in async method
         SwingUtilities.invokeLater(() -> {
-            this.uiMain();
+            this._initialize();
         });
     }
 
-    //TODO: docs & refactor
-    private void uiMain() {
+    private void _initialize() {
         // main panel; it shows logger and options tabs
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        JPanel tabPanelLogger, tabPaneOptions;
-        tabPanelLogger = new JPanel();
-        tabPanelLogger.setLayout(new BoxLayout(tabPanelLogger, BoxLayout.Y_AXIS));
-
-        tabPaneOptions = new JPanel();
-        tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
+        JPanel tabPanelLogger = createLoggerPanel();
+        JPanel tabPaneOptions = createOptionsPanel();
 
         tabbedPane.addTab("Logger", tabPanelLogger);
         tabbedPane.addTab("Options", tabPaneOptions);
 
         splitPane.add(tabbedPane);
+
+        // add the custom tab to Burp's UI
+        callbacks.addSuiteTab(MainUI.this);
+    }
+
+    //TODO: resetRegex and resetExtensions don't work
+    //TODO: refactor
+    private JPanel createLoggerPanel() {
+        //   begin   LOGGER PANEL
+        JPanel tabPanelLogger = new JPanel();
+        tabPanelLogger.setLayout(new BoxLayout(tabPanelLogger, BoxLayout.Y_AXIS));
 
         // when you right click on a logTable entry, it will appear a context menu defined here
         MouseAdapter contextMenu = new MouseAdapter() {
@@ -161,10 +168,10 @@ public class MainUI implements ITab {
                     logTableEntryUI.setRowSelectionInterval(row, row);
                     if (logTableEntryUI.getSelectedRowCount() == 1) {
                         int realRow = logTableEntryUI.convertRowIndexToModel(row);
-                        LogEntity logentry = _lLogEntries.get(realRow);
+                        LogEntity logentry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogTableEntryUI) {
-                            new ContextMenuUI(logentry, _lLogEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks).show(e.getComponent(), e.getX(), e.getY());
+                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks).show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
                 }
@@ -175,6 +182,146 @@ public class MainUI implements ITab {
         logTableEntryUI.setSelectionModel(listSelectionModel);
         JScrollPane scrollPaneLogger = new JScrollPane(logTableEntryUI);
         tabPanelLogger.setLayout(new BorderLayout());
+
+
+        // Button Panel for starting analysis
+        JPanel buttonPanelLog = new JPanel();
+        buttonPanelLog.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        tabPanelLogger.add(buttonPanelLog);
+
+        // buttons: Analyze Http History and Clear Logs
+        //TODO: move strings to a single place
+        final String textAnalysisStart = "Analyze HTTP History";
+        final String textAnalysisStop = "Stop analysis";
+        final String textAnalysisStopping = "Stopping the analysis...";
+
+        JButton btnAnalysis = new JButton(textAnalysisStart);
+        buttonPanelLog.add(btnAnalysis, BorderLayout.NORTH);
+
+        JProgressBar progressBar = new JProgressBar(0, 1);
+        buttonPanelLog.add(progressBar, BorderLayout.NORTH);
+
+        btnAnalysis.addActionListener(actionEvent -> {
+            if (!isAnalysisRunning) {
+                if (callbacks.getProxyHistory().length > 0) {
+                    this.isAnalysisRunning = true;
+                    this.analyzeProxyHistoryThread = new Thread(() -> {
+                        String previousText = btnAnalysis.getText();
+                        btnAnalysis.setText(textAnalysisStop);
+                        logTableEntryUI.setAutoCreateRowSorter(false);
+
+                        burpLeaksScanner.analyzeProxyHistory(progressBar);
+
+                        btnAnalysis.setText(previousText);
+                        logTableEntryUI.setAutoCreateRowSorter(true);
+                        this.analyzeProxyHistoryThread = null;
+                        this.isAnalysisRunning = false;
+                    });
+                    this.analyzeProxyHistoryThread.start();
+
+                    //TODO: are they needed?
+                    logTableEntryUI.validate();
+                    logTableEntryUI.repaint();
+                }
+            } else {
+                if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
+
+                btnAnalysis.setEnabled(false);
+                btnAnalysis.setText(textAnalysisStopping);
+                burpLeaksScanner.interruptScan = true;
+
+                new Thread(() -> {
+                    try {
+                        this.analyzeProxyHistoryThread.join();
+                        burpLeaksScanner.interruptScan = false;
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    btnAnalysis.setEnabled(true);
+                    btnAnalysis.setText(textAnalysisStart);
+                }).start();
+            }
+
+            //TODO: are they needed?
+            tabPanelLogger.validate();
+            tabPanelLogger.repaint();
+        });
+
+        JButton btnClearLogs = new JButton("Clear Logs");
+        buttonPanelLog.add(btnClearLogs, BorderLayout.NORTH);
+        btnClearLogs.addActionListener(e -> {
+            int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the logs in the list?");
+            if (dialog == JOptionPane.YES_OPTION) {
+                logEntries.clear();
+                logTableEntriesUI.clear();
+
+                originalResponseViewer.setText(new byte[0]);
+                originalResponseViewer.setSearchExpression("");
+                originalRequestViewer.setText(new byte[0]);
+            }
+
+            scrollPaneLogger.validate();
+            scrollPaneLogger.repaint();
+        });
+
+        // Request / Response viewers under the logger
+        JSplitPane requestResponseSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        requestResponseSplitPane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        JPanel requestResponsePanel = new JPanel();
+        requestResponsePanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        requestResponsePanel.add(requestResponseSplitPane);
+
+        // the 2 panels under the logger
+
+        JPanel originalRequestPanel = new JPanel();
+        JLabel originalRequestLabel = new JLabel("Request");
+        originalRequestLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
+        originalRequestLabel.setForeground(new Color(255, 102, 51));
+        originalRequestPanel.add(originalRequestLabel);
+        originalRequestPanel.add(originalRequestViewer.getComponent());
+
+        JPanel originalResponsePanel = new JPanel();
+        JLabel originalResponseLabel = new JLabel("Response");
+        originalResponseLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
+        originalResponseLabel.setForeground(new Color(255, 102, 51));
+        originalResponsePanel.add(originalResponseLabel);
+        originalResponsePanel.add(originalResponseViewer.getComponent());
+
+        originalRequestPanel.setLayout(new BoxLayout(originalRequestPanel, BoxLayout.PAGE_AXIS));
+        originalResponsePanel.setLayout(new BoxLayout(originalResponsePanel, BoxLayout.PAGE_AXIS));
+
+        requestResponseSplitPane.setLeftComponent(originalRequestPanel);
+        requestResponseSplitPane.setRightComponent(originalResponsePanel);
+        requestResponseSplitPane.setResizeWeight(0.50);
+        requestResponseSplitPane.setMaximumSize(new Dimension(2000, 500));
+
+        // panel that contains the 2 analysis buttons and the logger
+        JPanel buttonsLoggerPanel = new JPanel();
+        buttonsLoggerPanel.setLayout(new BoxLayout(buttonsLoggerPanel, BoxLayout.Y_AXIS));
+        buttonsLoggerPanel.setLayout(new BorderLayout());
+        buttonsLoggerPanel.add(buttonPanelLog, BorderLayout.NORTH);
+        buttonsLoggerPanel.add(scrollPaneLogger, BorderLayout.CENTER);
+
+        // panel that contains all the graphical elements in the Logger Panel
+        JSplitPane mainLoggerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, buttonsLoggerPanel, requestResponseSplitPane);
+        tabPanelLogger.add(mainLoggerPanel);
+
+        // END of Logger Panel
+
+        // customize our UI components
+        callbacks.customizeUiComponent(splitPane);
+        callbacks.customizeUiComponent(logTableEntryUI);
+        callbacks.customizeUiComponent(mainLoggerPanel);
+        callbacks.customizeUiComponent(scrollPaneLogger);
+        callbacks.customizeUiComponent(requestResponseSplitPane);
+
+        return tabPanelLogger;
+    }
+
+    //TODO: refactor
+    private JPanel createOptionsPanel() {
+        JPanel tabPaneOptions = new JPanel();
+        tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
 
         // Table of regex and extensions options
         String title = "CONFIGURATION OPTIONS";
@@ -209,12 +356,12 @@ public class MainUI implements ITab {
 
 
         // START Table 1 - REGEX
-        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(_lRegexes);
+        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(regexList);
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel titlePanelRegex = new JPanel();
         titlePanelRegex.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        titlePanelRegex.setPreferredSize(new Dimension(1000, 50));
-        titlePanelRegex.setMaximumSize(new Dimension(1000, 50));
+        titlePanelRegex.setPreferredSize(new Dimension(1000, 60));
+        titlePanelRegex.setMaximumSize(new Dimension(1000, 60));
         tabPaneOptions.add(titlePanelRegex);
         titlePanelRegex.setLayout(new BoxLayout(titlePanelRegex, BoxLayout.Y_AXIS));
         JLabel jLabelRegexList = new JLabel();
@@ -229,11 +376,6 @@ public class MainUI implements ITab {
         jLabelRegexDescription.setText("In this section you can manage the regex list. ");
         titlePanelRegex.add(jLabelRegexDescription);
 
-        // Button Panel for starting analysis
-        JPanel buttonPanelLog = new JPanel();
-        buttonPanelLog.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        tabPanelLogger.add(buttonPanelLog);
-
         // Button Panel REGEX
         JPanel buttonPanelRegex = new JPanel();
         tabPaneOptions.add(buttonPanelRegex, BorderLayout.WEST);
@@ -246,10 +388,10 @@ public class MainUI implements ITab {
             // to the next element (via i++)
             int dialog = JOptionPane.showConfirmDialog(null, "By confirming, you will return to init setting");
             if (dialog == JOptionPane.YES_OPTION) {
-                if (_lRegexes.size() > 0) {
-                    _lRegexes.subList(0, _lRegexes.size()).clear();
+                if (regexList.size() > 0) {
+                    regexList.subList(0, regexList.size()).clear();
                 }
-                _lRegexes = BurpLeaksSeed.getRegex();
+                regexList = BurpLeaksSeed.getRegex();
                 modelReg.fireTableDataChanged();
             }
 
@@ -282,8 +424,8 @@ public class MainUI implements ITab {
             if (returnValue == JOptionPane.YES_OPTION) {
                 String expression = textFieldReg.getText();
                 String description = textFieldDesc.getText();
-                int row = _lRegexes.size();
-                _lRegexes.add(new RegexEntity(description, expression));
+                int row = regexList.size();
+                regexList.add(new RegexEntity(description, expression));
                 modelReg.fireTableRowsInserted(row, row);
             }
             tabPaneOptions.validate();
@@ -295,7 +437,7 @@ public class MainUI implements ITab {
         btnDeleteRegex.addActionListener(actionEvent -> {
             int rowIndex = optionsRegexTable.getSelectedRow();
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-            _lRegexes.remove(realRow);
+            regexList.remove(realRow);
 
             modelReg.fireTableRowsDeleted(realRow, realRow);
 
@@ -308,8 +450,8 @@ public class MainUI implements ITab {
         btnClearRegex.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the regex in the list?");
             if (dialog == JOptionPane.YES_OPTION) {
-                if (_lRegexes.size() > 0) {
-                    _lRegexes.subList(0, _lRegexes.size()).clear();
+                if (regexList.size() > 0) {
+                    regexList.subList(0, regexList.size()).clear();
                 }
             }
 
@@ -341,12 +483,12 @@ public class MainUI implements ITab {
                         String regex = line.split("\", \"")[1];
                         regex = regex.substring(0, regex.length() - 1);
                         RegexEntity newRegexEntity = new RegexEntity(description, regex);
-                        if (!_lRegexes.contains(newRegexEntity)) {
-                            _lRegexes.add(newRegexEntity);
+                        if (!regexList.contains(newRegexEntity)) {
+                            regexList.add(newRegexEntity);
                         } else {
                             alreadyAdded.append(description).append(" - ").append(regex).append("\n");
                         }
-                        int row = _lRegexes.size();
+                        int row = regexList.size();
                         modelReg.fireTableRowsInserted(row, row);
                         tabPaneOptions.validate();
                         tabPaneOptions.repaint();
@@ -418,11 +560,11 @@ public class MainUI implements ITab {
 
 
         // START Table 2 - EXTENSION
-        OptionsExtTableModelUI modelExt = new OptionsExtTableModelUI(_lExtensions);
+        OptionsExtTableModelUI modelExt = new OptionsExtTableModelUI(extensionsList);
         JPanel titlePanelExtensions = new JPanel();
         titlePanelExtensions.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        titlePanelExtensions.setPreferredSize(new Dimension(1000, 50));
-        titlePanelExtensions.setMaximumSize(new Dimension(1000, 50));
+        titlePanelExtensions.setPreferredSize(new Dimension(1000, 60));
+        titlePanelExtensions.setMaximumSize(new Dimension(1000, 60));
         tabPaneOptions.add(titlePanelExtensions);
         titlePanelExtensions.setLayout(new BoxLayout(titlePanelExtensions, BoxLayout.Y_AXIS));
         JLabel jLabelExtensionsList = new JLabel();
@@ -450,12 +592,12 @@ public class MainUI implements ITab {
             // to the next element (via i++)
             int dialog = JOptionPane.showConfirmDialog(null, "By confirming, you will return to init setting");
             if (dialog == JOptionPane.YES_OPTION) {
-                if (_lExtensions.size() > 0) {
-                    _lExtensions.subList(0, _lExtensions.size()).clear();
+                if (extensionsList.size() > 0) {
+                    extensionsList.subList(0, extensionsList.size()).clear();
                 }
 
             }
-            _lExtensions = BurpLeaksSeed.getExtensions();
+            extensionsList = BurpLeaksSeed.getExtensions();
             modelExt.fireTableDataChanged();
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -488,8 +630,8 @@ public class MainUI implements ITab {
                 String description = textFieldDesc.getText();
 
                 if (ExtensionEntity.extIsInCorrectFormat("\"" + description + "\",\"" + extension + "\"")) {
-                    int row = _lExtensions.size();
-                    _lExtensions.add(new ExtensionEntity(description, "\\" + extension));
+                    int row = extensionsList.size();
+                    extensionsList.add(new ExtensionEntity(description, "\\" + extension));
                     modelExt.fireTableRowsInserted(row, row);
                 } else {
                     JOptionPane.showMessageDialog(tabPaneOptions, "Input data has wrong format. Can't add the new extension\n\nUsage: Extension: .ext - Description: whatever");
@@ -502,7 +644,7 @@ public class MainUI implements ITab {
         btnDeleteExtension.addActionListener(actionEvent -> {
             int rowIndex = optionExtensionsTable.getSelectedRow();
             int realRow = optionExtensionsTable.convertRowIndexToModel(rowIndex);
-            _lExtensions.remove(realRow);
+            extensionsList.remove(realRow);
             modelExt.fireTableRowsDeleted(realRow, realRow);
 
             tabPaneOptions.validate();
@@ -514,7 +656,7 @@ public class MainUI implements ITab {
         btnClearExtension.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the extensions in the list?");
             if (dialog == JOptionPane.YES_OPTION) {
-                _lExtensions.clear();
+                extensionsList.clear();
                 modelExt.fireTableDataChanged();
             }
             tabPaneOptions.validate();
@@ -547,12 +689,12 @@ public class MainUI implements ITab {
 
                         ExtensionEntity extension = new ExtensionEntity(regex, description);
 
-                        if (!_lExtensions.contains(extension)) {
-                            _lExtensions.add(extension);
+                        if (!extensionsList.contains(extension)) {
+                            extensionsList.add(extension);
                         } else {
                             alreadyAdded.append(description).append(" - ").append(regex).append("\n");
                         }
-                        int row = _lExtensions.size();
+                        int row = extensionsList.size();
 
                         modelExt.fireTableRowsInserted(row, row);
 
@@ -624,143 +766,11 @@ public class MainUI implements ITab {
 
         // END Table 2 - EXTENSION
 
-
-
-
-
-        //   begin   LOGGER PANEL
-
-        // buttons: Analyze Http History and Clear Logs
-        //TODO: move strings to a single place
-        final String textAnalysisStart = "Analyze HTTP History";
-        final String textAnalysisStop = "Stop analysis";
-        final String textAnalysisStopping = "Stopping the analysis...";
-
-        JButton btnAnalysis = new JButton(textAnalysisStart);
-        buttonPanelLog.add(btnAnalysis, BorderLayout.NORTH);
-
-        JProgressBar progressBar = new JProgressBar(0, 1);
-        buttonPanelLog.add(progressBar, BorderLayout.NORTH);
-
-        btnAnalysis.addActionListener(actionEvent -> {
-            if (!isAnalysisRunning) {
-                if (callbacks.getProxyHistory().length > 0) {
-                    this.isAnalysisRunning = true;
-                    this.analyzeProxyHistoryThread = new Thread(() -> {
-                        String previousText = btnAnalysis.getText();
-                        btnAnalysis.setText(textAnalysisStop);
-                        logTableEntryUI.setAutoCreateRowSorter(false);
-
-                        burpLeaksScanner.analyzeProxyHistory(progressBar);
-
-                        btnAnalysis.setText(previousText);
-                        logTableEntryUI.setAutoCreateRowSorter(true);
-                        this.analyzeProxyHistoryThread = null;
-                        this.isAnalysisRunning = false;
-                    });
-                    this.analyzeProxyHistoryThread.start();
-
-                    //TODO: are they needed?
-                    logTableEntryUI.validate();
-                    logTableEntryUI.repaint();
-                }
-            } else {
-                if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
-
-                btnAnalysis.setEnabled(false);
-                btnAnalysis.setText(textAnalysisStopping);
-                burpLeaksScanner.interruptScan = true;
-
-                new Thread(() -> {
-                    try {
-                        this.analyzeProxyHistoryThread.join();
-                        burpLeaksScanner.interruptScan = false;
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    btnAnalysis.setEnabled(true);
-                    btnAnalysis.setText(textAnalysisStart);
-                }).start();
-            }
-
-            //TODO: are they needed?
-            tabPanelLogger.validate();
-            tabPanelLogger.repaint();
-        });
-
-        JButton btnClearLogs = new JButton("Clear Logs");
-        buttonPanelLog.add(btnClearLogs, BorderLayout.NORTH);
-        btnClearLogs.addActionListener(e -> {
-            int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the logs in the list?");
-            if (dialog == JOptionPane.YES_OPTION) {
-                _lLogEntries.clear();
-                logTableEntriesUI.clear();
-
-                originalResponseViewer.setText(new byte[0]);
-                originalResponseViewer.setSearchExpression("");
-                originalRequestViewer.setText(new byte[0]);
-            }
-
-            scrollPaneLogger.validate();
-            scrollPaneLogger.repaint();
-        });
-
-        // Request / Response viewers under the logger
-        JSplitPane requestResponseSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        requestResponseSplitPane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        JPanel requestResponsePanel = new JPanel();
-        requestResponsePanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        requestResponsePanel.add(requestResponseSplitPane);
-
-        // the 2 panels under the logger
-
-        JPanel originalRequestPanel = new JPanel();
-        JLabel originalRequestLabel = new JLabel("Request");
-        originalRequestLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
-        originalRequestLabel.setForeground(new Color(255, 102, 51));
-        originalRequestPanel.add(originalRequestLabel);
-        originalRequestPanel.add(originalRequestViewer.getComponent());
-
-        JPanel originalResponsePanel = new JPanel();
-        JLabel originalResponseLabel = new JLabel("Response");
-        originalResponseLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
-        originalResponseLabel.setForeground(new Color(255, 102, 51));
-        originalResponsePanel.add(originalResponseLabel);
-        originalResponsePanel.add(originalResponseViewer.getComponent());
-
-        originalRequestPanel.setLayout(new BoxLayout(originalRequestPanel, BoxLayout.PAGE_AXIS));
-        originalResponsePanel.setLayout(new BoxLayout(originalResponsePanel, BoxLayout.PAGE_AXIS));
-
-        requestResponseSplitPane.setLeftComponent(originalRequestPanel);
-        requestResponseSplitPane.setRightComponent(originalResponsePanel);
-        requestResponseSplitPane.setResizeWeight(0.50);
-        requestResponseSplitPane.setMaximumSize(new Dimension(2000, 500));
-
-        // panel that contains the 2 analysis buttons and the logger
-        JPanel buttonsLoggerPanel = new JPanel();
-        buttonsLoggerPanel.setLayout(new BoxLayout(buttonsLoggerPanel, BoxLayout.Y_AXIS));
-        buttonsLoggerPanel.setLayout(new BorderLayout());
-        buttonsLoggerPanel.add(buttonPanelLog, BorderLayout.NORTH);
-        buttonsLoggerPanel.add(scrollPaneLogger, BorderLayout.CENTER);
-
-        // panel that contains all the graphical elements in the Logger Panel
-        JSplitPane mainLoggerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, buttonsLoggerPanel, requestResponseSplitPane);
-        tabPanelLogger.add(mainLoggerPanel);
-
-        // END of Logger Panel
-
-        // customize our UI components
-        callbacks.customizeUiComponent(splitPane);
-        callbacks.customizeUiComponent(logTableEntryUI);
         callbacks.customizeUiComponent(optionsRegexTable);
         callbacks.customizeUiComponent(optionExtensionsTable);
-        callbacks.customizeUiComponent(mainLoggerPanel);
-        callbacks.customizeUiComponent(scrollPaneLogger);
-        callbacks.customizeUiComponent(requestResponseSplitPane);
         callbacks.customizeUiComponent(scrollPaneRegOptions);
 
-        // add the custom tab to Burp's UI
-        callbacks.addSuiteTab(MainUI.this);
+        return tabPaneOptions;
     }
 
     @Override

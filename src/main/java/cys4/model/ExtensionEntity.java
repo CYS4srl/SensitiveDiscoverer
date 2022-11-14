@@ -9,13 +9,20 @@ import java.util.regex.Pattern;
 
 
 public class ExtensionEntity {
-    private Boolean active;
+    private boolean active;
     private String extension;
     private transient Pattern extension_regex_compiled;
     private final String description;
 
     public ExtensionEntity(String description, String extension) {
         this.active = true;
+        this.extension = extension;
+        this.description = description;
+        this.extension_regex_compiled = null;
+    }
+
+    public ExtensionEntity(String description, String extension, boolean active) {
+        this.active = active;
         this.extension = extension;
         this.description = description;
         this.extension_regex_compiled = null;
