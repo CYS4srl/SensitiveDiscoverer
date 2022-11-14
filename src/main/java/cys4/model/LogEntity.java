@@ -4,7 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.model;
 
-import burp.IHttpRequestResponsePersisted;
+import burp.IHttpRequestResponse;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,16 +12,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LogEntity {
     private int idRequest;
     private final static AtomicInteger counter = new AtomicInteger(0);
-    private final IHttpRequestResponsePersisted requestResponse;
+    private final IHttpRequestResponse requestResponse;
     private final URL url;
     private final String regex;
-    private final String match; //string from the body that matches
+    private final String match; // string from the body that matches
     private final String host;
     private final int port;
     private final String protocol;
     private final boolean isSSL;
 
-    public LogEntity(IHttpRequestResponsePersisted requestResponse, URL url, String regex, String match) {
+    public LogEntity(IHttpRequestResponse requestResponse, URL url, String regex, String match) {
         this.idRequest = getCounterIdRequest();
 
         incrementCounter();
@@ -44,7 +44,7 @@ public class LogEntity {
         return this.url;
     }
 
-    public IHttpRequestResponsePersisted getRequestResponse() {
+    public IHttpRequestResponse getRequestResponse() {
         return requestResponse;
     }
 
@@ -105,26 +105,27 @@ public class LogEntity {
         if (o == this) {
             return true;
         }
-        if (o instanceof LogEntity) {
-            String firstUrl;
-            String secondUrl;
-
-            // avoiding useless entry of the same matches on the same site by confronting the non-query part of urls
-            if (this.url.getQuery() != null) {
-                firstUrl = this.url.toString().replace(this.url.getQuery(), "");
-            } else {
-                firstUrl = this.url.toString();
-            }
-            if (((LogEntity) o).url.getQuery() != null) {
-                secondUrl = ((LogEntity) o).url.toString().replace(((LogEntity) o).url.getQuery(), "");
-            } else {
-                secondUrl = ((LogEntity) o).url.toString();
-            }
-
-            return (((LogEntity) o).regex.equals(this.regex)) &&
-                    firstUrl.equals(secondUrl) &&
-                    ((LogEntity) o).match.equals(this.match);
+        if (!(o instanceof LogEntity)) {
+            return false;
         }
-        return false;
+
+        String firstUrl;
+        String secondUrl;
+
+        // avoiding useless entry of the same matches on the same site by confronting the non-query part of urls
+        if (this.url.getQuery() != null) {
+            firstUrl = this.url.toString().replace(this.url.getQuery(), "");
+        } else {
+            firstUrl = this.url.toString();
+        }
+        if (((LogEntity) o).url.getQuery() != null) {
+            secondUrl = ((LogEntity) o).url.toString().replace(((LogEntity) o).url.getQuery(), "");
+        } else {
+            secondUrl = ((LogEntity) o).url.toString();
+        }
+
+        return (((LogEntity) o).regex.equals(this.regex)) &&
+                firstUrl.equals(secondUrl) &&
+                ((LogEntity) o).match.equals(this.match);
     }
 }
