@@ -32,32 +32,33 @@ public class BurpLeaksScanner {
     private MainUI mainUI;
     private IExtensionHelpers helpers;
     private IBurpExtenderCallbacks callbacks;
-    private List<LogEntity> logEntries = new ArrayList<>();
-    private List<RegexEntity> regexList = new ArrayList<>();
-    private List<ExtensionEntity> extensionList = new ArrayList<>();
-    private ArrayList<String> l_blacklistedMimeTypes;
-    private Gson _gson;
-    public boolean interruptScan;
+    private List<LogEntity> logEntries;
+    private List<RegexEntity> regexList;
+    private List<ExtensionEntity> extensionsList;
+    private ArrayList<String> blacklistedMimeTypes;
+    private Gson gson;
+    private boolean interruptScan;
 
     // analyzeProxyHistory
     private int analyzedItems = 0;
     private Object analyzeLock = new Object();
 
     public BurpLeaksScanner(MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
-            List<RegexEntity> regexList, List<ExtensionEntity> extensionList) {
+            List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
         this.mainUI = mainUI;
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
         this.logEntries = logEntries;
         this.regexList = regexList;
-        this.extensionList = extensionList;
+        this.extensionsList = extensionsList;
         this.interruptScan = false;
+        this.gson = new Gson();
 
-        for (RegexEntity entry : regexList) {
+        for (RegexEntity entry : this.regexList) {
             entry.compileRegex();
         }
 
-        for (ExtensionEntity entry : extensionList) {
+        for (ExtensionEntity entry : this.extensionsList) {
             entry.compileRegex();
         }
     }
@@ -136,7 +137,7 @@ public class BurpLeaksScanner {
             }
         }
 
-        for (ExtensionEntity entry : extensionList) {
+        for (ExtensionEntity entry : extensionsList) {
             if (this.interruptScan) return;
 
             // if the box related to the extensions in the Options tab of the extension is checked
@@ -182,20 +183,41 @@ public class BurpLeaksScanner {
     private boolean isValidMimeType(String statedMimeType, String inferredMimeType) {
         String mimeType = statedMimeType.isBlank() ? inferredMimeType : statedMimeType;
 
-        if (null == l_blacklistedMimeTypes) {
-            l_blacklistedMimeTypes = new ArrayList<>();
-            if (null == _gson) {
-                _gson = new Gson();
-            }
+        if (Objects.isNull(blacklistedMimeTypes)) {
+            blacklistedMimeTypes = new ArrayList<>();
 
             Type tArrayListString = new TypeToken<ArrayList<String>>() {}.getType();
-            List<String> lDeserializedJson = _gson.fromJson(
+            List<String> lDeserializedJson = gson.fromJson(
                 Utils.readResourceFile("mime_types.json"),
                 tArrayListString);
             for (String element : lDeserializedJson)
-                l_blacklistedMimeTypes.add(element);
+                blacklistedMimeTypes.add(element);
         }
 
-        return !l_blacklistedMimeTypes.contains(mimeType.toUpperCase());
+        return !blacklistedMimeTypes.contains(mimeType.toUpperCase());
+    }
+
+    public void updateRegexList(List<RegexEntity> regexList) {
+        this.regexList = regexList;
+
+        for (RegexEntity entry : this.regexList) {
+            entry.compileRegex();
+        }
+    }
+
+    public void updateExtensionList(List<ExtensionEntity> extensionsList) {
+        this.extensionsList = extensionsList;
+
+        for (ExtensionEntity entry : extensionsList) {
+            entry.compileRegex();
+        }
+    }
+
+    public boolean isInterruptScan() {
+        return interruptScan;
+    }
+
+    public void setInterruptScan(boolean interruptScan) {
+        this.interruptScan = interruptScan;
     }
 }

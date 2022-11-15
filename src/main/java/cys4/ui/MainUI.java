@@ -16,8 +16,6 @@ import cys4.seed.BurpLeaksSeed;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -316,12 +314,12 @@ public class MainUI implements ITab {
 
                 btnAnalysis.setEnabled(false);
                 btnAnalysis.setText(textAnalysisStopping);
-                burpLeaksScanner.interruptScan = true;
+                burpLeaksScanner.setInterruptScan(true);
 
                 new Thread(() -> {
                     try {
                         this.analyzeProxyHistoryThread.join();
-                        burpLeaksScanner.interruptScan = false;
+                        burpLeaksScanner.setInterruptScan(false);
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
@@ -338,7 +336,6 @@ public class MainUI implements ITab {
         return Arrays.asList(btnAnalysis, progressBar);
     }
 
-    //TODO: resetRegex and resetExtensions don't work
     private JPanel createOptionsPanel() {
         JPanel tabPaneOptions = new JPanel();
         tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
@@ -408,6 +405,7 @@ public class MainUI implements ITab {
                 }
 
                 extensionsList = BurpLeaksSeed.getExtensions();
+                burpLeaksScanner.updateExtensionList(extensionsList);
                 modelExt.fireTableDataChanged();
             }
 
@@ -613,6 +611,7 @@ public class MainUI implements ITab {
                 }
 
                 regexList = BurpLeaksSeed.getRegex();
+                this.burpLeaksScanner.updateRegexList(regexList);
                 modelReg.fireTableDataChanged();
             }
 
