@@ -10,7 +10,7 @@
     "regular_expression": "(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS Access Key ID Value",
     "regular_expression": "(A3T[A-Z0-9]|AKIA|AGPA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}"
   },
@@ -110,7 +110,7 @@
     "regular_expression": "\\.?vscode/sftp\\.json"
   },
   {
-    "active": true,
+    "active": false,
     "description": "DBeaver SQL database manager configuration file",
     "regular_expression": "\\.?dbeaver-data-sources(\\-\\d+)?\\.xml"
   },
@@ -150,12 +150,12 @@
     "regular_expression": "(?i)(facebook|fb)(.{0,20})?(\\?\\-i)['\"][0-9a-f]{32}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Facebook access token",
     "regular_expression": "EAACEdEose0cBA\\w+"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Firebase URL",
     "regular_expression": "[\\w\\.\\-]+?\\.firebaseio\\.com"
   },
@@ -185,7 +185,7 @@
     "regular_expression": "\\.?gitconfig"
   },
   {
-    "active": true,
+    "active": false,
     "description": "GitHub",
     "regular_expression": "(?i)github.*?['\"]\\w{35,40}['\"]"
   },
@@ -210,12 +210,12 @@
     "regular_expression": "AIza[\\-\\w]{35}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Google OAuth Access Token",
     "regular_expression": "ya29\\.[\\-\\w]+"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Google OAuth Key",
     "regular_expression": "\\d+-\\w{32}\\.apps\\.googleusercontent\\.com"
   },
@@ -345,22 +345,22 @@
     "regular_expression": "key(pair)?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Private SSH key",
     "regular_expression": ".+?_rsa"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Private SSH key",
     "regular_expression": ".+?_dsa"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Private SSH key",
     "regular_expression": ".+?_ed25519"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Private SSH key",
     "regular_expression": ".+?_ecdsa"
   },
