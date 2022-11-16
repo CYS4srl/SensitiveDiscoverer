@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 
 public class MainUI implements ITab {
 
@@ -394,15 +395,15 @@ public class MainUI implements ITab {
             // it is deleting elements from data, and you are skipping some rows when you iterate
             // to the next element (via i++)
             int dialog = JOptionPane.showConfirmDialog(null, "By confirming, you will return to init setting");
-            if (dialog == JOptionPane.YES_OPTION) {
-                if (extensionsList.size() > 0) {
-                    extensionsList.subList(0, extensionsList.size()).clear();
-                }
+            if (dialog != JOptionPane.YES_OPTION) return;
 
-                extensionsList = BurpLeaksSeed.getExtensions();
-                burpLeaksScanner.updateExtensionList(extensionsList);
-                modelExt.fireTableDataChanged();
+            if (extensionsList.size() > 0) {
+                extensionsList.subList(0, extensionsList.size()).clear();
             }
+
+            extensionsList = BurpLeaksSeed.getExtensions();
+            burpLeaksScanner.updateExtensionList(extensionsList);
+            modelExt.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -430,21 +431,21 @@ public class MainUI implements ITab {
                     6, 6,        //initX, initY
                     6, 6);       //xPad, yPad
             int returnValue = JOptionPane.showConfirmDialog(tabPaneOptions, inputPanel, "Add an extension", JOptionPane.YES_NO_OPTION);
-            if (returnValue == JOptionPane.YES_OPTION) {
-                String extension = textFieldExt.getText();
-                String description = textFieldDesc.getText();
+            if (returnValue != JOptionPane.YES_OPTION) return;
 
-                if (ExtensionEntity.extIsInCorrectFormat("\"" + description + "\",\"" + extension + "\"")) {
-                    int row = extensionsList.size();
-                    extensionsList.add(new ExtensionEntity(description, "\\" + extension));
-                    modelExt.fireTableRowsInserted(row, row);
-                } else {
-                    JOptionPane.showMessageDialog(tabPaneOptions, "Input data has wrong format. Can't add the new extension\n\nUsage: Extension: .ext - Description: whatever");
-                }
+            String extension = textFieldExt.getText();
+            String description = textFieldDesc.getText();
+
+            if (ExtensionEntity.isExtensionValid(extension)) {
+                extensionsList.add(new ExtensionEntity(description, "\\" + extension));
+                burpLeaksScanner.updateExtensionList(extensionsList);
+                modelExt.fireTableDataChanged();
+
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
+            } else {
+                JOptionPane.showMessageDialog(tabPaneOptions, "Input data has wrong format. Can't add the new extension\n\nUsage: Extension: .ext - Description: whatever");
             }
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
         });
 
         JButton btnDeleteExtension = new JButton("Delete");
@@ -454,7 +455,8 @@ public class MainUI implements ITab {
             int realRow = optionExtensionsTable.convertRowIndexToModel(rowIndex);
             extensionsList.remove(realRow);
 
-            modelExt.fireTableRowsDeleted(realRow, realRow);
+            burpLeaksScanner.updateExtensionList(extensionsList);
+            modelExt.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -464,54 +466,50 @@ public class MainUI implements ITab {
         buttonPanelExtensions.add(btnClearExtension);
         btnClearExtension.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the extensions in the list?");
-            if (dialog == JOptionPane.YES_OPTION) {
-                if (extensionsList.size() > 0) {
-                    extensionsList.subList(0, extensionsList.size()).clear();
-                }
-                modelExt.fireTableDataChanged();
-            }
+            if (dialog != JOptionPane.YES_OPTION) return;
 
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
+            if (extensionsList.size() > 0) {
+                extensionsList.subList(0, extensionsList.size()).clear();
+                burpLeaksScanner.updateExtensionList(extensionsList);
+                modelExt.fireTableDataChanged();
+
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
+            }
         });
 
         JButton btnOpenExtension = new JButton("Open");
         buttonPanelExtensions.add(btnOpenExtension);
         btnOpenExtension.addActionListener(actionEvent -> {
             JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    ".txt, .csv", "txt", "csv");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
             chooser.setFileFilter(filter);
             int returnVal = chooser.showOpenDialog(buttonPanelExtensions);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                System.out.println("You chose to open this file: " +
-                        chooser.getSelectedFile().getName());
-            }
+            if (returnVal != JFileChooser.APPROVE_OPTION) return;
+
+            File selectedFile = chooser.getSelectedFile();
+            System.out.println("Importing extensions file (" + chooser.getTypeDescription(selectedFile) + "): " + selectedFile.getName());
             try {
                 Scanner scanner = new Scanner(chooser.getSelectedFile());
                 StringBuilder alreadyAdded = new StringBuilder();
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    if (ExtensionEntity.extIsInCorrectFormat(line)) {
-                        String regex = line.split(",")[0];
-                        regex = regex.substring(1, regex.length() - 1);
 
-                        String description = line.split(",")[1];
-                        description = description.substring(1, description.length() - 1);
+                    Matcher matcher = ExtensionEntity.loadExtensionEntityFromCSV(line);
+                    if (!matcher.find()) continue;
 
-                        ExtensionEntity extension = new ExtensionEntity(regex, description);
+                    String description = matcher.group(1);
+                    String regex = matcher.group(2);
 
-                        if (!extensionsList.contains(extension)) {
-                            extensionsList.add(extension);
-                        } else {
-                            alreadyAdded.append(description).append(" - ").append(regex).append("\n");
-                        }
-                        int row = extensionsList.size();
+                    ExtensionEntity extension = new ExtensionEntity(regex, description);
 
-                        modelExt.fireTableRowsInserted(row, row);
+                    if (!extensionsList.contains(extension)) {
+                        extensionsList.add(extension);
 
-                        tabPaneOptions.validate();
-                        tabPaneOptions.repaint();
+                        this.burpLeaksScanner.updateExtensionList(extensionsList);
+                        modelExt.fireTableDataChanged();
+                    } else {
+                        alreadyAdded.append(description).append(" - ").append(regex).append("\n");
                     }
                 }
 
@@ -519,53 +517,45 @@ public class MainUI implements ITab {
                     alreadyAdded.insert(0, "These extensions are already present:\n");
                     JDialog alreadyAddedDialog = new JDialog();
                     JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAdded.toString(), "Already Added Alert", JOptionPane.INFORMATION_MESSAGE);
-
                     alreadyAddedDialog.setVisible(true);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
             }
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
         });
 
         JButton btnSaveExtension = new JButton("Save");
         buttonPanelExtensions.add(btnSaveExtension);
         btnSaveExtension.addActionListener(actionEvent -> {
             JFrame parentFrame = new JFrame();
-
             JFileChooser fileChooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "Regex list", "txt", "csv");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
             fileChooser.setFileFilter(filter);
-            fileChooser.setDialogTitle("Specify a file to save");
+            fileChooser.setDialogTitle("Specify the export file");
 
             int userSelection = fileChooser.showSaveDialog(parentFrame);
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                File fileToSave = fileChooser.getSelectedFile();
-                try {
-                    PrintWriter pwt;
-                    if (!fileToSave.getAbsolutePath().contains(".txt")) {
-                        pwt = new PrintWriter(fileToSave.getAbsolutePath() + "_extensions.txt");
-                    } else {
-                        pwt = new PrintWriter(fileToSave.getAbsolutePath());
-                    }
+            if (userSelection != JFileChooser.APPROVE_OPTION) return;
 
-                    int iRowCount = modelExt.getRowCount();
-                    for (int i = 0; i < iRowCount; ++i) {
-                        String regex = modelExt.getValueAt(i, 1).toString();
-                        String description = modelExt.getValueAt(i, 2).toString();
-                        pwt.println("\"" + regex + "\"," + "\"" + description + "\"");
-                    }
-                    pwt.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+            String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+            if (!exportFilePath.endsWith(".csv")) {
+                exportFilePath += ".csv";
             }
+            try {
+                PrintWriter pwt = new PrintWriter(exportFilePath);
 
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
+                int rowCount = modelExt.getRowCount();
+                for (int i = 0; i < rowCount; i++) {
+                    String regex = modelExt.getValueAt(i, 1).toString();
+                    String description = modelExt.getValueAt(i, 2).toString();
+                    pwt.println("\"" + description + "\"," + "\"" + regex + "\"");
+                }
+                pwt.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         });
 
         optionExtensionsTable.setAutoCreateRowSorter(true);
@@ -601,15 +591,15 @@ public class MainUI implements ITab {
             // it is deleting elements from data, and you are skipping some rows when you iterate
             // to the next element (via i++)
             int dialog = JOptionPane.showConfirmDialog(null, "By confirming, you will return to init setting");
-            if (dialog == JOptionPane.YES_OPTION) {
-                if (regexList.size() > 0) {
-                    regexList.subList(0, regexList.size()).clear();
-                }
+            if (dialog != JOptionPane.YES_OPTION) return;
 
-                regexList = BurpLeaksSeed.getRegex();
-                this.burpLeaksScanner.updateRegexList(regexList);
-                modelReg.fireTableDataChanged();
+            if (regexList.size() > 0) {
+                regexList.subList(0, regexList.size()).clear();
             }
+
+            regexList = BurpLeaksSeed.getRegex();
+            this.burpLeaksScanner.updateRegexList(regexList);
+            modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -637,14 +627,14 @@ public class MainUI implements ITab {
                     6, 6,        //initX, initY
                     6, 6);       //xPad, yPad
             int returnValue = JOptionPane.showConfirmDialog(tabPaneOptions, inputPanel, "Add a regular expression", JOptionPane.YES_NO_OPTION);
-            if (returnValue == JOptionPane.YES_OPTION) {
-                String expression = textFieldReg.getText();
-                String description = textFieldDesc.getText();
+            if (returnValue != JOptionPane.YES_OPTION) return;
 
-                int row = regexList.size();
-                regexList.add(new RegexEntity(description, expression));
-                modelReg.fireTableRowsInserted(row, row);
-            }
+            String expression = textFieldReg.getText();
+            String description = textFieldDesc.getText();
+
+            regexList.add(new RegexEntity(description, expression));
+            burpLeaksScanner.updateRegexList(regexList);
+            modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -657,7 +647,8 @@ public class MainUI implements ITab {
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
             regexList.remove(realRow);
 
-            modelReg.fireTableRowsDeleted(realRow, realRow);
+            burpLeaksScanner.updateRegexList(regexList);
+            modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -667,106 +658,96 @@ public class MainUI implements ITab {
         buttonPanelRegex.add(btnClearRegex);
         btnClearRegex.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the regex in the list?");
-            if (dialog == JOptionPane.YES_OPTION) {
-                if (regexList.size() > 0) {
-                    regexList.subList(0, regexList.size()).clear();
-                }
-                modelReg.fireTableDataChanged();
-            }
+            if (dialog != JOptionPane.YES_OPTION) return;
 
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
+            if (regexList.size() > 0) {
+                regexList.subList(0, regexList.size()).clear();
+                burpLeaksScanner.updateRegexList(regexList);
+                modelReg.fireTableDataChanged();
+
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
+            }
         });
 
         JButton btnOpenRegex = new JButton("Open");
         buttonPanelRegex.add(btnOpenRegex);
         btnOpenRegex.addActionListener(actionEvent -> {
             JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    ".txt, .csv", "txt", "csv");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
             chooser.setFileFilter(filter);
             int returnVal = chooser.showOpenDialog(buttonPanelRegex);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                System.out.println("You chose to open this file: " +
-                        chooser.getSelectedFile().getName());
-            }
+            if (returnVal != JFileChooser.APPROVE_OPTION) return;
+
+            File selectedFile = chooser.getSelectedFile();
+            System.out.println("Importing regex file (" + chooser.getTypeDescription(selectedFile) + "): " + selectedFile.getName());
             try {
                 Scanner scanner = new Scanner(chooser.getSelectedFile());
                 StringBuilder alreadyAdded = new StringBuilder();
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    if (RegexEntity.regexIsInCorrectFormat(line)) {
-                        String description = line.split("\", \"")[0];
-                        description = description.substring(0, description.length() - 1);
 
-                        String regex = line.split("\", \"")[1];
-                        regex = regex.substring(0, regex.length() - 1);
+                    Matcher matcher = RegexEntity.loadRegexEntityFromCSV(line);
+                    if (!matcher.find()) continue;
 
-                        RegexEntity newRegexEntity = new RegexEntity(description, regex);
+                    String description = matcher.group(1);
+                    String regex = matcher.group(2);
 
-                        if (!regexList.contains(newRegexEntity)) {
-                            regexList.add(newRegexEntity);
-                        } else {
-                            alreadyAdded.append(description).append(" - ").append(regex).append("\n");
-                        }
-                        int row = regexList.size();
+                    RegexEntity newRegexEntity = new RegexEntity(description, regex);
 
-                        modelReg.fireTableRowsInserted(row, row);
+                    if (!regexList.contains(newRegexEntity)) {
+                        regexList.add(newRegexEntity);
 
-                        tabPaneOptions.validate();
-                        tabPaneOptions.repaint();
+                        this.burpLeaksScanner.updateRegexList(regexList);
+                        modelReg.fireTableDataChanged();
+                    } else {
+                        alreadyAdded.append(description).append(" - ").append(regex).append("\n");
                     }
                 }
 
-                if (!(alreadyAdded.toString().equals(""))) {
-                    alreadyAdded.insert(0, "These regex are already present:\n");
+                if (!(alreadyAdded.toString().isBlank())) {
+                    alreadyAdded.insert(0, "These regexes are already present:\n");
                     JDialog alreadyAddedDialog = new JDialog();
                     JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAdded.toString(), "Already Added Alert", JOptionPane.INFORMATION_MESSAGE);
-
                     alreadyAddedDialog.setVisible(true);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
             }
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
         });
 
         JButton btnSaveRegex = new JButton("Save");
         buttonPanelRegex.add(btnSaveRegex);
         btnSaveRegex.addActionListener(actionEvent -> {
             JFrame parentFrame = new JFrame();
-
             JFileChooser fileChooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt, .csv", "txt", "csv");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
             fileChooser.setFileFilter(filter);
-            fileChooser.setDialogTitle("Specify a file to save");
+            fileChooser.setDialogTitle("Specify the export file");
 
             int userSelection = fileChooser.showSaveDialog(parentFrame);
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                File fileToSave = fileChooser.getSelectedFile();
-                try {
-                    PrintWriter pwt;
-                    if (!fileToSave.getAbsolutePath().contains(".txt")) {
-                        pwt = new PrintWriter(fileToSave.getAbsolutePath() + "_regex.txt");
-                    } else {
-                        pwt = new PrintWriter(fileToSave.getAbsolutePath());
-                    }
+            if (userSelection != JFileChooser.APPROVE_OPTION) return;
 
-                    for (int i = 0; i < modelReg.getRowCount(); i++) {
-                        String regex = modelReg.getValueAt(i, 1).toString();
-                        String description = modelReg.getValueAt(i, 2).toString();
-                        pwt.println("\"" + regex + "\"," + "\"" + description + "\"");
-                    }
-                    pwt.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+            String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+            if (!exportFilePath.endsWith(".csv")) {
+                exportFilePath += ".csv";
             }
+            try {
+                PrintWriter pwt = new PrintWriter(exportFilePath);
 
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
+                int rowCount = modelReg.getRowCount();
+                for (int i = 0; i < rowCount; i++) {
+                    String regex = modelReg.getValueAt(i, 1).toString();
+                    String description = modelReg.getValueAt(i, 2).toString();
+                    pwt.println("\"" + description + "\"," + "\"" + regex + "\"");
+                }
+                pwt.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         });
 
         optionsRegexTable.setAutoCreateRowSorter(true);
