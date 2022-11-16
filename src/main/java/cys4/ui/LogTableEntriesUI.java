@@ -12,15 +12,12 @@ import java.util.List;
 public class LogTableEntriesUI extends AbstractTableModel {
 
     // get the reference of the array of entries
-    private List<LogEntity> logEntries;
+    private final List<LogEntity> logEntries;
 
     public LogTableEntriesUI(List<LogEntity> logEntries) {
         this.logEntries = logEntries;
     }
 
-    //
-    // extend AbstractTableModel
-    //
     @Override
     public int getRowCount() {
         return logEntries.size();
@@ -72,4 +69,3 @@ public class LogTableEntriesUI extends AbstractTableModel {
         fireTableDataChanged();
     }
 }
-

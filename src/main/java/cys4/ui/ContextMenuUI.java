@@ -4,7 +4,6 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.ui;
 
-import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.ITextEditor;
 import cys4.model.LogEntity;
@@ -18,22 +17,9 @@ import java.util.List;
 
 public class ContextMenuUI extends JPopupMenu {
 
-    private IBurpExtenderCallbacks callbacks;
-    private List<LogEntity> logEntries;
-    private ITextEditor originalRequestViewer;
-    private ITextEditor originalResponseViewer;
-    private LogTableEntriesUI logTableEntriesUI;
-    private LogTableEntryUI logTableEntryUI;
-
     public ContextMenuUI(LogEntity le, List<LogEntity> logEntries, ITextEditor originalRequestViewer, ITextEditor originalResponseViewer, LogTableEntriesUI logTableEntriesUI, LogTableEntryUI logTableEntryUI,IBurpExtenderCallbacks callbacks) {
 
         // init params
-        this.logEntries = logEntries;
-        this.originalRequestViewer = originalRequestViewer;
-        this.originalResponseViewer = originalResponseViewer;
-        this.logTableEntriesUI = logTableEntriesUI;
-        this.logTableEntryUI = logTableEntryUI;
-        this.callbacks = callbacks;
 
         // populate the menu
         String urlLog = le.getURL().toString();
@@ -120,5 +106,3 @@ public class ContextMenuUI extends JPopupMenu {
         }));
     }
 }
-
-

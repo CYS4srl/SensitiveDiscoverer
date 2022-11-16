@@ -11,7 +11,7 @@ import java.util.List;
 
 public class OptionsRegexTableModelUI extends AbstractTableModel {
 
-    private List<RegexEntity> regexList;
+    private final List<RegexEntity> regexList;
 
     public OptionsRegexTableModelUI(List<RegexEntity> regexList) {
         this.regexList = regexList;

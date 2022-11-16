@@ -9,14 +9,23 @@ import java.util.regex.Pattern;
 
 
 public class ExtensionEntity {
-    private Boolean active;
-    private final String extension;
+    private boolean active;
+    private String extension;
+    private transient Pattern extension_regex_compiled;
     private final String description;
 
     public ExtensionEntity(String description, String extension) {
         this.active = true;
         this.extension = extension;
         this.description = description;
+        this.extension_regex_compiled = null;
+    }
+
+    public ExtensionEntity(String description, String extension, boolean active) {
+        this.active = active;
+        this.extension = extension;
+        this.description = description;
+        this.extension_regex_compiled = null;
     }
 
     public boolean isActive() {
@@ -35,9 +44,25 @@ public class ExtensionEntity {
         return this.extension;
     }
 
-    //
-    //  function to check if the extensions added are in the form of <Description,.Extension>
-    //
+    public Pattern getRegexCompiled() {
+        return this.extension_regex_compiled;
+    }
+
+    public void compileRegex() {
+        if (this.extension == null || this.extension.equals("")) return;
+
+        if (this.extension.charAt(this.extension.length() - 1) != '$') {
+            this.extension += '$';
+        }
+
+        this.extension_regex_compiled = Pattern.compile(this.extension);
+    }
+
+    /**
+     * Check if the extensions added are in the form of <Description; .Extension>
+     * @param lineWithRegex Line to check against the format
+     * @return a boolean with wether the format is respected
+     */
     public static boolean extIsInCorrectFormat(String lineWithRegex) {
         String regex = "^[\"|'].*[\"|'],(\\s)?[\"|'](^)?\\..+[\"|']$";
         Pattern regex_pattern = Pattern.compile(regex);

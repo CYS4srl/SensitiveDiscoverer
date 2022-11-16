@@ -2,7 +2,6 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-
 package cys4.model;
 
 import java.util.regex.Matcher;
@@ -11,17 +10,20 @@ import java.util.regex.Pattern;
 public class RegexEntity {
     private Boolean active;
     private final String regular_expression;
+    private transient Pattern regex_compiled;
     private final String description;
 
     public RegexEntity(String description, String regex) {
         this.active = true;
         this.regular_expression = regex;
+        this.regex_compiled = null;
         this.description = description;
     }
 
     public RegexEntity(String description, String regex, Boolean active) {
         this.active = active;
         this.regular_expression = regex;
+        this.regex_compiled = null;
         this.description = description;
     }
 
@@ -33,6 +35,16 @@ public class RegexEntity {
         return regular_expression;
     }
 
+    public Pattern getRegexCompiled() {
+        return this.regex_compiled;
+    }
+
+    public void compileRegex() {
+        if (this.regular_expression == null || this.regular_expression.equals("")) return;
+
+        this.regex_compiled = Pattern.compile(this.getRegex());
+    }
+
     public String getDescription() {
         return description;
     }
@@ -41,7 +53,6 @@ public class RegexEntity {
         this.active = value;
     }
 
-    // Overriding equals() to compare two Complex objects
     @Override
     public boolean equals(Object o) {
 
@@ -60,14 +71,15 @@ public class RegexEntity {
         return this.getRegex().equals(((RegexEntity) o).getRegex());
     }
 
-    //
-    //  function to check if the regexes added are in the form of <Description; Regex>
-    //
+    /**
+     * Check if the regexes added are in the form of <Description; Regex>
+     * @param lineWithRegex Line to check against the format
+     * @return a boolean with wether the format is respected
+     */
     public static boolean regexIsInCorrectFormat(String lineWithRegex) {
         String regex = "^[\"|'].*[\"|'],(\\s)?[\"|'].+[\"|']$";
         Pattern regex_pattern = Pattern.compile(regex);
         Matcher regex_matcher = regex_pattern.matcher(lineWithRegex);
         return regex_matcher.find();
     }
-
 }

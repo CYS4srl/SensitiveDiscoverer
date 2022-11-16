@@ -11,14 +11,15 @@ import javax.swing.*;
 import java.util.List;
 import java.util.Objects;
 
-// JTable for Viewing Logs
+/**
+ * JTable for Viewing Logs
+ */
 public class LogTableEntryUI extends JTable {
 
     // get the reference of the array of entries
-    private List<LogEntity> logEntries;
-    private ITextEditor originalRequestViewer;
-    private ITextEditor originalResponseViewer;
-
+    private final List<LogEntity> logEntries;
+    private final ITextEditor originalRequestViewer;
+    private final ITextEditor originalResponseViewer;
 
     public LogTableEntryUI(LogTableEntriesUI tableModelEntries, List<LogEntity> logEntries, ITextEditor originalRequestViewer, ITextEditor originalResponseViewer) {
         super(tableModelEntries);
@@ -34,8 +35,10 @@ public class LogTableEntryUI extends JTable {
     @Override
     public void changeSelection(int row, int col, boolean toggle, boolean extend) {
         super.changeSelection(row, col, toggle, extend);
-        // show the log entry for the selected row; convertRowIndexToModel is used because otherwise the
-        // selected row is wrong in case the column is sorted somehow
+        /*
+          show the log entry for the selected row; convertRowIndexToModel is used because otherwise the
+          selected row is wrong in case the column is sorted somehow
+         */
         int realRow = this.convertRowIndexToModel(row);
         LogEntity logEntry = logEntries.get(realRow);
 
