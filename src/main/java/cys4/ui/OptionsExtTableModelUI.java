@@ -11,7 +11,7 @@ import java.util.List;
 
 public class OptionsExtTableModelUI extends AbstractTableModel {
 
-    private List<ExtensionEntity> extensionList;
+    private final List<ExtensionEntity> extensionList;
 
     public OptionsExtTableModelUI(List<ExtensionEntity> extensionList){
         this.extensionList = extensionList;

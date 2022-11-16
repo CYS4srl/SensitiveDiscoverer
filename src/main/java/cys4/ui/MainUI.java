@@ -39,7 +39,7 @@ public class MainUI implements ITab {
     private JSplitPane splitPane;
     private ITextEditor originalRequestViewer;
     private ITextEditor originalResponseViewer;
-    private IBurpExtenderCallbacks callbacks;
+    private final IBurpExtenderCallbacks callbacks;
 
     /**
      * Analyze Proxy History
@@ -47,11 +47,11 @@ public class MainUI implements ITab {
     private Thread analyzeProxyHistoryThread;
     private boolean isAnalysisRunning;
 
-    private List<LogEntity> logEntries;
+    private final List<LogEntity> logEntries;
     private List<RegexEntity> regexList;
     private List<ExtensionEntity> extensionsList;
 
-    private BurpLeaksScanner burpLeaksScanner;
+    private final BurpLeaksScanner burpLeaksScanner;
 
     /**
      * Check if the options for the scope is selected or not
@@ -115,13 +115,11 @@ public class MainUI implements ITab {
     }
 
     /**
-     * Main funciton which initializes the extension and creates the UI
+     * Main function which initializes the extension and creates the UI
      */
     public void initialize() {
         // Updates the UI in async method
-        SwingUtilities.invokeLater(() -> {
-            this._initialize();
-        });
+        SwingUtilities.invokeLater(this::_initialize);
     }
 
     private void _initialize() {
@@ -168,9 +166,6 @@ public class MainUI implements ITab {
 
     /**
      * Panel that contains the buttonsPanel and the loggerPane
-     * @param tabPanelLogger
-     * @param scrollPaneLogger
-     * @return
      */
     private JPanel createLogger_ButtonPanel(JPanel tabPanelLogger, JScrollPane scrollPaneLogger) {
         JPanel buttonPanelLog = new JPanel();
@@ -349,12 +344,12 @@ public class MainUI implements ITab {
 
         // Regex
         createOptions_Regex(tabPaneOptions)
-            .forEach((element) -> tabPaneOptions.add(element));
+            .forEach(tabPaneOptions::add);
         tabPaneOptions.add(new JSeparator());
 
         // Extensions
         createOptions_Extensions(tabPaneOptions)
-            .forEach((element) -> tabPaneOptions.add(element));
+            .forEach(tabPaneOptions::add);
 
         return tabPaneOptions;
     }
@@ -557,7 +552,8 @@ public class MainUI implements ITab {
                         pwt = new PrintWriter(fileToSave.getAbsolutePath());
                     }
 
-                    for (int i = 0; i < modelExt.getRowCount(); i++) {
+                    int iRowCount = modelExt.getRowCount();
+                    for (int i = 0; i < iRowCount; ++i) {
                         String regex = modelExt.getValueAt(i, 1).toString();
                         String description = modelExt.getValueAt(i, 2).toString();
                         pwt.println("\"" + regex + "\"," + "\"" + description + "\"");

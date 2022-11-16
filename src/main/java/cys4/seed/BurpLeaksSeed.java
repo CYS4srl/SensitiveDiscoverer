@@ -16,9 +16,9 @@ import java.util.List;
 
 public class BurpLeaksSeed {
 
-    private static final List<RegexEntity> regexes = new ArrayList<RegexEntity>();
+    private static final List<RegexEntity> regexes = new ArrayList<>();
     private static final List<ExtensionEntity> extensions = new ArrayList<>();
-    private static Gson _gson = new Gson();
+    private static final Gson _gson = new Gson();
 
     private static void fill() {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntity>>() {}.getType();

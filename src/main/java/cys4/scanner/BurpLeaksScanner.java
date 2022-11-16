@@ -29,19 +29,19 @@ import javax.swing.JProgressBar;
 
 public class BurpLeaksScanner {
 
-    private MainUI mainUI;
-    private IExtensionHelpers helpers;
-    private IBurpExtenderCallbacks callbacks;
-    private List<LogEntity> logEntries;
+    private final MainUI mainUI;
+    private final IExtensionHelpers helpers;
+    private final IBurpExtenderCallbacks callbacks;
+    private final List<LogEntity> logEntries;
     private List<RegexEntity> regexList;
     private List<ExtensionEntity> extensionsList;
     private ArrayList<String> blacklistedMimeTypes;
-    private Gson gson;
+    private final Gson gson;
     private boolean interruptScan;
 
     // analyzeProxyHistory
     private int analyzedItems = 0;
-    private Object analyzeLock = new Object();
+    private final Object analyzeLock = new Object();
 
     public BurpLeaksScanner(MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
             List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
@@ -65,7 +65,6 @@ public class BurpLeaksScanner {
 
     /**
      * Method for analyzing the elements in Burp > Proxy > HTTP history
-     * @param progressBar
      */
     public void analyzeProxyHistory(JProgressBar progressBar) {
         IHttpRequestResponse[] httpRequests;
@@ -78,7 +77,7 @@ public class BurpLeaksScanner {
 
         LogEntity.setIdRequest(0); // responseId will start at 0
 
-        ExecutorService executor = Executors.newFixedThreadPool(5);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
 
         for (IHttpRequestResponse httpProxyItem : httpRequests) {
             executor.execute(() -> {
@@ -87,7 +86,7 @@ public class BurpLeaksScanner {
                 if (interruptScan) return;
 
                 synchronized (analyzeLock) {
-                    this.analyzedItems++;
+                    ++this.analyzedItems;
                 }
                 progressBar.setValue(this.analyzedItems);
             });
@@ -109,7 +108,6 @@ public class BurpLeaksScanner {
 
     /**
      * The main method that scan for regex in the single request body
-     * @param httpProxyItem
      */
     private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem) {
         URL requestURL = helpers.analyzeRequest(httpProxyItem).getUrl();
@@ -190,8 +188,7 @@ public class BurpLeaksScanner {
             List<String> lDeserializedJson = gson.fromJson(
                 Utils.readResourceFile("mime_types.json"),
                 tArrayListString);
-            for (String element : lDeserializedJson)
-                blacklistedMimeTypes.add(element);
+            blacklistedMimeTypes.addAll(lDeserializedJson);
         }
 
         return !blacklistedMimeTypes.contains(mimeType.toUpperCase());
@@ -211,10 +208,6 @@ public class BurpLeaksScanner {
         for (ExtensionEntity entry : extensionsList) {
             entry.compileRegex();
         }
-    }
-
-    public boolean isInterruptScan() {
-        return interruptScan;
     }
 
     public void setInterruptScan(boolean interruptScan) {

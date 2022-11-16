@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class RegexEntity {
     private Boolean active;
     private final String regular_expression;
-    private transient Pattern regex_compiled = null;
+    private transient Pattern regex_compiled;
     private final String description;
 
     public RegexEntity(String description, String regex) {
@@ -39,11 +39,10 @@ public class RegexEntity {
         return this.regex_compiled;
     }
 
-    public boolean compileRegex() {
-        if (this.regular_expression == null || this.regular_expression == "") return false;
+    public void compileRegex() {
+        if (this.regular_expression == null || this.regular_expression.equals("")) return;
 
         this.regex_compiled = Pattern.compile(this.getRegex());
-        return true;
     }
 
     public String getDescription() {

@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LogEntity {
-    private int idRequest;
+    private final int idRequest;
     private final static AtomicInteger counter = new AtomicInteger(0);
     private final IHttpRequestResponse requestResponse;
     private final URL url;
@@ -18,7 +18,6 @@ public class LogEntity {
     private final String match; // string from the body that matches
     private final String host;
     private final int port;
-    private final String protocol;
     private final boolean isSSL;
 
     public LogEntity(IHttpRequestResponse requestResponse, URL url, String regex, String match) {
@@ -31,9 +30,9 @@ public class LogEntity {
         this.regex = regex;
         this.match = match;
         this.host = requestResponse.getHttpService().getHost();
-        this.protocol = requestResponse.getHttpService().getProtocol();
+        String protocol = requestResponse.getHttpService().getProtocol();
         this.port = requestResponse.getHttpService().getPort();
-        this.isSSL = this.protocol.equals("https");
+        this.isSSL = protocol.equals("https");
     }
 
     public int getIdRequest() {
@@ -62,10 +61,6 @@ public class LogEntity {
 
     public int getPort() {
         return port;
-    }
-
-    public String getProtocol() {
-        return protocol;
     }
 
     public boolean isSSL() {

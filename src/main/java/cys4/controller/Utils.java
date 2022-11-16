@@ -9,6 +9,7 @@ import cys4.seed.BurpLeaksSeed;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 
 public class Utils {
@@ -26,7 +27,7 @@ public class Utils {
                 result.write(buffer, 0, length);
             }
             // StandardCharsets.UTF_8.name() > JDK 7
-            STRING_ReadBuffer = result.toString("UTF-8");
+            STRING_ReadBuffer = result.toString(StandardCharsets.UTF_8);
 
         } catch (IOException ex) {
             ex.printStackTrace();

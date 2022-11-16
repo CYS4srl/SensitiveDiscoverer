@@ -48,15 +48,14 @@ public class ExtensionEntity {
         return this.extension_regex_compiled;
     }
 
-    public boolean compileRegex() {
-        if (this.extension == null || this.extension == "") return false;
+    public void compileRegex() {
+        if (this.extension == null || this.extension.equals("")) return;
 
         if (this.extension.charAt(this.extension.length() - 1) != '$') {
             this.extension += '$';
         }
 
         this.extension_regex_compiled = Pattern.compile(this.extension);
-        return true;
     }
 
     /**
