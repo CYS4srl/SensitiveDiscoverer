@@ -2,62 +2,57 @@
   {
     "active": true,
     "description": "Stripe API key",
-    "regular_expression": "(?:r|s)k_[live|test]_[0-9a-zA-Z]{24}"
+    "regular_expression": "[rsp]k_(live|test)_[0-9a-zA-Z]{24}"
   },
   {
     "active": true,
     "description": "Private SSH key",
-    "regular_expression": "^.*_rsa"
+    "regular_expression": ".+?_rsa"
   },
   {
     "active": true,
     "description": "Private SSH key",
-    "regular_expression": "^.*_dsa"
+    "regular_expression": ".+?_dsa"
   },
   {
     "active": true,
     "description": "Private SSH key",
-    "regular_expression": "^.*_ed25519"
+    "regular_expression": ".+?_ed25519"
   },
   {
     "active": true,
     "description": "Private SSH key",
-    "regular_expression": "^.*_ecdsa"
+    "regular_expression": ".+?_ecdsa"
   },
   {
     "active": true,
     "description": "SSH configuration file",
-    "regular_expression": "\\.?ssh/config$"
+    "regular_expression": "\\.?ssh/config"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Potential cryptographic private key",
-    "regular_expression": "^key(pair)?$"
-  },
-  {
-    "active": true,
-    "description": "Shell command history file",
-    "regular_expression": "\\.?(bash_|zsh_|sh_|z)+history"
+    "regular_expression": "key(pair)?"
   },
   {
     "active": true,
     "description": "MySQL client command history file",
-    "regular_expression": "(\\.)?mysql_history"
+    "regular_expression": "\\.?mysql_history"
   },
   {
     "active": true,
     "description": "PostgreSQL client command history file",
-    "regular_expression": "(\\.)?psql_history"
+    "regular_expression": "\\.?psql_history"
   },
   {
     "active": true,
     "description": "PostgreSQL password file",
-    "regular_expression": "(\\.)?pgpass"
+    "regular_expression": "\\.?pgpass"
   },
   {
     "active": true,
     "description": "Ruby IRB console history file",
-    "regular_expression": "(\\.)?irb_history"
+    "regular_expression": "\\.?irb_history"
   },
   {
     "active": true,
@@ -67,7 +62,7 @@
   {
     "active": true,
     "description": "Hexchat/XChat IRC client server list configuration file",
-    "regular_expression": "\\.?xchat2?/servlist.conf"
+    "regular_expression": "\\.?xchat2?/servlist\\.conf"
   },
   {
     "active": true,
@@ -82,7 +77,7 @@
   {
     "active": true,
     "description": "DBeaver SQL database manager configuration file",
-    "regular_expression": "\\.?dbeaver-data-sources(-[0-9]+)?\\.xml"
+    "regular_expression": "\\.?dbeaver-data-sources(\\-\\d+)?\\.xml"
   },
   {
     "active": true,
@@ -105,9 +100,9 @@
     "regular_expression": "sftp-config(\\.json)?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "T command-line Twitter client configuration file",
-    "regular_expression": "/\\.?trc[\\W]+"
+    "regular_expression": "\\.?trc[\\W]+"
   },
   {
     "active": true,
@@ -116,13 +111,18 @@
   },
   {
     "active": true,
+    "description": "Shell command history file",
+    "regular_expression": "\\.?(bash_|zsh_|sh_|z)history"
+  },
+  {
+    "active": true,
     "description": "Shell profile configuration file",
-    "regular_expression": "\\.?(bash_|zsh_)+profile"
+    "regular_expression": "\\.?(bash_|zsh_)profile"
   },
   {
     "active": true,
     "description": "Shell command alias configuration file",
-    "regular_expression": "\\.?(bash_|zsh_)+aliases"
+    "regular_expression": "\\.?(bash_|zsh_)aliases"
   },
   {
     "active": true,
@@ -130,7 +130,7 @@
     "regular_expression": "config(\\.inc)?\\.php"
   },
   {
-    "active": true,
+    "active": false,
     "description": "GNOME Keyring database file",
     "regular_expression": "key(store|ring)[\\W]+"
   },
@@ -150,7 +150,7 @@
     "regular_expression": "\\.?htpasswd"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Configuration file for auto-login process",
     "regular_expression": "(\\.|_)?netrc"
   },
@@ -167,7 +167,7 @@
   {
     "active": true,
     "description": "DigitalOcean doctl command-line client configuration file",
-    "regular_expression": "doctl/config\\.yaml"
+    "regular_expression": "doctl/config\\.ya?ml"
   },
   {
     "active": true,
@@ -185,7 +185,7 @@
     "regular_expression": "\\.?gitconfig"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Chef private key",
     "regular_expression": "\\.?chef/(.*)\\.pem"
   },
@@ -222,137 +222,137 @@
   {
     "active": true,
     "description": "Facebook OAuth",
-    "regular_expression": "[f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K].*['|\"][0-9a-f]{32}['|\"]"
+    "regular_expression": "(?i)facebook.*?['\"]\\w{32}['\"]"
   },
   {
     "active": true,
     "description": "Firebase URL",
-    "regular_expression": "[a-z0-9.-]+\\.firebaseio\\.com"
+    "regular_expression": "[\\w\\.\\-]+?\\.firebaseio\\.com"
   },
   {
     "active": true,
     "description": "GitHub",
-    "regular_expression": "[g|G][i|I][t|T][h|H][u|U][b|B].*['|\"][0-9a-zA-Z]{35,40}['|\"]"
+    "regular_expression": "(?i)github.*?['\"]\\w{35,40}['\"]"
   },
   {
     "active": true,
     "description": "Generic API Key",
-    "regular_expression": "[a|A][p|P][i|I][_]?[k|K][e|E][y|Y].*['|\"][0-9a-zA-Z]{32,45}['|\"]"
+    "regular_expression": "(?i)api_?key.*?['\"]\\w{32,45}['\"]"
   },
   {
     "active": true,
     "description": "Generic Secret",
-    "regular_expression": "[s|S][e|E][c|C][r|R][e|E][t|T].*['|\"][0-9a-zA-Z]{32,45}['|\"]"
+    "regular_expression": "(?i)secret.*?['\"]\\w{32,45}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "IP Address",
     "regular_expression": "[^\\.0-9](([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])[^\\.0-9]"
   },
   {
     "active": true,
     "description": "Facebook access token",
-    "regular_expression": "EAACEdEose0cBA[0-9A-Za-z]+"
+    "regular_expression": "EAACEdEose0cBA\\w+"
   },
   {
     "active": true,
     "description": "Google OAuth Key",
-    "regular_expression": "[0-9]+-[0-9A-Za-z_]{32}\\.apps\\.googleusercontent\\.com"
+    "regular_expression": "\\d+-\\w{32}\\.apps\\.googleusercontent\\.com"
   },
   {
     "active": true,
     "description": "Google Cloud API Key",
-    "regular_expression": "AIza[0-9A-Za-z\\\\\\-\\_]{35}"
+    "regular_expression": "AIza[\\-\\w]{35}"
   },
   {
     "active": true,
     "description": "Google OAuth Access Token",
-    "regular_expression": "ya29\\.[0-9A-Za-z\\\\-_]+"
+    "regular_expression": "ya29\\.[\\-\\w]+"
   },
   {
     "active": true,
     "description": "Picatic API key",
-    "regular_expression": "sk_(live|test)_[0-9a-z]{32}"
+    "regular_expression": "[rsp]k_(live|test)_[0-9a-z]{32}"
   },
   {
     "active": true,
     "description": "Square Access Token",
-    "regular_expression": "sq0atp-[0-9A-Za-z\\-_]{22}"
+    "regular_expression": "sq0atp-[\\w\\-]{22}"
   },
   {
     "active": true,
     "description": "Square OAuth Secret",
-    "regular_expression": "sq0csp-[0-9A-Za-z\\-_]{43}"
+    "regular_expression": "sq0csp-[\\w\\-]{43}"
   },
   {
     "active": true,
     "description": "PayPal/Braintree Access Token",
-    "regular_expression": "access_token\\$production\\$[0-9a-z]{16}\\$[0-9a-f]{32}"
+    "regular_expression": "access_token\\$production\\$\\w{16}\\$\\w{32}"
   },
   {
     "active": true,
     "description": "Amazon MWS Auth Token",
-    "regular_expression": "amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    "regular_expression": "amzn\\.mws\\.\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Twilio API Key",
-    "regular_expression": "SK[0-9a-fA-F]{32}"
+    "regular_expression": "SK\\w{32}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "SendGrid API Key",
     "regular_expression": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "MailGun API Key",
     "regular_expression": "key-[0-9a-zA-Z]{32}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "MailChimp API Key",
     "regular_expression": "[0-9a-f]{32}-us[0-9]{12}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "SSH Password",
     "regular_expression": "sshpass -p .*['|\\\\\\\"]"
   },
   {
     "active": true,
     "description": "Outlook team",
-    "regular_expression": "(https://outlook\\.office\\.com/webhook/[0-9a-f-]{36}@)"
+    "regular_expression": "outlook\\.office\\.com/webhook/[\\w\\-]{36}@"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Slack Token",
     "regular_expression": "(xox[pboa]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Slack Webhook",
-    "regular_expression": "https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}"
+    "regular_expression": "hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}"
   },
   {
     "active": true,
     "description": "NuGet API Key",
-    "regular_expression": "oy2[a-z0-9]{43}"
+    "regular_expression": "oy2\\w{43}"
   },
   {
     "active": true,
     "description": "Created by remote-sync for Atom, contains FTP and/or SCP/SFTP/SSH server details and credentials",
-    "regular_expression": ".remote-sync.json"
+    "regular_expression": "\\.?remote-sync\\.json"
   },
   {
     "active": true,
     "description": "esmtp configuration",
-    "regular_expression": ".esmtprc"
+    "regular_expression": "\\.?esmtprc"
   },
   {
     "active": true,
     "description": "Created by sftp-deployment for Atom, contains server details and credentials",
-    "regular_expression": "(deployment-config(\\.json)?|\\.ftpconfig)"
+    "regular_expression": "(deployment\\-config(\\.json)?|\\.ftpconfig)"
   },
   {
     "active": true,
@@ -360,42 +360,42 @@
     "regular_expression": "-----BEGIN (EC|RSA|DSA|OPENSSH|PGP) PRIVATE KEY"
   },
   {
-    "active": true,
+    "active": false,
     "description": "WP-Config",
     "regular_expression": "define(.{0,20})?(DB_CHARSET|NONCE_SALT|LOGGED_IN_SALT|AUTH_SALT|NONCE_KEY|DB_HOST|DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|DB_NAME|DB_USER)(.{0,20})?[''|\"].{10,120}[''|\"]"
   },
   {
     "active": true,
     "description": "Created by Jetbrains IDEs, contains webserver credentials with encoded passwords (not encrypted!)",
-    "regular_expression": "\\.?idea[\\\\\\/]WebServers\\.xml"
+    "regular_expression": "\\.?idea/WebServers\\.xml"
   },
   {
     "active": true,
     "description": "Created by vscode-sftp for VSCode, contains SFTP/SSH server details and credentials",
-    "regular_expression": "\\.?vscode[\\\\\\/]sftp\\.json"
+    "regular_expression": "\\.?vscode/sftp\\.json"
   },
   {
     "active": true,
     "description": "Ruby on rails secrets.yml file (contains passwords)",
-    "regular_expression": "web[\\\\\\/]ruby[\\\\\\/]secrets\\.yml"
+    "regular_expression": "web/ruby/secrets\\.ya?ml"
   },
   {
     "active": true,
     "description": "Docker registry authentication file",
-    "regular_expression": "\\.?docker[\\\\\\/]config\\.json"
+    "regular_expression": "\\.?docker/config\\.json"
   },
   {
     "active": true,
     "description": "Rails master key (used for decrypting credentials.yml.enc for Rails 5.2+)",
-    "regular_expression": "ruby[\\\\\\/]config[\\\\\\/]master\\.key"
+    "regular_expression": "ruby/config/master\\.key"
   },
   {
     "active": true,
     "description": "Firefox saved password collection (can be decrypted using keys4.db)",
-    "regular_expression": "\\.?mozilla[\\\\\\/]firefox[\\\\\\/]logins\\.json"
+    "regular_expression": "\\.?mozilla/firefox/logins\\.json"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS Access Key ID",
     "regular_expression": "(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])"
   },
@@ -405,133 +405,133 @@
     "regular_expression": "arn:aws:organizations::\\d{12}:account\\/o-[a-z0-9]{10,32}\\/\\d{12}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS Secret Access Key",
     "regular_expression": "(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS Session Token",
     "regular_expression": "(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{16,}(?<![A-Za-z0-9/+=])"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Artifactory",
-    "regular_expression": "(?i)artifactory.{0,50}(\"|'|`)?[a-zA-Z0-9=]{112}(\"|'|`)?"
+    "regular_expression": "(?i)artifactory.{0,50}[\"'`]?[a-z0-9=]{112}[\"'`]?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "CodeClimate",
-    "regular_expression": "(?i)codeclima.{0,50}(\"|'|`)?[0-9a-f]{64}(\"|'|`)?"
+    "regular_expression": "(?i)codeclima.{0,50}[\"'`]?[0-9a-f]{64}[\"'`]?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Google (GCM) Service account",
-    "regular_expression": "((\"|'|`)?type(\"|'|`)?\\s{0,50}(:|=>|=)\\s{0,50}(\"|'|`)?service_account(\"|'|`)?,?)"
+    "regular_expression": "([\"'`]?type[\"'`]?\\s{0,50}(:|=>|=)\\s{0,50}[\"'`]?service_account[\"'`]?,?)"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Sauce Token",
-    "regular_expression": "(?i)sauce.{0,50}(\"|'|`)?[0-9a-f-]{36}(\"|'|`)?"
+    "regular_expression": "(?i)sauce.{0,50}[\"'`]?[0-9a-f\\-]{36}[\"'`]?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "SonarQube Docs API Key",
-    "regular_expression": "(?i)sonar.{0,50}(\"|'|`)?[0-9a-f]{40}(\"|'|`)?"
+    "regular_expression": "(?i)sonar.{0,50}[\"'`]?[0-9a-f]{40}[\"'`]?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "HockeyApp",
-    "regular_expression": "(?i)hockey.{0,50}(\"|'|`)?[0-9a-f]{32}(\"|'|`)?"
+    "regular_expression": "(?i)hockey.{0,50}[\"'`]?[0-9a-f]{32}[\"'`]?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Username and password in URI",
-    "regular_expression": "([\\w+]{1,24})(://)([^$<]{1})([^\\s\";]{1,}):([^$<]{1})([^\\s\";/]{1,})@[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,24}([^\\s]+)"
+    "regular_expression": "([\\w+]{1,24})(://)([\\^\\$\\<]{1})([\\^\\s\";]{1,}):([\\^\\$\\<]{1})([\\^\\s\";/]{1,})@[\\-a-zA-Z0-9@:%\\._\\+~#=]{1,256}\\.[a-zA-Z0-9\\(\\)]{1,24}([\\^\\s]+)"
   },
   {
     "active": true,
     "description": "StackHawk API Key",
-    "regular_expression": "hawk\\.[0-9A-Za-z\\-_]{20}\\.[0-9A-Za-z\\-_]{20}"
+    "regular_expression": "hawk(\\.[\\w\\-]{20})+"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS cred file info",
-    "regular_expression": "(?i)(aws_access_key_id|aws_secret_access_key)(.{0,20})?=.[0-9a-zA-Z\\/+]{20,40}"
+    "regular_expression": "(?i)(aws_access_key_id|aws_secret_access_key)(.{0,20})?=.[0-9a-zA-Z/+]{20,40}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Facebook Secret Key",
-    "regular_expression": "(?i)(facebook|fb)(.{0,20})?(?-i)[''\"][0-9a-f]{32}[''\"]"
+    "regular_expression": "(?i)(facebook|fb)(.{0,20})?(\\?\\-i)['\"][0-9a-f]{32}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Facebook Client ID",
-    "regular_expression": "(?i)(facebook|fb)(.{0,20})?[''\"][0-9]{13,17}[''\"]"
+    "regular_expression": "(?i)(facebook|fb)(.{0,20})?['\"]\\d{13,17}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Twitter Secret Key",
-    "regular_expression": "(?i)twitter(.{0,20})?[''\"][0-9a-z]{35,44}[''\"]"
+    "regular_expression": "(?i)twitter(.{0,20})?['\"][0-9a-z]{35,44}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Twitter Client ID",
-    "regular_expression": "(?i)twitter(.{0,20})?[''\"][0-9a-z]{18,25}[''\"]"
+    "regular_expression": "(?i)twitter(.{0,20})?['\"][0-9a-z]{18,25}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Twitter Access Token",
-    "regular_expression": "[t|T][w|W][i|I][t|T][t|T][e|E][r|R].*[1-9][0-9]+-[0-9a-zA-Z]{40}"
+    "regular_expression": "(?i)twitter.*?\\d+\\-\\w{40}"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Twitter OAuth",
-    "regular_expression": "[t|T][w|W][i|I][t|T][t|T][e|E][r|R].*['|\"][0-9a-zA-Z]{35,44}['|\"]"
+    "regular_expression": "(?i)twitter.*?['\"]\\w{35,44}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Github Key",
-    "regular_expression": "(?i)github(.{0,20})?(?-i)[''\"][0-9a-zA-Z]{35,40}[''\"]"
+    "regular_expression": "(?i)github(.{0,20})?(\\?\\-i)['\"][0-9a-zA-Z]{35,40}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Heroku Key",
-    "regular_expression": "(?i)heroku(.{0,20})?[''\"][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[''\"]"
+    "regular_expression": "(?i)heroku(.{0,20})?['\"][0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Linkedin Client ID",
-    "regular_expression": "(?i)linkedin(.{0,20})?(?-i)[''\"][0-9a-z]{12}[''\"]"
+    "regular_expression": "(?i)linkedin(.{0,20})?(\\?\\-i)['\"][0-9a-z]{12}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "LinkedIn Secret Key",
-    "regular_expression": "(?i)linkedin(.{0,20})?[''\"][0-9a-z]{16}[''\"]"
+    "regular_expression": "(?i)linkedin(.{0,20})?['\"][0-9a-z]{16}['\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Password in URL",
-    "regular_expression": "[a-zA-Z]{3,10}://[^/\\s:@]{3,20}:[^/\\s:@]{3,20}@.{1,100}[\"'\\s]"
+    "regular_expression": "[a-zA-Z]{3,10}://[\\^/\\s:@]{3,20}:[\\^/\\s:@]{3,20}@.{1,100}[\"'\\s]"
   },
   {
     "active": true,
     "description": "Authorization Bearer - 1",
-    "regular_expression": "Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"
+    "regular_expression": "Bearer\\s(\\d|a-f){8}\\-((\\d|a-f){4}\\-){3}(\\d|a-f){12}"
   },
   {
     "active": true,
     "description": "Authorization Splunk",
-    "regular_expression": "Splunk\\s(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}"
+    "regular_expression": "Splunk\\s\\{?\\w{8}(\\-\\w{4}){3}\\-\\w{12}\\}?"
   },
   {
     "active": true,
     "description": "Authorization Basic",
-    "regular_expression": "Basic\\s[a-zA-Z0-9+\\/]+\\=*"
+    "regular_expression": "Basic\\s[\\w+/]+=*"
   },
   {
     "active": true,
     "description": "Authorization Bearer - 2",
-    "regular_expression": "Bearer\\s[A-Za-z0-9\\-_=]+\\.[A-Za-z0-9\\-_=]+(\\.[A-Za-z0-9\\-_.+/=]+)?"
+    "regular_expression": "Bearer\\s[\\w\\-=]+\\.[\\w\\-=]+(\\.[\\w\\-\\.+/=]+)?"
   }
 ]
