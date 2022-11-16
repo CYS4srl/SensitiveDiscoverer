@@ -4,6 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.model;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,10 +15,7 @@ public class RegexEntity {
     private final String description;
 
     public RegexEntity(String description, String regex) {
-        this.active = true;
-        this.regular_expression = regex;
-        this.regex_compiled = null;
-        this.description = description;
+        this(description, regex, true);
     }
 
     public RegexEntity(String description, String regex, Boolean active) {
@@ -25,50 +23,6 @@ public class RegexEntity {
         this.regular_expression = regex;
         this.regex_compiled = null;
         this.description = description;
-    }
-
-    public Boolean isActive() {
-        return this.active;
-    }
-
-    public String getRegex() {
-        return regular_expression;
-    }
-
-    public Pattern getRegexCompiled() {
-        return this.regex_compiled;
-    }
-
-    public void compileRegex() {
-        if (this.regular_expression == null || this.regular_expression.equals("")) return;
-
-        this.regex_compiled = Pattern.compile(this.getRegex());
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setActive(Boolean value) {
-        this.active = value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        // If the object is compared with itself then return true
-        if (o == this) {
-            return true;
-        }
-
-        /* Check if o is an instance of Complex or not
-          "null instanceof [type]" also returns false */
-        if (!(o instanceof RegexEntity)) {
-            return false;
-        }
-
-        // Compare the data members and return accordingly
-        return this.getRegex().equals(((RegexEntity) o).getRegex());
     }
 
     /**
@@ -82,5 +36,44 @@ public class RegexEntity {
         return Pattern
                 .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
                 .matcher(line);
+    }
+
+    public void compileRegex() {
+        if (this.regular_expression == null || this.regular_expression.equals("")) return;
+
+        this.regex_compiled = Pattern.compile(this.getRegex());
+    }
+
+    public Boolean isActive() {
+        return this.active;
+    }
+
+    public String getRegex() {
+        return this.regular_expression;
+    }
+
+    public Pattern getRegexCompiled() {
+        return this.regex_compiled;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setActive(Boolean value) {
+        this.active = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RegexEntity that = (RegexEntity) o;
+        return regular_expression.equals(that.regular_expression);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(regular_expression);
     }
 }

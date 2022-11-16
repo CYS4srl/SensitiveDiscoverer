@@ -501,7 +501,7 @@ public class MainUI implements ITab {
                     String description = matcher.group(1);
                     String regex = matcher.group(2);
 
-                    ExtensionEntity extension = new ExtensionEntity(regex, description);
+                    ExtensionEntity extension = new ExtensionEntity(description, regex);
 
                     if (!extensionsList.contains(extension)) {
                         extensionsList.add(extension);
