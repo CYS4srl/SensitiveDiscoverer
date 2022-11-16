@@ -59,14 +59,27 @@ public class ExtensionEntity {
     }
 
     /**
-     * Check if the extensions added are in the form of <Description; .Extension>
-     * @param lineWithRegex Line to check against the format
-     * @return a boolean with wether the format is respected
+     * Check if the extension line to be imported is in the format:
+     * "Description", "Regex"
+     *
+     * @param line Line to check against the format
+     * @return A Matcher object where group(1) = description, and group(2) = regex
      */
-    public static boolean extIsInCorrectFormat(String lineWithRegex) {
-        String regex = "^[\"|'].*[\"|'],(\\s)?[\"|'](^)?\\..+[\"|']$";
-        Pattern regex_pattern = Pattern.compile(regex);
-        Matcher regex_matcher = regex_pattern.matcher(lineWithRegex);
-        return regex_matcher.find();
+    public static Matcher loadExtensionEntityFromCSV(String line) {
+        return Pattern
+                .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](\\..+?)[\"']\\s*$")
+                .matcher(line);
+    }
+
+    /**
+     * Checks if the extension is in the format ".ext"
+     * @param extension The extension
+     * @return Whether the extension is valid or not
+     */
+    public static boolean isExtensionValid(String extension) {
+        return Pattern
+                .compile("\\..+?")
+                .matcher(extension)
+                .find();
     }
 }

@@ -72,14 +72,15 @@ public class RegexEntity {
     }
 
     /**
-     * Check if the regexes added are in the form of <Description; Regex>
-     * @param lineWithRegex Line to check against the format
-     * @return a boolean with wether the format is respected
+     * Check if the regex line to be imported is in the format:
+     * "Description", "Regex"
+     *
+     * @param line Line to check against the format
+     * @return A Matcher object where group(1) = description, and group(2) = regex
      */
-    public static boolean regexIsInCorrectFormat(String lineWithRegex) {
-        String regex = "^[\"|'].*[\"|'],(\\s)?[\"|'].+[\"|']$";
-        Pattern regex_pattern = Pattern.compile(regex);
-        Matcher regex_matcher = regex_pattern.matcher(lineWithRegex);
-        return regex_matcher.find();
+    public static Matcher loadRegexEntityFromCSV(String line) {
+        return Pattern
+                .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
+                .matcher(line);
     }
 }

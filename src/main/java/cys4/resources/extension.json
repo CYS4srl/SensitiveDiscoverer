@@ -1,62 +1,312 @@
-[{"description":"Potential cryptographic private key", "extension":"\\.pem"},
-  {"description":"Log file", "extension":"\\.log"},
-  {"description":"Potential cryptographic key bundle", "extension":"\\.pkcs12"},
-  {"description":"Potential cryptographic key bundle", "extension":"\\.p12"},
-  {"description":"Potential cryptographic key bundle", "extension":"\\.pfx"},
-  {"description":"Potential cryptographic key bundle", "extension":"\\.asc"},
-  {"description":"Potential private key", "extension":"otr.private_key"},
-  {"description":"OpenVPN client configuration file", "extension":"\\.ovpn"},
-  {"description":"Azure service configuration schema file", "extension":"\\.cscfg"},
-  {"description":"Remote Desktop connection file", "extension":"\\.rdp"},
-  {"description":"Microsoft SQL database file", "extension":"\\.mdf"},
-  {"description":"Microsoft SQL server compact database file", "extension":"\\.sdf"},
-  {"description":"SQLite database file", "extension":"\\.sqlite"},
-  {"description":"SQLite3 database file", "extension":"\\.sqlite3"},
-  {"description":"Microsoft BitLocker recovery key file", "extension":"\\.bek"},
-  {"description":"Microsoft BitLocker Trusted Platform Module password file", "extension":"\\.tpm"},
-  {"description":"Windows BitLocker full volume encrypted data file", "extension":"\\.fve"},
-  {"description":"Java keystore file", "extension":"\\.jks"},
-  {"description":"Password Safe database file", "extension":"\\.psafe3"},
-  {"description":"Ruby On Rails file", "extension":"\\.rb"},
-  {"description":"Potential configuration file", "extension":"\\.yml"},
-  {"description":"Python file", "extension":"\\.py"},
-  {"description":"1Password password manager database file", "extension":"\\.agilekeychain"},
-  {"description":"Apple Keychain database file", "extension":"\\.keychain"},
-  {"description":"Network traffic capture file", "extension":"\\.pcap"},
-  {"description":"GnuCash database file", "extension":"\\.gnucash"},
-  {"description":"XML file", "extension":"\\.xml"},
-  {"description":"KDE Wallet Manager database file", "extension":"\\.kwallet"},
-  {"description":"PHP file", "extension":"\\.php"},
-  {"description":"Tunnelblick VPN configuration file", "extension":"\\.tblk"},
-  {"description":"Sequel Pro MySQL database manager bookmark file", "extension":"\\.plist"},
-  {"description":"Little Snitch firewall configuration file", "extension":"\\.xpl"},
-  {"description":"Day One journal file", "extension":"\\.dayone"},
-  {"description":"Text file", "extension":"\\.txt"},
-  {"description":"Terraform variable config file", "extension":"\\terraform.tfvars"},
-  {"description":"Shell configuration file", "extension":"\\.exports"},
-  {"description":"Shell configuration file", "extension":"\\.functions"},
-  {"description":"Shell configuration file", "extension":"\\.extra"},
-  {"description":"ASP configuration file", "extension":"\\.asa"},
-  {"description":"Include file", "extension":"\\.inc"},
-  {"description":"Configuration file", "extension":"\\.config"},
-  {"description":"Compressed archive file", "extension":"\\.zip"},
-  {"description":"Compressed archive file", "extension":"\\.tar"},
-  {"description":"Compressed archive file", "extension":"\\.gz"},
-  {"description":"Compressed archive file", "extension":"\\.tgz"},
-  {"description":"Compressed archive file", "extension":"\\.rar"},
-  {"description":"Java file", "extension":"\\.java"},
-  {"description":"PDF file", "extension":"\\.pdf"},
-  {"description":"Document file", "extension":"\\.docx"},
-  {"description":"Document file", "extension":"\\.doc"},
-  {"description":"Document file", "extension":"\\.rtf"},
-  {"description":"Excel file", "extension":"\\.xlsx"},
-  {"description":"Excel file", "extension":"\\.xls"},
-  {"description":"Excel file", "extension":"\\.csv"},
-  {"description":"Presentation file", "extension":"\\.pptx"},
-  {"description":"Presentation file", "extension":"\\.ppt"},
-  {"description":"Backupt file", "extension":"\\.bak"},
-  {"description":"Old file", "extension":"\\.old"},
-  {"description":"Temporary file", "extension":"\\.tmp"},
-  {"description":"Certificate file", "extension":"\\.cer"},
-  {"description":"Certificate file", "extension":"\\.crt"},
-  {"description":"Certificate file", "extension":"\\.p7b"}]
+[
+  {
+    "active": true,
+    "description": "Potential cryptographic private key",
+    "extension": "\\.pem"
+  },
+  {
+    "active": true,
+    "description": "Log file",
+    "extension": "\\.log"
+  },
+  {
+    "active": true,
+    "description": "Potential cryptographic key bundle",
+    "extension": "\\.pkcs12"
+  },
+  {
+    "active": true,
+    "description": "Potential cryptographic key bundle",
+    "extension": "\\.p12"
+  },
+  {
+    "active": true,
+    "description": "Potential cryptographic key bundle",
+    "extension": "\\.pfx"
+  },
+  {
+    "active": true,
+    "description": "Potential cryptographic key bundle",
+    "extension": "\\.asc"
+  },
+  {
+    "active": true,
+    "description": "Potential private key",
+    "extension": "otr.private_key"
+  },
+  {
+    "active": true,
+    "description": "OpenVPN client configuration file",
+    "extension": "\\.ovpn"
+  },
+  {
+    "active": true,
+    "description": "Azure service configuration schema file",
+    "extension": "\\.cscfg"
+  },
+  {
+    "active": true,
+    "description": "Remote Desktop connection file",
+    "extension": "\\.rdp"
+  },
+  {
+    "active": true,
+    "description": "Microsoft SQL database file",
+    "extension": "\\.mdf"
+  },
+  {
+    "active": true,
+    "description": "Microsoft SQL server compact database file",
+    "extension": "\\.sdf"
+  },
+  {
+    "active": true,
+    "description": "SQLite database file",
+    "extension": "\\.sqlite"
+  },
+  {
+    "active": true,
+    "description": "SQLite3 database file",
+    "extension": "\\.sqlite3"
+  },
+  {
+    "active": true,
+    "description": "Microsoft BitLocker recovery key file",
+    "extension": "\\.bek"
+  },
+  {
+    "active": true,
+    "description": "Microsoft BitLocker Trusted Platform Module password file",
+    "extension": "\\.tpm"
+  },
+  {
+    "active": true,
+    "description": "Windows BitLocker full volume encrypted data file",
+    "extension": "\\.fve"
+  },
+  {
+    "active": true,
+    "description": "Java keystore file",
+    "extension": "\\.jks"
+  },
+  {
+    "active": true,
+    "description": "Password Safe database file",
+    "extension": "\\.psafe3"
+  },
+  {
+    "active": true,
+    "description": "Ruby On Rails file",
+    "extension": "\\.rb"
+  },
+  {
+    "active": true,
+    "description": "Potential configuration file",
+    "extension": "\\.yml"
+  },
+  {
+    "active": true,
+    "description": "Python file",
+    "extension": "\\.py"
+  },
+  {
+    "active": true,
+    "description": "1Password password manager database file",
+    "extension": "\\.agilekeychain"
+  },
+  {
+    "active": true,
+    "description": "Apple Keychain database file",
+    "extension": "\\.keychain"
+  },
+  {
+    "active": true,
+    "description": "Network traffic capture file",
+    "extension": "\\.pcap"
+  },
+  {
+    "active": true,
+    "description": "GnuCash database file",
+    "extension": "\\.gnucash"
+  },
+  {
+    "active": true,
+    "description": "XML file",
+    "extension": "\\.xml"
+  },
+  {
+    "active": true,
+    "description": "KDE Wallet Manager database file",
+    "extension": "\\.kwallet"
+  },
+  {
+    "active": true,
+    "description": "PHP file",
+    "extension": "\\.php"
+  },
+  {
+    "active": true,
+    "description": "Tunnelblick VPN configuration file",
+    "extension": "\\.tblk"
+  },
+  {
+    "active": true,
+    "description": "Sequel Pro MySQL database manager bookmark file",
+    "extension": "\\.plist"
+  },
+  {
+    "active": true,
+    "description": "Little Snitch firewall configuration file",
+    "extension": "\\.xpl"
+  },
+  {
+    "active": true,
+    "description": "Day One journal file",
+    "extension": "\\.dayone"
+  },
+  {
+    "active": true,
+    "description": "Text file",
+    "extension": "\\.txt"
+  },
+  {
+    "active": true,
+    "description": "Terraform variable config file",
+    "extension": "\\terraform.tfvars"
+  },
+  {
+    "active": true,
+    "description": "Shell configuration file",
+    "extension": "\\.exports"
+  },
+  {
+    "active": true,
+    "description": "Shell configuration file",
+    "extension": "\\.functions"
+  },
+  {
+    "active": true,
+    "description": "Shell configuration file",
+    "extension": "\\.extra"
+  },
+  {
+    "active": true,
+    "description": "ASP configuration file",
+    "extension": "\\.asa"
+  },
+  {
+    "active": true,
+    "description": "Include file",
+    "extension": "\\.inc"
+  },
+  {
+    "active": true,
+    "description": "Configuration file",
+    "extension": "\\.config"
+  },
+  {
+    "active": true,
+    "description": "Compressed archive file",
+    "extension": "\\.zip"
+  },
+  {
+    "active": true,
+    "description": "Compressed archive file",
+    "extension": "\\.tar"
+  },
+  {
+    "active": true,
+    "description": "Compressed archive file",
+    "extension": "\\.gz"
+  },
+  {
+    "active": true,
+    "description": "Compressed archive file",
+    "extension": "\\.tgz"
+  },
+  {
+    "active": true,
+    "description": "Compressed archive file",
+    "extension": "\\.rar"
+  },
+  {
+    "active": true,
+    "description": "Java file",
+    "extension": "\\.java"
+  },
+  {
+    "active": true,
+    "description": "PDF file",
+    "extension": "\\.pdf"
+  },
+  {
+    "active": true,
+    "description": "Document file",
+    "extension": "\\.docx"
+  },
+  {
+    "active": true,
+    "description": "Document file",
+    "extension": "\\.doc"
+  },
+  {
+    "active": true,
+    "description": "Document file",
+    "extension": "\\.rtf"
+  },
+  {
+    "active": true,
+    "description": "Excel file",
+    "extension": "\\.xlsx"
+  },
+  {
+    "active": true,
+    "description": "Excel file",
+    "extension": "\\.xls"
+  },
+  {
+    "active": true,
+    "description": "Excel file",
+    "extension": "\\.csv"
+  },
+  {
+    "active": true,
+    "description": "Presentation file",
+    "extension": "\\.pptx"
+  },
+  {
+    "active": true,
+    "description": "Presentation file",
+    "extension": "\\.ppt"
+  },
+  {
+    "active": true,
+    "description": "Backup file",
+    "extension": "\\.bak"
+  },
+  {
+    "active": true,
+    "description": "Old file",
+    "extension": "\\.old"
+  },
+  {
+    "active": true,
+    "description": "Temporary file",
+    "extension": "\\.tmp"
+  },
+  {
+    "active": true,
+    "description": "Certificate file",
+    "extension": "\\.cer"
+  },
+  {
+    "active": true,
+    "description": "Certificate file",
+    "extension": "\\.crt"
+  },
+  {
+    "active": true,
+    "description": "Certificate file",
+    "extension": "\\.p7b"
+  }
+]
