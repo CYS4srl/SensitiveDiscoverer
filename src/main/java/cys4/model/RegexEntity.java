@@ -9,9 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegexEntity {
-    private Boolean active;
-    private final String regular_expression;
-    private transient Pattern regex_compiled;
+    private boolean active;
+    private final String regex;
+    private transient Pattern regexCompiled;
     private final String description;
 
     public RegexEntity(String description, String regex) {
@@ -20,8 +20,8 @@ public class RegexEntity {
 
     public RegexEntity(String description, String regex, Boolean active) {
         this.active = active;
-        this.regular_expression = regex;
-        this.regex_compiled = null;
+        this.regex = regex;
+        this.regexCompiled = null;
         this.description = description;
     }
 
@@ -39,9 +39,9 @@ public class RegexEntity {
     }
 
     public void compileRegex() {
-        if (this.regular_expression == null || this.regular_expression.equals("")) return;
+        if (this.regex == null || this.regex.equals("")) return;
 
-        this.regex_compiled = Pattern.compile(this.getRegex());
+        this.regexCompiled = Pattern.compile(this.getRegex());
     }
 
     public Boolean isActive() {
@@ -49,18 +49,18 @@ public class RegexEntity {
     }
 
     public String getRegex() {
-        return this.regular_expression;
+        return this.regex;
     }
 
     public Pattern getRegexCompiled() {
-        return this.regex_compiled;
+        return this.regexCompiled;
     }
 
     public String getDescription() {
         return this.description;
     }
 
-    public void setActive(Boolean value) {
+    public void setActive(boolean value) {
         this.active = value;
     }
 
@@ -69,11 +69,11 @@ public class RegexEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RegexEntity that = (RegexEntity) o;
-        return regular_expression.equals(that.regular_expression);
+        return this.getRegex().equals(that.getRegex());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(regular_expression);
+        return Objects.hash(regex);
     }
 }

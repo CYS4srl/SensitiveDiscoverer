@@ -18,9 +18,6 @@ import java.util.List;
 public class ContextMenuUI extends JPopupMenu {
 
     public ContextMenuUI(LogEntity le, List<LogEntity> logEntries, ITextEditor originalRequestViewer, ITextEditor originalResponseViewer, LogTableEntriesUI logTableEntriesUI, LogTableEntryUI logTableEntryUI,IBurpExtenderCallbacks callbacks) {
-
-        // init params
-
         // populate the menu
         String urlLog = le.getURL().toString();
         if (urlLog.length() > 50) urlLog = urlLog.substring(0, 47) + "...";
@@ -82,6 +79,15 @@ public class ContextMenuUI extends JPopupMenu {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 StringSelection stsel = new StringSelection(le.getURL().toString());
+                Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
+                system.setContents(stsel, stsel);
+            }
+        }));
+
+        this.add(new JMenuItem(new AbstractAction("Copy Description") {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                StringSelection stsel = new StringSelection(le.getDescription());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(stsel, stsel);
             }

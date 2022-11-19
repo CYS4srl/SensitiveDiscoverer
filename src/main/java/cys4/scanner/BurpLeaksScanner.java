@@ -130,7 +130,8 @@ public class BurpLeaksScanner {
             while (regex_matcher.find()) {
                 addLogEntry(
                     httpProxyItem,
-                    entry.getDescription() + " - " + entry.getRegex(),
+                    entry.getDescription(),
+                    entry.getRegex(),
                     regex_matcher.group());
             }
         }
@@ -141,20 +142,18 @@ public class BurpLeaksScanner {
             // if the box related to the extensions in the Options tab of the extension is checked
             if (!entry.isActive()) continue;
 
-            String extension = entry.getExtension();
-
             Matcher extension_matcher = entry.getRegexCompiled().matcher(requestURL.toString());
-            // add the new entry if do not exist
             if (extension_matcher.find()) {
                 addLogEntry(
                     httpProxyItem,
-                    "EXT " + entry.getDescription() + " - " + extension,
-                    extension);
+                    entry.getDescription(),
+                    entry.getRegex(),
+                    extension_matcher.group());
             }
         }
     }
 
-    private void addLogEntry(IHttpRequestResponse httpProxyItem, String description, String match) {
+    private void addLogEntry(IHttpRequestResponse httpProxyItem, String description, String regex, String match) {
         // create a new log entry with the message details
         int row = logEntries.size();
 
@@ -163,6 +162,7 @@ public class BurpLeaksScanner {
             httpProxyItem,
             helpers.analyzeRequest(httpProxyItem).getUrl(),
             description,
+            regex,
             match);
 
         if (!logEntries.contains(logEntry)) {

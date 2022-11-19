@@ -2,311 +2,311 @@
   {
     "active": true,
     "description": "Potential cryptographic private key",
-    "extension": "\\.pem"
+    "regex": "\\.pem"
   },
   {
     "active": true,
     "description": "Log file",
-    "extension": "\\.log"
+    "regex": "\\.log"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "extension": "\\.pkcs12"
+    "regex": "\\.pkcs12"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "extension": "\\.p12"
+    "regex": "\\.p12"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "extension": "\\.pfx"
+    "regex": "\\.pfx"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "extension": "\\.asc"
+    "regex": "\\.asc"
   },
   {
     "active": true,
     "description": "Potential private key",
-    "extension": "otr.private_key"
+    "regex": "otr.private_key"
   },
   {
     "active": true,
     "description": "OpenVPN client configuration file",
-    "extension": "\\.ovpn"
+    "regex": "\\.ovpn"
   },
   {
     "active": true,
     "description": "Azure service configuration schema file",
-    "extension": "\\.cscfg"
+    "regex": "\\.cscfg"
   },
   {
     "active": true,
     "description": "Remote Desktop connection file",
-    "extension": "\\.rdp"
+    "regex": "\\.rdp"
   },
   {
     "active": true,
     "description": "Microsoft SQL database file",
-    "extension": "\\.mdf"
+    "regex": "\\.mdf"
   },
   {
     "active": true,
     "description": "Microsoft SQL server compact database file",
-    "extension": "\\.sdf"
+    "regex": "\\.sdf"
   },
   {
     "active": true,
     "description": "SQLite database file",
-    "extension": "\\.sqlite"
+    "regex": "\\.sqlite"
   },
   {
     "active": true,
     "description": "SQLite3 database file",
-    "extension": "\\.sqlite3"
+    "regex": "\\.sqlite3"
   },
   {
     "active": true,
     "description": "Microsoft BitLocker recovery key file",
-    "extension": "\\.bek"
+    "regex": "\\.bek"
   },
   {
     "active": true,
     "description": "Microsoft BitLocker Trusted Platform Module password file",
-    "extension": "\\.tpm"
+    "regex": "\\.tpm"
   },
   {
     "active": true,
     "description": "Windows BitLocker full volume encrypted data file",
-    "extension": "\\.fve"
+    "regex": "\\.fve"
   },
   {
     "active": true,
     "description": "Java keystore file",
-    "extension": "\\.jks"
+    "regex": "\\.jks"
   },
   {
     "active": true,
     "description": "Password Safe database file",
-    "extension": "\\.psafe3"
+    "regex": "\\.psafe3"
   },
   {
     "active": true,
     "description": "Ruby On Rails file",
-    "extension": "\\.rb"
+    "regex": "\\.rb"
   },
   {
     "active": true,
     "description": "Potential configuration file",
-    "extension": "\\.yml"
+    "regex": "\\.yml"
   },
   {
     "active": true,
     "description": "Python file",
-    "extension": "\\.py"
+    "regex": "\\.py"
   },
   {
     "active": true,
     "description": "1Password password manager database file",
-    "extension": "\\.agilekeychain"
+    "regex": "\\.agilekeychain"
   },
   {
     "active": true,
     "description": "Apple Keychain database file",
-    "extension": "\\.keychain"
+    "regex": "\\.keychain"
   },
   {
     "active": true,
     "description": "Network traffic capture file",
-    "extension": "\\.pcap"
+    "regex": "\\.pcap"
   },
   {
     "active": true,
     "description": "GnuCash database file",
-    "extension": "\\.gnucash"
+    "regex": "\\.gnucash"
   },
   {
     "active": true,
     "description": "XML file",
-    "extension": "\\.xml"
+    "regex": "\\.xml"
   },
   {
     "active": true,
     "description": "KDE Wallet Manager database file",
-    "extension": "\\.kwallet"
+    "regex": "\\.kwallet"
   },
   {
     "active": true,
     "description": "PHP file",
-    "extension": "\\.php"
+    "regex": "\\.php"
   },
   {
     "active": true,
     "description": "Tunnelblick VPN configuration file",
-    "extension": "\\.tblk"
+    "regex": "\\.tblk"
   },
   {
     "active": true,
     "description": "Sequel Pro MySQL database manager bookmark file",
-    "extension": "\\.plist"
+    "regex": "\\.plist"
   },
   {
     "active": true,
     "description": "Little Snitch firewall configuration file",
-    "extension": "\\.xpl"
+    "regex": "\\.xpl"
   },
   {
     "active": true,
     "description": "Day One journal file",
-    "extension": "\\.dayone"
+    "regex": "\\.dayone"
   },
   {
     "active": true,
     "description": "Text file",
-    "extension": "\\.txt"
+    "regex": "\\.txt"
   },
   {
     "active": true,
     "description": "Terraform variable config file",
-    "extension": "\\terraform.tfvars"
+    "regex": "\\terraform.tfvars"
   },
   {
     "active": true,
     "description": "Shell configuration file",
-    "extension": "\\.exports"
+    "regex": "\\.exports"
   },
   {
     "active": true,
     "description": "Shell configuration file",
-    "extension": "\\.functions"
+    "regex": "\\.functions"
   },
   {
     "active": true,
     "description": "Shell configuration file",
-    "extension": "\\.extra"
+    "regex": "\\.extra"
   },
   {
     "active": true,
     "description": "ASP configuration file",
-    "extension": "\\.asa"
+    "regex": "\\.asa"
   },
   {
     "active": true,
     "description": "Include file",
-    "extension": "\\.inc"
+    "regex": "\\.inc"
   },
   {
     "active": true,
     "description": "Configuration file",
-    "extension": "\\.config"
+    "regex": "\\.config"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "extension": "\\.zip"
+    "regex": "\\.zip"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "extension": "\\.tar"
+    "regex": "\\.tar"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "extension": "\\.gz"
+    "regex": "\\.gz"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "extension": "\\.tgz"
+    "regex": "\\.tgz"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "extension": "\\.rar"
+    "regex": "\\.rar"
   },
   {
     "active": true,
     "description": "Java file",
-    "extension": "\\.java"
+    "regex": "\\.java"
   },
   {
     "active": true,
     "description": "PDF file",
-    "extension": "\\.pdf"
+    "regex": "\\.pdf"
   },
   {
     "active": true,
     "description": "Document file",
-    "extension": "\\.docx"
+    "regex": "\\.docx"
   },
   {
     "active": true,
     "description": "Document file",
-    "extension": "\\.doc"
+    "regex": "\\.doc"
   },
   {
     "active": true,
     "description": "Document file",
-    "extension": "\\.rtf"
+    "regex": "\\.rtf"
   },
   {
     "active": true,
     "description": "Excel file",
-    "extension": "\\.xlsx"
+    "regex": "\\.xlsx"
   },
   {
     "active": true,
     "description": "Excel file",
-    "extension": "\\.xls"
+    "regex": "\\.xls"
   },
   {
     "active": true,
     "description": "Excel file",
-    "extension": "\\.csv"
+    "regex": "\\.csv"
   },
   {
     "active": true,
     "description": "Presentation file",
-    "extension": "\\.pptx"
+    "regex": "\\.pptx"
   },
   {
     "active": true,
     "description": "Presentation file",
-    "extension": "\\.ppt"
+    "regex": "\\.ppt"
   },
   {
     "active": true,
     "description": "Backup file",
-    "extension": "\\.bak"
+    "regex": "\\.bak"
   },
   {
     "active": true,
     "description": "Old file",
-    "extension": "\\.old"
+    "regex": "\\.old"
   },
   {
     "active": true,
     "description": "Temporary file",
-    "extension": "\\.tmp"
+    "regex": "\\.tmp"
   },
   {
     "active": true,
     "description": "Certificate file",
-    "extension": "\\.cer"
+    "regex": "\\.cer"
   },
   {
     "active": true,
     "description": "Certificate file",
-    "extension": "\\.crt"
+    "regex": "\\.crt"
   },
   {
     "active": true,
     "description": "Certificate file",
-    "extension": "\\.p7b"
+    "regex": "\\.p7b"
   }
 ]

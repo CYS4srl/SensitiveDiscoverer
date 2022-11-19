@@ -11,22 +11,23 @@ import java.util.regex.Pattern;
 
 public class ExtensionEntity {
     private boolean active;
-    private String extension;
-    private transient Pattern extension_regex_compiled;
+    private final String regex;
+    private transient Pattern regexCompiled;
     private final String description;
 
-    public ExtensionEntity(String description, String extension) {
-        this(description, extension, true);
+    public ExtensionEntity(String description, String regex) {
+        this(description, regex, true);
     }
 
-    public ExtensionEntity(String description, String extension, boolean active) {
+    public ExtensionEntity(String description, String regex, boolean active) {
         this.active = active;
-        this.extension = extension;
         this.description = description;
-        this.extension_regex_compiled = null;
+        this.regexCompiled = null;
 
-        if (this.extension != null && !this.extension.isBlank() && !this.extension.endsWith("$")) {
-            this.extension += '$';
+        if (regex != null && !regex.isBlank() && !regex.endsWith("$")) {
+            this.regex = regex + '$';
+        } else {
+            this.regex = regex;
         }
     }
 
@@ -56,9 +57,9 @@ public class ExtensionEntity {
     }
 
     public void compileRegex() {
-        if (this.extension == null || this.extension.equals("")) return;
+        if (this.regex == null || this.regex.equals("")) return;
 
-        this.extension_regex_compiled = Pattern.compile(this.extension);
+        this.regexCompiled = Pattern.compile(this.regex);
     }
 
     public boolean isActive() {
@@ -69,12 +70,12 @@ public class ExtensionEntity {
         return this.description;
     }
 
-    public String getExtension() {
-        return this.extension;
+    public String getRegex() {
+        return this.regex;
     }
 
     public Pattern getRegexCompiled() {
-        return this.extension_regex_compiled;
+        return this.regexCompiled;
     }
 
     public void setActive(boolean value) {
@@ -86,11 +87,11 @@ public class ExtensionEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExtensionEntity that = (ExtensionEntity) o;
-        return getExtension().equals(that.getExtension());
+        return this.getRegex().equals(that.getRegex());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getExtension());
+        return Objects.hash(getRegex());
     }
 }
