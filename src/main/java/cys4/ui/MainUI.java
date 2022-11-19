@@ -285,26 +285,24 @@ public class MainUI implements ITab {
 
         btnAnalysis.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
-                if (callbacks.getProxyHistory().length > 0) {
-                    this.isAnalysisRunning = true;
-                    this.analyzeProxyHistoryThread = new Thread(() -> {
-                        String previousText = btnAnalysis.getText();
-                        btnAnalysis.setText(textAnalysisStop);
-                        logTableEntryUI.setAutoCreateRowSorter(false);
+                this.isAnalysisRunning = true;
+                this.analyzeProxyHistoryThread = new Thread(() -> {
+                    String previousText = btnAnalysis.getText();
+                    btnAnalysis.setText(textAnalysisStop);
+                    logTableEntryUI.setAutoCreateRowSorter(false);
 
-                        burpLeaksScanner.analyzeProxyHistory(progressBar);
+                    burpLeaksScanner.analyzeProxyHistory(progressBar);
 
-                        btnAnalysis.setText(previousText);
-                        logTableEntryUI.setAutoCreateRowSorter(true);
-                        this.analyzeProxyHistoryThread = null;
-                        this.isAnalysisRunning = false;
-                    });
-                    this.analyzeProxyHistoryThread.start();
+                    btnAnalysis.setText(previousText);
+                    logTableEntryUI.setAutoCreateRowSorter(true);
+                    this.analyzeProxyHistoryThread = null;
+                    this.isAnalysisRunning = false;
+                });
+                this.analyzeProxyHistoryThread.start();
 
-                    //TODO: are they needed?
-                    logTableEntryUI.validate();
-                    logTableEntryUI.repaint();
-                }
+                //TODO: are they needed?
+                logTableEntryUI.validate();
+                logTableEntryUI.repaint();
             } else {
                 if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
 
@@ -402,7 +400,6 @@ public class MainUI implements ITab {
             }
 
             extensionsList = BurpLeaksSeed.getExtensions();
-            burpLeaksScanner.updateExtensionList(extensionsList);
             modelExt.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -438,7 +435,6 @@ public class MainUI implements ITab {
 
             if (ExtensionEntity.isExtensionValid(extension)) {
                 extensionsList.add(new ExtensionEntity(description, "\\" + extension));
-                burpLeaksScanner.updateExtensionList(extensionsList);
                 modelExt.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -455,7 +451,6 @@ public class MainUI implements ITab {
             int realRow = optionExtensionsTable.convertRowIndexToModel(rowIndex);
             extensionsList.remove(realRow);
 
-            burpLeaksScanner.updateExtensionList(extensionsList);
             modelExt.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -470,7 +465,6 @@ public class MainUI implements ITab {
 
             if (extensionsList.size() > 0) {
                 extensionsList.subList(0, extensionsList.size()).clear();
-                burpLeaksScanner.updateExtensionList(extensionsList);
                 modelExt.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -506,7 +500,6 @@ public class MainUI implements ITab {
                     if (!extensionsList.contains(extension)) {
                         extensionsList.add(extension);
 
-                        this.burpLeaksScanner.updateExtensionList(extensionsList);
                         modelExt.fireTableDataChanged();
                     } else {
                         alreadyAdded.append(description).append(" - ").append(regex).append("\n");
@@ -598,7 +591,6 @@ public class MainUI implements ITab {
             }
 
             regexList = BurpLeaksSeed.getRegex();
-            this.burpLeaksScanner.updateRegexList(regexList);
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -633,7 +625,6 @@ public class MainUI implements ITab {
             String description = textFieldDesc.getText();
 
             regexList.add(new RegexEntity(description, expression));
-            burpLeaksScanner.updateRegexList(regexList);
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -647,7 +638,6 @@ public class MainUI implements ITab {
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
             regexList.remove(realRow);
 
-            burpLeaksScanner.updateRegexList(regexList);
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -662,7 +652,6 @@ public class MainUI implements ITab {
 
             if (regexList.size() > 0) {
                 regexList.subList(0, regexList.size()).clear();
-                burpLeaksScanner.updateRegexList(regexList);
                 modelReg.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -698,7 +687,6 @@ public class MainUI implements ITab {
                     if (!regexList.contains(newRegexEntity)) {
                         regexList.add(newRegexEntity);
 
-                        this.burpLeaksScanner.updateRegexList(regexList);
                         modelReg.fireTableDataChanged();
                     } else {
                         alreadyAdded.append(description).append(" - ").append(regex).append("\n");

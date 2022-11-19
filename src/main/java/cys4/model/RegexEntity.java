@@ -9,20 +9,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegexEntity {
-    private Boolean active;
+    private boolean active;
     private final String regular_expression;
-    private transient Pattern regex_compiled;
+    private final transient Pattern regex_compiled;
     private final String description;
 
-    public RegexEntity(String description, String regex) {
+    public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true);
     }
 
-    public RegexEntity(String description, String regex, Boolean active) {
+    public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
+        if (regex == null || regex.isEmpty())
+            throw new IllegalArgumentException("Invalid regex");
+
         this.active = active;
-        this.regular_expression = regex;
-        this.regex_compiled = null;
         this.description = description;
+        this.regular_expression = regex;
+        this.regex_compiled = Pattern.compile(regex);
+    }
+
+    public RegexEntity(RegexEntity entity) throws IllegalArgumentException {
+        this(entity.getDescription(), entity.getRegex(), entity.isActive());
     }
 
     /**
@@ -36,12 +43,6 @@ public class RegexEntity {
         return Pattern
                 .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
                 .matcher(line);
-    }
-
-    public void compileRegex() {
-        if (this.regular_expression == null || this.regular_expression.equals("")) return;
-
-        this.regex_compiled = Pattern.compile(this.getRegex());
     }
 
     public Boolean isActive() {
@@ -60,7 +61,7 @@ public class RegexEntity {
         return this.description;
     }
 
-    public void setActive(Boolean value) {
+    public void setActive(boolean value) {
         this.active = value;
     }
 
