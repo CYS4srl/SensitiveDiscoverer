@@ -1,0 +1,132 @@
+[
+  {
+    "active": false,
+    "description": "Configuration file for auto-login process",
+    "regular_expression": "(\\.|_)?netrc"
+  },
+  {
+    "active": false,
+    "description": "DBeaver SQL database manager configuration file",
+    "regular_expression": "\\.?dbeaver-data-sources(\\-\\d+)?\\.xml"
+  },
+  {
+    "active": true,
+    "description": "DigitalOcean doctl command-line client configuration file",
+    "regular_expression": "doctl/config\\.ya?ml"
+  },
+  {
+    "active": true,
+    "description": "Docker configuration file",
+    "regular_expression": "\\.?dockercfg"
+  },
+  {
+    "active": true,
+    "description": "Docker registry authentication file",
+    "regular_expression": "\\.?docker/config\\.json"
+  },
+  {
+    "active": true,
+    "description": "Environment configuration file",
+    "regular_expression": "\\.env"
+  },
+  {
+    "active": true,
+    "description": "Git configuration file",
+    "regular_expression": "\\.?gitconfig"
+  },
+  {
+    "active": true,
+    "description": "GitHub Hub command-line client configuration file",
+    "regular_expression": "config/hub"
+  },
+  {
+    "active": true,
+    "description": "Hexchat/XChat IRC client server list configuration file",
+    "regular_expression": "\\.?xchat2?/servlist\\.conf"
+  },
+  {
+    "active": true,
+    "description": "Irssi IRC client configuration file",
+    "regular_expression": "\\.?irssi/config"
+  },
+  {
+    "active": true,
+    "description": "Mutt e-mail client configuration file",
+    "regular_expression": "\\.?muttrc"
+  },
+  {
+    "active": true,
+    "description": "MySQL client command history file",
+    "regular_expression": "\\.?mysql_history"
+  },
+  {
+    "active": true,
+    "description": "NPM configuration file",
+    "regular_expression": "\\.?npmrc"
+  },
+  {
+    "active": true,
+    "description": "PHP configuration file",
+    "regular_expression": "config(\\.inc)?\\.php"
+  },
+  {
+    "active": true,
+    "description": "PostgreSQL client command history file",
+    "regular_expression": "\\.?psql_history"
+  },
+  {
+    "active": true,
+    "description": "Ruby IRB console history file",
+    "regular_expression": "\\.?irb_history"
+  },
+  {
+    "active": true,
+    "description": "S3cmd configuration file",
+    "regular_expression": "\\.?s3cfg"
+  },
+  {
+    "active": true,
+    "description": "SFTP connection configuration file",
+    "regular_expression": "sftp-config(\\.json)?"
+  },
+  {
+    "active": true,
+    "description": "SSH configuration file",
+    "regular_expression": "\\.?ssh/config"
+  },
+  {
+    "active": true,
+    "description": "Shell command alias configuration file",
+    "regular_expression": "\\.?(bash_|zsh_)aliases"
+  },
+  {
+    "active": true,
+    "description": "Shell command history file",
+    "regular_expression": "\\.?(bash_|zsh_|sh_|z)history"
+  },
+  {
+    "active": true,
+    "description": "Shell configuration file",
+    "regular_expression": "\\.?(bash|zsh|csh)rc"
+  },
+  {
+    "active": true,
+    "description": "Shell profile configuration file",
+    "regular_expression": "\\.?(bash_|zsh_)profile"
+  },
+  {
+    "active": false,
+    "description": "T command-line Twitter client configuration file",
+    "regular_expression": "\\.?trc[\\W]+"
+  },
+  {
+    "active": true,
+    "description": "Tugboat DigitalOcean management tool configuration",
+    "regular_expression": "\\.?tugboat"
+  },
+  {
+    "active": true,
+    "description": "esmtp configuration file",
+    "regular_expression": "\\.?esmtprc"
+  }
+]

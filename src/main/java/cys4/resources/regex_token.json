@@ -1,0 +1,182 @@
+[
+  {
+    "active": false,
+    "description": "SonarQube Docs API Key",
+    "regular_expression": "(?i)sonar.{0,50}[\"'`]?[0-9a-f]{40}[\"'`]?"
+  },
+  {
+    "active": true,
+    "description": "Square Access Token",
+    "regular_expression": "sq0atp-[\\w\\-]{22}"
+  },
+  {
+    "active": true,
+    "description": "Square OAuth Secret",
+    "regular_expression": "sq0csp-[\\w\\-]{43}"
+  },
+  {
+    "active": true,
+    "description": "StackHawk API Key",
+    "regular_expression": "hawk(\\.[\\w\\-]{20})+"
+  },
+  {
+    "active": true,
+    "description": "Stripe API key",
+    "regular_expression": "[rsp]k_(live|test)_[0-9a-zA-Z]{24}"
+  },
+  {
+    "active": false,
+    "description": "Twilio API Key",
+    "regular_expression": "SK\\w{32}"
+  },
+  {
+    "active": false,
+    "description": "Twitter Access Token",
+    "regular_expression": "(?i)twitter.*?\\d+\\-\\w{40}"
+  },
+  {
+    "active": false,
+    "description": "Twitter Client ID",
+    "regular_expression": "(?i)twitter(.{0,20})?['\"][0-9a-z]{18,25}['\"]"
+  },
+  {
+    "active": false,
+    "description": "Twitter OAuth",
+    "regular_expression": "(?i)twitter.*?['\"]\\w{35,44}['\"]"
+  },
+  {
+    "active": false,
+    "description": "Twitter Secret Key",
+    "regular_expression": "(?i)twitter(.{0,20})?['\"][0-9a-z]{35,44}['\"]"
+  },
+  {
+    "active": false,
+    "description": "Sauce Token",
+    "regular_expression": "(?i)sauce.{0,50}[\"'`]?[0-9a-f\\-]{36}[\"'`]?"
+  },
+  {
+    "active": false,
+    "description": "SendGrid API Key",
+    "regular_expression": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}"
+  },
+  {
+    "active": false,
+    "description": "Slack Token",
+    "regular_expression": "(xox[pboa]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})"
+  },
+  {
+    "active": true,
+    "description": "PayPal/Braintree Access Token",
+    "regular_expression": "access_token\\$production\\$\\w{16}\\$\\w{32}"
+  },
+  {
+    "active": true,
+    "description": "Picatic API key",
+    "regular_expression": "[rsp]k_(live|test)_[0-9a-z]{32}"
+  },
+  {
+    "active": false,
+    "description": "LinkedIn Secret Key",
+    "regular_expression": "(?i)linkedin(.{0,20})?['\"][0-9a-z]{16}['\"]"
+  },
+  {
+    "active": false,
+    "description": "Linkedin Client ID",
+    "regular_expression": "(?i)linkedin(.{0,20})?(\\?\\-i)['\"][0-9a-z]{12}['\"]"
+  },
+  {
+    "active": false,
+    "description": "MailChimp API Key",
+    "regular_expression": "[0-9a-f]{32}-us[0-9]{12}"
+  },
+  {
+    "active": false,
+    "description": "MailGun API Key",
+    "regular_expression": "key-[0-9a-zA-Z]{32}"
+  },
+  {
+    "active": true,
+    "description": "NuGet API Key",
+    "regular_expression": "oy2\\w{43}"
+  },
+  {
+    "active": true,
+    "description": "Google Cloud API Key",
+    "regular_expression": "AIza[\\-\\w]{35}"
+  },
+  {
+    "active": false,
+    "description": "Google OAuth Access Token",
+    "regular_expression": "ya29\\.[\\-\\w]+"
+  },
+  {
+    "active": false,
+    "description": "Google OAuth Key",
+    "regular_expression": "\\d+-\\w{32}\\.apps\\.googleusercontent\\.com"
+  },
+  {
+    "active": false,
+    "description": "Facebook Client ID",
+    "regular_expression": "(?i)(facebook|fb)(.{0,20})?['\"]\\d{13,17}['\"]"
+  },
+  {
+    "active": true,
+    "description": "Facebook OAuth",
+    "regular_expression": "(?i)facebook.*?['\"]\\w{32}['\"]"
+  },
+  {
+    "active": false,
+    "description": "Facebook Secret Key",
+    "regular_expression": "(?i)(facebook|fb)(.{0,20})?(\\?\\-i)['\"][0-9a-f]{32}['\"]"
+  },
+  {
+    "active": false,
+    "description": "Facebook access token",
+    "regular_expression": "EAACEdEose0cBA\\w+"
+  },
+  {
+    "active": true,
+    "description": "Authorization Basic",
+    "regular_expression": "Basic\\s[\\w+/]+=*"
+  },
+  {
+    "active": true,
+    "description": "Authorization Bearer - 1",
+    "regular_expression": "Bearer\\s(\\d|a-f){8}\\-((\\d|a-f){4}\\-){3}(\\d|a-f){12}"
+  },
+  {
+    "active": true,
+    "description": "Authorization Bearer - 2",
+    "regular_expression": "Bearer\\s[\\w\\-=]+\\.[\\w\\-=]+(\\.[\\w\\-\\.+/=]+)?"
+  },
+  {
+    "active": true,
+    "description": "Authorization Splunk",
+    "regular_expression": "Splunk\\s\\{?\\w{8}(\\-\\w{4}){3}\\-\\w{12}\\}?"
+  },
+  {
+    "active": false,
+    "description": "AWS Access Key ID",
+    "regular_expression": "(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])"
+  },
+  {
+    "active": false,
+    "description": "AWS Access Key ID Value",
+    "regular_expression": "(A3T[A-Z0-9]|AKIA|AGPA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}"
+  },
+  {
+    "active": false,
+    "description": "AWS Secret Access Key",
+    "regular_expression": "(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])"
+  },
+  {
+    "active": false,
+    "description": "AWS Session Token",
+    "regular_expression": "(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{16,}(?<![A-Za-z0-9/+=])"
+  },
+  {
+    "active": true,
+    "description": "Amazon MWS Auth Token",
+    "regular_expression": "amzn\\.mws\\.\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}"
+  }
+]
