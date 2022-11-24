@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 public class RegexEntity {
     private boolean active;
-    private final String regular_expression;
-    private final transient Pattern regex_compiled;
+    private final String regex;
+    private final transient Pattern regexCompiled;
     private final String description;
 
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
@@ -24,8 +24,8 @@ public class RegexEntity {
 
         this.active = active;
         this.description = description;
-        this.regular_expression = regex;
-        this.regex_compiled = Pattern.compile(regex);
+        this.regex = regex;
+        this.regexCompiled = Pattern.compile(regex);
     }
 
     public RegexEntity(RegexEntity entity) throws IllegalArgumentException {
@@ -45,16 +45,16 @@ public class RegexEntity {
                 .matcher(line);
     }
 
-    public Boolean isActive() {
+    public boolean isActive() {
         return this.active;
     }
 
     public String getRegex() {
-        return this.regular_expression;
+        return this.regex;
     }
 
     public Pattern getRegexCompiled() {
-        return this.regex_compiled;
+        return this.regexCompiled;
     }
 
     public String getDescription() {
@@ -70,11 +70,11 @@ public class RegexEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RegexEntity that = (RegexEntity) o;
-        return regular_expression.equals(that.regular_expression);
+        return this.getRegex().equals(that.getRegex());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(regular_expression);
+        return Objects.hash(regex);
     }
 }

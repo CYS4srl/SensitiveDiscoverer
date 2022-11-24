@@ -19,14 +19,16 @@ public class LogEntity {
     private final String host;
     private final int port;
     private final boolean isSSL;
+    private final String description;
 
-    public LogEntity(IHttpRequestResponse requestResponse, URL url, String regex, String match) {
+    public LogEntity(IHttpRequestResponse requestResponse, URL url, String description, String regex, String match) {
         this.idRequest = getCounterIdRequest();
 
         incrementCounter();
 
         this.requestResponse = requestResponse;
         this.url = url;
+        this.description = description;
         this.regex = regex;
         this.match = match;
         this.host = requestResponse.getHttpService().getHost();
@@ -122,5 +124,9 @@ public class LogEntity {
         return (((LogEntity) o).regex.equals(this.regex)) &&
                 firstUrl.equals(secondUrl) &&
                 ((LogEntity) o).match.equals(this.match);
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 }

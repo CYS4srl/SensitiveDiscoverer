@@ -34,7 +34,7 @@ public class BurpLeaksSeed {
         List<ExtensionEntity> lDeserializedJson = _gson.fromJson(Utils.readResourceFile("extension.json"), tArrayListExtensionEntity);
 
         for (ExtensionEntity element : lDeserializedJson) {
-            extensions.add(new ExtensionEntity(element.getDescription(), element.getExtension(), element.isActive()));
+            extensions.add(new ExtensionEntity(element.getDescription(), element.getRegex(), element.isActive()));
         }
     }
 

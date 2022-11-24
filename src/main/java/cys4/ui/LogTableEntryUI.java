@@ -50,13 +50,9 @@ public class LogTableEntryUI extends JTable {
     public void updateRequestViewers(byte[] request, byte[] response, String search) {
         SwingUtilities.invokeLater(() -> {
             originalRequestViewer.setText(Objects.requireNonNullElseGet(request, () -> new byte[0]));
-
-            if (response != null) {
-                originalResponseViewer.setText(response);
-                originalResponseViewer.setSearchExpression(search);
-            } else {
-                originalResponseViewer.setText(new byte[0]);
-            }
+            originalRequestViewer.setSearchExpression(search);
+            originalResponseViewer.setText(Objects.requireNonNullElseGet(response, () -> new byte[0]));
+            originalResponseViewer.setSearchExpression(search);
         });
     }
 }

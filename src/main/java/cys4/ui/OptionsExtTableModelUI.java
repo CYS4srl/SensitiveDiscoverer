@@ -5,7 +5,6 @@ See the file 'LICENSE' for copying permission
 package cys4.ui;
 
 import cys4.model.ExtensionEntity;
-
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class OptionsExtTableModelUI extends AbstractTableModel {
 
         return switch (columnIndex) {
             case 0 -> extensionEntry.isActive();
-            case 1 -> extensionEntry.getExtension();
+            case 1 -> extensionEntry.getRegex();
             case 2 -> extensionEntry.getDescription();
             default -> "";
         };
