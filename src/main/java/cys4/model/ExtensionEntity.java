@@ -11,23 +11,31 @@ import java.util.regex.Pattern;
 
 public class ExtensionEntity {
     private boolean active;
-    private String extension;
-    private transient Pattern extension_regex_compiled;
+    private final String extension;
+    private final transient Pattern extension_regex_compiled;
     private final String description;
 
-    public ExtensionEntity(String description, String extension) {
+    public ExtensionEntity(String description, String extension) throws IllegalArgumentException {
         this(description, extension, true);
     }
 
-    public ExtensionEntity(String description, String extension, boolean active) {
-        this.active = active;
-        this.extension = extension;
-        this.description = description;
-        this.extension_regex_compiled = null;
+    public ExtensionEntity(String description, String extension, boolean active) throws IllegalArgumentException {
+        if (extension == null || extension.isBlank())
+            throw new IllegalArgumentException("Invalid regex");
 
-        if (this.extension != null && !this.extension.isBlank() && !this.extension.endsWith("$")) {
-            this.extension += '$';
+        this.active = active;
+        this.description = description;
+
+        if (extension.endsWith("$")) {
+            this.extension = extension;
+        } else {
+            this.extension = extension + '$';
         }
+        this.extension_regex_compiled = Pattern.compile(this.extension);
+    }
+
+    public ExtensionEntity(ExtensionEntity entity) throws IllegalArgumentException {
+        this(entity.getDescription(), entity.getExtension(), entity.isActive());
     }
 
     /**
@@ -53,12 +61,6 @@ public class ExtensionEntity {
                 .compile("\\..+?")
                 .matcher(extension)
                 .find();
-    }
-
-    public void compileRegex() {
-        if (this.extension == null || this.extension.equals("")) return;
-
-        this.extension_regex_compiled = Pattern.compile(this.extension);
     }
 
     public boolean isActive() {
