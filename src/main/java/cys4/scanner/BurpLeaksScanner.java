@@ -33,18 +33,20 @@ public class BurpLeaksScanner {
     private final IExtensionHelpers helpers;
     private final IBurpExtenderCallbacks callbacks;
     private final List<LogEntity> logEntries;
-    private List<RegexEntity> regexList;
-    private List<ExtensionEntity> extensionsList;
+    private final List<RegexEntity> regexList;
+    private final List<ExtensionEntity> extensionsList;
     private ArrayList<String> blacklistedMimeTypes;
     private final Gson gson;
     private boolean interruptScan;
+    private int numThreads;
 
     // analyzeProxyHistory
     private int analyzedItems = 0;
     private final Object analyzeLock = new Object();
 
-    public BurpLeaksScanner(MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
+    public BurpLeaksScanner(int numThreads, MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
             List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
+        this.numThreads = numThreads;
         this.mainUI = mainUI;
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
@@ -53,14 +55,6 @@ public class BurpLeaksScanner {
         this.extensionsList = extensionsList;
         this.interruptScan = false;
         this.gson = new Gson();
-
-        for (RegexEntity entry : this.regexList) {
-            entry.compileRegex();
-        }
-
-        for (ExtensionEntity entry : this.extensionsList) {
-            entry.compileRegex();
-        }
     }
 
     /**
@@ -70,18 +64,28 @@ public class BurpLeaksScanner {
         IHttpRequestResponse[] httpRequests;
         httpRequests = callbacks.getProxyHistory();
 
-        progressBar.setMaximum(httpRequests.length);
         this.analyzedItems = 0;
+        progressBar.setMaximum(httpRequests.length);
         progressBar.setValue(this.analyzedItems);
         progressBar.setStringPainted(true);
 
-        LogEntity.setIdRequest(0); // responseId will start at 0
+        boolean inScope = MainUI.isInScopeSelected();
+        List<RegexEntity> regexListCopy = new ArrayList<>();
+        for(RegexEntity e : regexList) {
+            regexListCopy.add(new RegexEntity(e));
+        }
+        List<ExtensionEntity> extensionListCopy = new ArrayList<>();
+        for(ExtensionEntity e : extensionsList) {
+            extensionListCopy.add(new ExtensionEntity(e));
+        }
 
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+        LogEntity.setIdRequest(0); // responseId will start at 0
+        
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         for (IHttpRequestResponse httpProxyItem : httpRequests) {
             executor.execute(() -> {
-                analyzeSingleMessage(httpProxyItem);
+                analyzeSingleMessage(httpProxyItem, inScope, regexListCopy, extensionListCopy);
 
                 if (interruptScan) return;
 
@@ -109,17 +113,18 @@ public class BurpLeaksScanner {
     /**
      * The main method that scan for regex in the single request body
      */
-    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem) {
+    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, boolean inScopeSelected, List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
         URL requestURL = helpers.analyzeRequest(httpProxyItem).getUrl();
+        byte[] response = httpProxyItem.getResponse();
 
-        if (Objects.isNull(httpProxyItem.getResponse())) return;
-        if (MainUI.isInScopeSelected() && (!callbacks.isInScope(requestURL))) return;
+        if (Objects.isNull(response)) return;
+        if (inScopeSelected && (!callbacks.isInScope(requestURL))) return;
 
-        IResponseInfo response = helpers.analyzeResponse(httpProxyItem.getResponse());
-        if (!isValidMimeType(response.getStatedMimeType(), response.getInferredMimeType())) return;
+        IResponseInfo responseInfo = helpers.analyzeResponse(response);
+        if (!isValidMimeType(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType())) return;
 
         // convert from bytes to string the body of the request
-        String responseBody = helpers.bytesToString(httpProxyItem.getResponse());
+        String responseBody = helpers.bytesToString(response);
         for (RegexEntity entry : regexList) {
             if (this.interruptScan) return;
 
@@ -194,23 +199,15 @@ public class BurpLeaksScanner {
         return !blacklistedMimeTypes.contains(mimeType.toUpperCase());
     }
 
-    public void updateRegexList(List<RegexEntity> regexList) {
-        this.regexList = regexList;
-
-        for (RegexEntity entry : this.regexList) {
-            entry.compileRegex();
-        }
-    }
-
-    public void updateExtensionList(List<ExtensionEntity> extensionsList) {
-        this.extensionsList = extensionsList;
-
-        for (ExtensionEntity entry : extensionsList) {
-            entry.compileRegex();
-        }
-    }
-
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
+    }
+
+    public int getNumThreads() {
+        return numThreads;
+    }
+
+    public void setNumThreads(int numThreads) {
+        this.numThreads = numThreads;
     }
 }

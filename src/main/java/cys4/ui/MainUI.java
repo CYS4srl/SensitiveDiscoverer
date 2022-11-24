@@ -15,18 +15,14 @@ import cys4.scanner.BurpLeaksScanner;
 import cys4.seed.BurpLeaksSeed;
 
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class MainUI implements ITab {
@@ -71,7 +67,7 @@ public class MainUI implements ITab {
 
         // Logger elements
         this.logEntries = new ArrayList<>();
-        this.burpLeaksScanner = new BurpLeaksScanner(this, callbacks, logEntries, this.regexList, this.extensionsList);
+        this.burpLeaksScanner = new BurpLeaksScanner(4, this, callbacks, logEntries, this.regexList, this.extensionsList);
 
         LoadConfigFile();
     }
@@ -285,26 +281,24 @@ public class MainUI implements ITab {
 
         btnAnalysis.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
-                if (callbacks.getProxyHistory().length > 0) {
-                    this.isAnalysisRunning = true;
-                    this.analyzeProxyHistoryThread = new Thread(() -> {
-                        String previousText = btnAnalysis.getText();
-                        btnAnalysis.setText(textAnalysisStop);
-                        logTableEntryUI.setAutoCreateRowSorter(false);
+                this.isAnalysisRunning = true;
+                this.analyzeProxyHistoryThread = new Thread(() -> {
+                    String previousText = btnAnalysis.getText();
+                    btnAnalysis.setText(textAnalysisStop);
+                    logTableEntryUI.setAutoCreateRowSorter(false);
 
-                        burpLeaksScanner.analyzeProxyHistory(progressBar);
+                    burpLeaksScanner.analyzeProxyHistory(progressBar);
 
-                        btnAnalysis.setText(previousText);
-                        logTableEntryUI.setAutoCreateRowSorter(true);
-                        this.analyzeProxyHistoryThread = null;
-                        this.isAnalysisRunning = false;
-                    });
-                    this.analyzeProxyHistoryThread.start();
+                    btnAnalysis.setText(previousText);
+                    logTableEntryUI.setAutoCreateRowSorter(true);
+                    this.analyzeProxyHistoryThread = null;
+                    this.isAnalysisRunning = false;
+                });
+                this.analyzeProxyHistoryThread.start();
 
-                    //TODO: are they needed?
-                    logTableEntryUI.validate();
-                    logTableEntryUI.repaint();
-                }
+                //TODO: are they needed?
+                logTableEntryUI.validate();
+                logTableEntryUI.repaint();
             } else {
                 if (Objects.isNull(this.analyzeProxyHistoryThread)) return;
 
@@ -335,12 +329,11 @@ public class MainUI implements ITab {
     private JPanel createOptionsPanel() {
         JPanel tabPaneOptions = new JPanel();
         tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
+        tabPaneOptions.setBorder(BorderFactory.createTitledBorder("Configuration"));
 
         // Configuration
-        JPanel configurationPanel = createOptions_Configuration();
-        Border border = BorderFactory.createTitledBorder("Configuration");
-        tabPaneOptions.setBorder(border);
-        tabPaneOptions.add(configurationPanel);
+        JPanel configurationsPanel = createOptions_Configurations();
+        tabPaneOptions.add(configurationsPanel);
         tabPaneOptions.add(new JSeparator());
 
         // Regex
@@ -402,7 +395,6 @@ public class MainUI implements ITab {
             }
 
             extensionsList = BurpLeaksSeed.getExtensions();
-            burpLeaksScanner.updateExtensionList(extensionsList);
             modelExt.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -438,7 +430,6 @@ public class MainUI implements ITab {
 
             if (ExtensionEntity.isExtensionValid(extension)) {
                 extensionsList.add(new ExtensionEntity(description, "\\" + extension));
-                burpLeaksScanner.updateExtensionList(extensionsList);
                 modelExt.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -455,7 +446,6 @@ public class MainUI implements ITab {
             int realRow = optionExtensionsTable.convertRowIndexToModel(rowIndex);
             extensionsList.remove(realRow);
 
-            burpLeaksScanner.updateExtensionList(extensionsList);
             modelExt.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -470,7 +460,6 @@ public class MainUI implements ITab {
 
             if (extensionsList.size() > 0) {
                 extensionsList.subList(0, extensionsList.size()).clear();
-                burpLeaksScanner.updateExtensionList(extensionsList);
                 modelExt.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -506,7 +495,6 @@ public class MainUI implements ITab {
                     if (!extensionsList.contains(extension)) {
                         extensionsList.add(extension);
 
-                        this.burpLeaksScanner.updateExtensionList(extensionsList);
                         modelExt.fireTableDataChanged();
                     } else {
                         alreadyAdded.append(description).append(" - ").append(regex).append("\n");
@@ -598,7 +586,6 @@ public class MainUI implements ITab {
             }
 
             regexList = BurpLeaksSeed.getRegex();
-            this.burpLeaksScanner.updateRegexList(regexList);
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -633,7 +620,6 @@ public class MainUI implements ITab {
             String description = textFieldDesc.getText();
 
             regexList.add(new RegexEntity(description, expression));
-            burpLeaksScanner.updateRegexList(regexList);
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -647,7 +633,6 @@ public class MainUI implements ITab {
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
             regexList.remove(realRow);
 
-            burpLeaksScanner.updateRegexList(regexList);
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -662,7 +647,6 @@ public class MainUI implements ITab {
 
             if (regexList.size() > 0) {
                 regexList.subList(0, regexList.size()).clear();
-                burpLeaksScanner.updateRegexList(regexList);
                 modelReg.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -698,7 +682,6 @@ public class MainUI implements ITab {
                     if (!regexList.contains(newRegexEntity)) {
                         regexList.add(newRegexEntity);
 
-                        this.burpLeaksScanner.updateRegexList(regexList);
                         modelReg.fireTableDataChanged();
                     } else {
                         alreadyAdded.append(description).append(" - ").append(regex).append("\n");
@@ -767,31 +750,85 @@ public class MainUI implements ITab {
         return createOptions_ParagraphSection("Regex List", "In this section you can manage the regex list.");
     }
 
-    private JPanel createOptions_Configuration() {
-        JPanel configurationPanel = new JPanel();
-        configurationPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        configurationPanel.setPreferredSize(new Dimension(1000, 50));
-        configurationPanel.setMaximumSize(new Dimension(1000, 50));
-        configurationPanel.setLayout(new BoxLayout(configurationPanel, BoxLayout.Y_AXIS));
+    private JPanel createOptions_Configurations() {
+        JPanel configurationsPanel = new JPanel();
+        configurationsPanel.setLayout(new BoxLayout(configurationsPanel, BoxLayout.Y_AXIS));
+        configurationsPanel.setAlignmentX(JPanel.RIGHT_ALIGNMENT);
 
-        // show only in-scope items
-        JLabel jLabelInScope = new JLabel();
-        jLabelInScope.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
-        jLabelInScope.setForeground(new Color(255, 102, 51));
-        jLabelInScope.setText("Filters\r\n");
+        JPanel scopePanel = createOptions_Configuration_Filters();
+        configurationsPanel.add(scopePanel);
+        JPanel scannerPanel = createOptions_Configuration_Scanner();
+        configurationsPanel.add(scannerPanel);
+
+        return configurationsPanel;
+    }
+
+    private JPanel createOptions_Configuration_Filters() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setMaximumSize(new Dimension(500,100));
+        panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.gray, 1),
+                "Filters",
+                TitledBorder.LEFT,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Lucida Grande", Font.BOLD, 14), // NOI18N
+                new Color(255, 102, 51)
+                ));
+
         JCheckBox inScopeCheckBox = new JCheckBox("Show only in-scope items");
-        inScopeCheckBox.addActionListener(e -> {
-            if (inScopeCheckBox.getModel().isSelected()) {
-                inScope = true;
-            } else if (!inScopeCheckBox.getModel().isSelected()) {
-                inScope = false;
+        inScopeCheckBox.addActionListener(e -> inScope = inScopeCheckBox.getModel().isSelected());
+
+        panel.add(inScopeCheckBox);
+        return panel;
+    }
+
+    private JPanel createOptions_Configuration_Scanner() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setMaximumSize(new Dimension(500,100));
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.gray, 1),
+                "Scanner",
+                TitledBorder.LEFT,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Lucida Grande", Font.BOLD, 14), // NOI18N
+                new Color(255, 102, 51)
+        ));
+
+        JPanel numThreads = new JPanel();
+        JLabel numThreadsDescription = new JLabel("Current number of threads: ");
+        JLabel numThreadsCurrent = new JLabel(String.valueOf(this.burpLeaksScanner.getNumThreads()));
+        numThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
+        numThreads.add(numThreadsDescription);
+        numThreads.add(numThreadsCurrent);
+
+        JPanel updateNumThreads = new JPanel();
+        JLabel updateNumThreadsDescription = new JLabel("Update number of threads (1-128): ");
+        JTextField updateNumThreadsField = new JTextField(4);
+        JButton updateNumThreadsSet = new JButton("Set");
+        updateNumThreadsSet.addActionListener(e -> {
+            try {
+                int newThreadNumber = Integer.parseInt(updateNumThreadsField.getText());
+                if (newThreadNumber < 1 || newThreadNumber > 128)
+                    throw new NumberFormatException("Number not in the expected range");
+
+                this.burpLeaksScanner.setNumThreads(newThreadNumber);
+                numThreadsCurrent.setText(String.valueOf(this.burpLeaksScanner.getNumThreads()));
+                updateNumThreadsField.setText("");
+            } catch (NumberFormatException ignored) {
             }
         });
+        updateNumThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
+        updateNumThreads.add(updateNumThreadsDescription);
+        updateNumThreads.add(updateNumThreadsField);
+        updateNumThreads.add(updateNumThreadsSet);
 
-        configurationPanel.add(jLabelInScope);
-        configurationPanel.add(inScopeCheckBox);
-
-        return configurationPanel;
+        panel.add(numThreads);
+        panel.add(updateNumThreads);
+        return panel;
     }
 
     @Override

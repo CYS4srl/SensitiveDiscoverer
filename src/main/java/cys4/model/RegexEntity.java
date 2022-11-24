@@ -11,18 +11,25 @@ import java.util.regex.Pattern;
 public class RegexEntity {
     private boolean active;
     private final String regex;
-    private transient Pattern regexCompiled;
+    private final transient Pattern regexCompiled;
     private final String description;
 
-    public RegexEntity(String description, String regex) {
+    public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true);
     }
 
-    public RegexEntity(String description, String regex, Boolean active) {
+    public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
+        if (regex == null || regex.isEmpty())
+            throw new IllegalArgumentException("Invalid regex");
+
         this.active = active;
-        this.regex = regex;
-        this.regexCompiled = null;
         this.description = description;
+        this.regex = regex;
+        this.regexCompiled = Pattern.compile(regex);
+    }
+
+    public RegexEntity(RegexEntity entity) throws IllegalArgumentException {
+        this(entity.getDescription(), entity.getRegex(), entity.isActive());
     }
 
     /**
@@ -38,13 +45,7 @@ public class RegexEntity {
                 .matcher(line);
     }
 
-    public void compileRegex() {
-        if (this.regex == null || this.regex.equals("")) return;
-
-        this.regexCompiled = Pattern.compile(this.getRegex());
-    }
-
-    public Boolean isActive() {
+    public boolean isActive() {
         return this.active;
     }
 

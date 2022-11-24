@@ -12,23 +12,30 @@ import java.util.regex.Pattern;
 public class ExtensionEntity {
     private boolean active;
     private final String regex;
-    private transient Pattern regexCompiled;
+    private final transient Pattern regexCompiled;
     private final String description;
 
     public ExtensionEntity(String description, String regex) {
         this(description, regex, true);
     }
 
-    public ExtensionEntity(String description, String regex, boolean active) {
+    public ExtensionEntity(String description, String regex, boolean active) throws IllegalArgumentException {
+        if (regex == null || regex.isBlank())
+            throw new IllegalArgumentException("Invalid regex");
+
         this.active = active;
         this.description = description;
-        this.regexCompiled = null;
 
-        if (regex != null && !regex.isBlank() && !regex.endsWith("$")) {
-            this.regex = regex + '$';
-        } else {
+        if (regex.endsWith("$")) {
             this.regex = regex;
+        } else {
+            this.regex = regex + '$';
         }
+        this.regexCompiled = Pattern.compile(this.regex);
+    }
+
+    public ExtensionEntity(ExtensionEntity entity) throws IllegalArgumentException {
+        this(entity.getDescription(), entity.getRegex(), entity.isActive());
     }
 
     /**
@@ -54,12 +61,6 @@ public class ExtensionEntity {
                 .compile("\\..+?")
                 .matcher(extension)
                 .find();
-    }
-
-    public void compileRegex() {
-        if (this.regex == null || this.regex.equals("")) return;
-
-        this.regexCompiled = Pattern.compile(this.regex);
     }
 
     public boolean isActive() {
