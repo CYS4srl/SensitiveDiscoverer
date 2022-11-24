@@ -38,13 +38,15 @@ public class BurpLeaksScanner {
     private ArrayList<String> blacklistedMimeTypes;
     private final Gson gson;
     private boolean interruptScan;
+    private int numThreads;
 
     // analyzeProxyHistory
     private int analyzedItems = 0;
     private final Object analyzeLock = new Object();
 
-    public BurpLeaksScanner(MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
+    public BurpLeaksScanner(int numThreads, MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
             List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
+        this.numThreads = numThreads;
         this.mainUI = mainUI;
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
@@ -78,7 +80,8 @@ public class BurpLeaksScanner {
         }
 
         LogEntity.setIdRequest(0); // responseId will start at 0
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+        
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         for (IHttpRequestResponse httpProxyItem : httpRequests) {
             executor.execute(() -> {
@@ -198,5 +201,13 @@ public class BurpLeaksScanner {
 
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
+    }
+
+    public int getNumThreads() {
+        return numThreads;
+    }
+
+    public void setNumThreads(int numThreads) {
+        this.numThreads = numThreads;
     }
 }
