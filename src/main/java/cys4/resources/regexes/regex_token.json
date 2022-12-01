@@ -1,0 +1,120 @@
+[
+  {
+    "active": true,
+    "description": "AWS Access Key ID",
+    "regex": "(?i)(?<![a-zA-Z0-9])(A3T[A-Z0-9]|AKIA|AGPA|AROA|AIPA|ANPA|ANVA|ASIA)[a-zA-Z0-9]{16}(?![a-zA-Z0-9])"
+  },
+  {
+    "active": true,
+    "description": "AWS Secret Access Key",
+    "regex": "(?i)aws(.{0,32}?)['\"][0-9a-z/+=]{40}['\"]"
+  },
+  {
+    "active": true,
+    "description": "Amazon MWS Auth Token",
+    "regex": "(?i)amzn\\.mws\\.[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+  },
+  {
+    "active": true,
+    "description": "Facebook Secret",
+    "regex": "(?i)(facebook)(.{0,32}?)['\"][\\w\\d]+?['\"]"
+  },
+  {
+    "active": true,
+    "description": "Facebook Page Access Token",
+    "url": "https://developers.facebook.com/docs/facebook-login/guides/access-tokens",
+    "regex": "EAACEdE\\w+"
+  },
+  {
+    "active": true,
+    "description": "Google API Key",
+    "regex": "AIza[0-9A-Za-z\\-_]{35}"
+  },
+  {
+    "active": true,
+    "description": "Google OAuth Access Token",
+    "regex": "ya29\\.[0-9A-Za-z\\-_]+"
+  },
+  {
+    "active": true,
+    "description": "Google OAuth Client ID",
+    "regex": "\\d+-\\w{32}\\.apps\\.googleusercontent\\.com"
+  },
+  {
+    "active": true,
+    "description": "Google OAuth Client Secret",
+    "regex": "GOCSPX-\\w{28}"
+  },
+  {
+    "active": true,
+    "description": "LinkedIn Secret Key",
+    "regex": "(?i)linkedin(.{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
+  },
+  {
+    "active": true,
+    "description": "LinkedIn Client ID (API Key)",
+    "regex": "(?i)linkedin(.{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
+  },
+  {
+    "active": true,
+    "description": "MailChimp API Key",
+    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)"
+  },
+  {
+    "active": true,
+    "description": "MailGun API Key",
+    "regex": "key-[0-9a-zA-Z]{32}(?!\\w)"
+  },
+  {
+    "active": true,
+    "description": "NuGet API Key",
+    "regex": "oy2[a-z0-9]{43}(?![a-z0-9])"
+  },
+  {
+    "active": true,
+    "description": "Braintree SDK Token",
+    "regex": "(production|sandbox)_[a-z0-9]{8}_[a-z0-9]{16}"
+  },
+  {
+    "active": true,
+    "description": "SendGrid API Key",
+    "regex": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}"
+  },
+  {
+    "active": true,
+    "description": "Slack Token",
+    "url": "https://api.slack.com/authentication/token-types",
+    "regex": "(xox[pboar]|xapp)(-[a-zA-Z0-9]+)+"
+  },
+  {
+    "active": true,
+    "url": "https://squareup.com/us/en",
+    "description": "Square Token",
+    "regex": "sq0[a-z]{3}-[0-9A-Za-z\\-_]{20,50}"
+  },
+  {
+    "active": true,
+    "description": "StackHawk API Key",
+    "regex": "hawk(\\.[\\w\\-]{20})+"
+  },
+  {
+    "active": true,
+    "description": "Stripe Secret API Key",
+    "regex": "[sr]k_(live|test)_[0-9a-zA-Z]+"
+  },
+  {
+    "active": true,
+    "description": "Twilio API Key",
+    "regex": "(?<![a-zA-Z0-9])SK[0-9a-f]{32}(?![a-f0-9])"
+  },
+  {
+    "active": true,
+    "description": "Twitter Access Token",
+    "regex": "(?i)twitter(.{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]"
+  },
+  {
+    "active": true,
+    "description": "Twitter Secret Key",
+    "regex": "(?i)twitter(.{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]"
+  }
+]

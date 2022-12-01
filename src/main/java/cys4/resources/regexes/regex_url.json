@@ -1,0 +1,22 @@
+[
+  {
+    "active": true,
+    "description": "Slack Webhook",
+    "regex": "hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}"
+  },
+  {
+    "active": true,
+    "description": "Outlook Teams 1",
+    "regex": "outlook\\.office\\.com/webhook/[\\w\\-]+"
+  },
+  {
+    "active": true,
+    "description": "Outlook Teams 2",
+    "regex": "\\w+\\.webhook\\.office\\.com"
+  },
+  {
+    "active": true,
+    "description": "Firebase URL",
+    "regex": "[0-9a-zA-Z\\.\\-]+\\.firebaseio\\.com"
+  }
+]

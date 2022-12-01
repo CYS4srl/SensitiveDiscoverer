@@ -12,7 +12,9 @@ import cys4.model.RegexEntity;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class BurpLeaksSeed {
 
@@ -22,20 +24,22 @@ public class BurpLeaksSeed {
 
     private static void fill() {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntity>>() {}.getType();
-        List<RegexEntity> lDeserializedJson = _gson.fromJson(Utils.readResourceFile("regex.json"), tArrayListRegexEntity);
 
-        for (RegexEntity element : lDeserializedJson) {
-            regexes.add(new RegexEntity(element.getDescription(), element.getRegex(), element.isActive()));
-        }
+        Stream.of("regex_general.json", "regex_token.json", "regex_url.json")
+            .<List<RegexEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListRegexEntity))
+            .flatMap(Collection::stream)
+            .map(element -> new RegexEntity(element.getDescription(), element.getRegex(), element.isActive()))
+            .forEach(regexes::add);
     }
 
     private static void fill_ext() {
         Type tArrayListExtensionEntity = new TypeToken<ArrayList<ExtensionEntity>>() {}.getType();
-        List<ExtensionEntity> lDeserializedJson = _gson.fromJson(Utils.readResourceFile("extension.json"), tArrayListExtensionEntity);
 
-        for (ExtensionEntity element : lDeserializedJson) {
-            extensions.add(new ExtensionEntity(element.getDescription(), element.getRegex(), element.isActive()));
-        }
+        Stream.of("extension_general.json")
+            .<List<ExtensionEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListExtensionEntity))
+            .flatMap(Collection::stream)
+            .map(element -> new ExtensionEntity(element.getDescription(), element.getRegex(), element.isActive()))
+            .forEach(extensions::add);
     }
 
     public static List<RegexEntity> getRegex() {
