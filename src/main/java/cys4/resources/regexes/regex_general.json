@@ -2,26 +2,26 @@
   {
     "active": true,
     "description": "Encapsulation boundary for data such as keys and certificates",
-    "regular_expression": "-----BEGIN"
+    "regex": "-----BEGIN"
   },
   {
     "active": true,
     "description": "Generic API Key",
-    "regular_expression": "(?i)api.{0,5}key.{0,40}['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
+    "regex": "(?i)api.{0,5}key.{0,40}['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
   },
   {
     "active": true,
     "description": "Generic Secret",
-    "regular_expression": "(?i)secret.{0,40}['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
+    "regex": "(?i)secret.{0,40}['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
   },
   {
     "active": true,
     "description": "IP Address",
-    "regular_expression": "(?<![\\.\\d])((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\d])"
+    "regex": "(?<![\\.\\d])((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\d])"
   },
   {
   "active": true,
   "description": "Environment configuration file",
-  "regular_expression": "\\.env"
+  "regex": "\\.env"
   }
 ]

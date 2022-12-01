@@ -38,7 +38,7 @@ public class BurpLeaksSeed {
         Stream.of("extension_general.json")
             .<List<ExtensionEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListExtensionEntity))
             .flatMap(Collection::stream)
-            .map(element -> new ExtensionEntity(element.getDescription(), element.getExtension(), element.isActive()))
+            .map(element -> new ExtensionEntity(element.getDescription(), element.getRegex(), element.isActive()))
             .forEach(extensions::add);
     }
 
