@@ -50,7 +50,7 @@
     "regular_expression": "define(.{0,20})?(DB_CHARSET|NONCE_SALT|LOGGED_IN_SALT|AUTH_SALT|NONCE_KEY|DB_HOST|DB_PASSWORD|AUTH_KEY|SECURE_AUTH_KEY|LOGGED_IN_KEY|DB_NAME|DB_USER)(.{0,20})?[''|\"].{10,120}[''|\"]"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS ARN",
     "regular_expression": "arn:aws:organizations::\\d{12}:account\\/o-[a-z0-9]{10,32}\\/\\d{12}"
   }

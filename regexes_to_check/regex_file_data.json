@@ -1,51 +1,51 @@
 [
   {
-    "active": true,
+    "active": false,
     "description": "SQL dump file",
     "regular_expression": "\\.sql(dump)?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "KeePass password manager database file",
     "regular_expression": "\\.kdbx?"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Created by Jetbrains IDEs, contains webserver credentials with encoded passwords (not encrypted!)",
     "regular_expression": "\\.?idea/WebServers\\.xml"
   },
   {
-    "active": true,
+    "active": false,
     "description": "git-credential-store helper credentials file",
     "regular_expression": "\\.?git-credentials"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Rubygems credentials file",
     "regular_expression": "\\.?gem/credentials"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Ruby on rails secrets.yml file (contains passwords)",
     "regular_expression": "web/ruby/secrets\\.ya?ml"
   },
   {
-    "active": true,
+    "active": false,
     "description": "PostgreSQL password file",
     "regular_expression": "\\.?pgpass"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Potential Linux passwd file",
     "regular_expression": "etc/passwd"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Potential Linux shadow file",
     "regular_expression": "etc/shadow"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Pidgin chat client account configuration file",
     "regular_expression": "\\.?purple/accounts\\.xml"
   },
@@ -55,12 +55,12 @@
     "regular_expression": "key(store|ring)[\\W]+"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Apache htpasswd file",
     "regular_expression": "\\.?htpasswd"
   },
   {
-    "active": true,
+    "active": false,
     "description": "AWS CLI credentials file",
     "regular_expression": "\\.?aws/credentials"
   },
@@ -75,53 +75,48 @@
     "regular_expression": "\\.?chef/(.*)\\.pem"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Created by remote-sync for Atom, contains FTP and/or SCP/SFTP/SSH server details and credentials",
     "regular_expression": "\\.?remote-sync\\.json"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Created by sftp-deployment for Atom, contains server details and credentials",
     "regular_expression": "(deployment\\-config(\\.json)?|\\.ftpconfig)"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Created by vscode-sftp for VSCode, contains SFTP/SSH server details and credentials",
     "regular_expression": "\\.?vscode/sftp\\.json"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Firefox saved password collection (can be decrypted using keys4.db)",
     "regular_expression": "\\.?mozilla/firefox/logins\\.json"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Rails master key (used for decrypting credentials.yml.enc for Rails 5.2+)",
     "regular_expression": "ruby/config/master\\.key"
   },
   {
-    "active": true,
+    "active": false,
     "description": "Recon-ng web reconnaissance framework API key database",
     "regular_expression": "\\.?recon-ng/keys\\.db"
   },
   {
-    "active": false,
-    "description": "Private SSH key",
-    "regular_expression": ".+?_rsa"
+    "active": true,
+    "description": "Private key file suffix",
+    "regular_expression": "(?i)[_\\-\\.](rsa|ed25519|ecdsa|dsa|ppk)"
+  },
+  {
+    "active": true,
+    "description": "Certificate file suffix",
+    "regular_expression": "(?i)[_\\-\\.](pem|der|key|cert|cer|crt|csr|p12|pfx|p7b|p7r|spc)"
   },
   {
     "active": false,
-    "description": "Private SSH key",
-    "regular_expression": ".+?_dsa"
-  },
-  {
-    "active": false,
-    "description": "Private SSH key",
-    "regular_expression": ".+?_ed25519"
-  },
-  {
-    "active": false,
-    "description": "Private SSH key",
-    "regular_expression": ".+?_ecdsa"
+    "description": "Potential cryptographic private key",
+    "regular_expression": "key(pair)?"
   }
 ]

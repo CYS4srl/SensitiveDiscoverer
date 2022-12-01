@@ -1,17 +1,22 @@
 [
   {
-    "active": false,
+    "active": true,
     "description": "Slack Webhook",
     "regular_expression": "hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}"
   },
   {
     "active": true,
-    "description": "Outlook team",
-    "regular_expression": "outlook\\.office\\.com/webhook/[\\w\\-]{36}@"
+    "description": "Outlook Teams 1",
+    "regular_expression": "outlook\\.office\\.com/webhook/[\\w\\-]+"
   },
   {
-    "active": false,
+    "active": true,
+    "description": "Outlook Teams 2",
+    "regular_expression": "\\w+\\.webhook\\.office\\.com"
+  },
+  {
+    "active": true,
     "description": "Firebase URL",
-    "regular_expression": "[\\w\\.\\-]+?\\.firebaseio\\.com"
+    "regular_expression": "[0-9a-zA-Z\\.\\-]+\\.firebaseio\\.com"
   }
 ]
