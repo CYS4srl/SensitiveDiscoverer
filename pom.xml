@@ -34,10 +34,15 @@
                 <directory>${basedir}/src/main/java/cys4/resources</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>extension.json</include>
-                    <include>regex.json</include>
                     <include>config.properties</include>
                     <include>mime_types.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/java/cys4/resources/regexes</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>*.json</include>
                 </includes>
             </resource>
         </resources>
