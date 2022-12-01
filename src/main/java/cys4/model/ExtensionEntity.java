@@ -11,23 +11,31 @@ import java.util.regex.Pattern;
 
 public class ExtensionEntity {
     private boolean active;
-    private String extension;
-    private transient Pattern extension_regex_compiled;
+    private final String regex;
+    private final transient Pattern regexCompiled;
     private final String description;
 
-    public ExtensionEntity(String description, String extension) {
-        this(description, extension, true);
+    public ExtensionEntity(String description, String regex) {
+        this(description, regex, true);
     }
 
-    public ExtensionEntity(String description, String extension, boolean active) {
-        this.active = active;
-        this.extension = extension;
-        this.description = description;
-        this.extension_regex_compiled = null;
+    public ExtensionEntity(String description, String regex, boolean active) throws IllegalArgumentException {
+        if (regex == null || regex.isBlank())
+            throw new IllegalArgumentException("Invalid regex");
 
-        if (this.extension != null && !this.extension.isBlank() && !this.extension.endsWith("$")) {
-            this.extension += '$';
+        this.active = active;
+        this.description = description;
+
+        if (regex.endsWith("$")) {
+            this.regex = regex;
+        } else {
+            this.regex = regex + '$';
         }
+        this.regexCompiled = Pattern.compile(this.regex);
+    }
+
+    public ExtensionEntity(ExtensionEntity entity) throws IllegalArgumentException {
+        this(entity.getDescription(), entity.getRegex(), entity.isActive());
     }
 
     /**
@@ -55,12 +63,6 @@ public class ExtensionEntity {
                 .find();
     }
 
-    public void compileRegex() {
-        if (this.extension == null || this.extension.equals("")) return;
-
-        this.extension_regex_compiled = Pattern.compile(this.extension);
-    }
-
     public boolean isActive() {
         return active;
     }
@@ -69,12 +71,12 @@ public class ExtensionEntity {
         return this.description;
     }
 
-    public String getExtension() {
-        return this.extension;
+    public String getRegex() {
+        return this.regex;
     }
 
     public Pattern getRegexCompiled() {
-        return this.extension_regex_compiled;
+        return this.regexCompiled;
     }
 
     public void setActive(boolean value) {
@@ -86,11 +88,11 @@ public class ExtensionEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExtensionEntity that = (ExtensionEntity) o;
-        return getExtension().equals(that.getExtension());
+        return this.getRegex().equals(that.getRegex());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getExtension());
+        return Objects.hash(getRegex());
     }
 }

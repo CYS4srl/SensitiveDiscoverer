@@ -55,7 +55,7 @@ public class LogTableEntriesUI extends AbstractTableModel {
         return switch (columnIndex) {
             case 0 -> logEntity.getIdRequest();
             case 1 -> logEntity.getURL().toString();
-            case 2 -> logEntity.getRegex();
+            case 2 -> logEntity.getDescription() + " - "  + logEntity.getRegex();
             case 3 -> logEntity.getMatch();
             default -> "";
         };
