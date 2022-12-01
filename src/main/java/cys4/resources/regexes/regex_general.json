@@ -7,12 +7,12 @@
   {
     "active": true,
     "description": "Generic API Key",
-    "regex": "(?i)api.{0,5}key.{0,40}['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
+    "regex": "(?i)api.{0,5}key.{0,40}?['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
   },
   {
     "active": true,
     "description": "Generic Secret",
-    "regex": "(?i)secret.{0,40}['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
+    "regex": "(?i)secret.{0,40}?['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
   },
   {
     "active": true,

@@ -2,12 +2,12 @@
   {
     "active": true,
     "description": "AWS Access Key ID",
-    "regex": "(?i)(A3T[A-Z0-9]|AKIA|AGPA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}"
+    "regex": "(?i)(?<![a-zA-Z0-9])(A3T[A-Z0-9]|AKIA|AGPA|AROA|AIPA|ANPA|ANVA|ASIA)[a-zA-Z0-9]{16}(?![a-zA-Z0-9])"
   },
   {
     "active": true,
     "description": "AWS Secret Access Key",
-    "regex": "(?i)aws(.{0,32})['\"][0-9a-z/+=]{40}['\"]"
+    "regex": "(?i)aws(.{0,32}?)['\"][0-9a-z/+=]{40}['\"]"
   },
   {
     "active": true,
@@ -17,7 +17,7 @@
   {
     "active": true,
     "description": "Facebook Secret",
-    "regex": "(?i)(facebook|fb)(.{0,32})['\"][\\w\\d]+?['\"]"
+    "regex": "(?i)(facebook)(.{0,32}?)['\"][\\w\\d]+?['\"]"
   },
   {
     "active": true,
@@ -48,12 +48,12 @@
   {
     "active": true,
     "description": "LinkedIn Secret Key",
-    "regex": "(?i)linkedin(.{0,32})['\"][0-9a-zA-Z]{16}['\"]"
+    "regex": "(?i)linkedin(.{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
   },
   {
     "active": true,
     "description": "LinkedIn Client ID (API Key)",
-    "regex": "(?i)linkedin(.{0,32})(?-i)['\"][0-9a-z]{14}['\"]"
+    "regex": "(?i)linkedin(.{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
   },
   {
     "active": true,
@@ -110,11 +110,11 @@
   {
     "active": true,
     "description": "Twitter Access Token",
-    "regex": "(?i)twitter(.{0,32})['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]"
+    "regex": "(?i)twitter(.{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]"
   },
   {
     "active": true,
     "description": "Twitter Secret Key",
-    "regex": "(?i)twitter(.{0,32})['\"][0-9a-zA-Z]{35,44}['\"]"
+    "regex": "(?i)twitter(.{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]"
   }
 ]
