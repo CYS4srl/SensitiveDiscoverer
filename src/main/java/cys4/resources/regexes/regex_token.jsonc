@@ -15,6 +15,7 @@
     "regex": "(?i)amzn\\.mws\\.[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
   },
   {
+    // Do not match "https://facebook.com" or fa-facebook
     "active": true,
     "description": "Facebook Secret",
     "regex": "(?i)(?<!https://)(?<!fa-)(facebook)([^;,]{0,32}?)['\\\"][\\w\\d]{10,}?['\\\"]"
@@ -81,6 +82,14 @@
     "regex": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}"
   },
   {
+    /*
+    xoxb = bot tokens
+    xoxp = user tokens
+    xapp = app-level tokens
+    xoxa = Workspace access token
+    xoxr = Workspace refresh token
+    xoxo = ?
+    */
     "active": true,
     "description": "Slack Token",
     "url": "https://api.slack.com/authentication/token-types",
@@ -118,6 +127,13 @@
     "regex": "(?i)twitter([^;,]{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]"
   },
   {
+    /*
+    ghp = GitHub Personal Access Token
+    gho = GitHub OAuth Access Token
+    ghu = GitHub App user-to-server token
+    ghs = GitHub App server-to-server token
+    ghr = GitHub App refresh token
+    */
     "active": true,
     "description": "Github token",
     "regex": "gh[pousr]_[A-Za-z0-9_]{35,255}"

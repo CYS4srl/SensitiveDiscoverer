@@ -25,7 +25,7 @@ public class BurpLeaksSeed {
     private static void fill() {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntity>>() {}.getType();
 
-        Stream.of("regex_general.json", "regex_token.json", "regex_url.json")
+        Stream.of("regex_general.jsonc", "regex_token.jsonc", "regex_url.jsonc")
             .<List<RegexEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListRegexEntity))
             .flatMap(Collection::stream)
             .map(element -> new RegexEntity(element.getDescription(), element.getRegex(), element.isActive()))
