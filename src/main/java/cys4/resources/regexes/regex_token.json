@@ -7,7 +7,7 @@
   {
     "active": true,
     "description": "AWS Secret Access Key",
-    "regex": "(?i)aws(.{0,32}?)['\"][0-9a-z/+=]{40}['\"]"
+    "regex": "(?i)aws([^;]{0,32}?)['\"][0-9a-z/+=]{40}['\"]"
   },
   {
     "active": true,
@@ -17,7 +17,7 @@
   {
     "active": true,
     "description": "Facebook Secret",
-    "regex": "(?i)(facebook)(.{0,32}?)['\"][\\w\\d]+?['\"]"
+    "regex": "(?i)(?<!https://)(?<!fa-)(facebook)([^;,]{0,32}?)['\\\"][\\w\\d]{10,}?['\\\"]"
   },
   {
     "active": true,
@@ -48,12 +48,12 @@
   {
     "active": true,
     "description": "LinkedIn Secret Key",
-    "regex": "(?i)linkedin(.{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
+    "regex": "(?i)linkedin([^;]{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
   },
   {
     "active": true,
     "description": "LinkedIn Client ID (API Key)",
-    "regex": "(?i)linkedin(.{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
+    "regex": "(?i)linkedin([^;]{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
   },
   {
     "active": true,
@@ -110,11 +110,16 @@
   {
     "active": true,
     "description": "Twitter Access Token",
-    "regex": "(?i)twitter(.{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]"
+    "regex": "(?i)twitter([^;,]{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]"
   },
   {
     "active": true,
     "description": "Twitter Secret Key",
-    "regex": "(?i)twitter(.{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]"
+    "regex": "(?i)twitter([^;,]{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]"
+  },
+  {
+    "active": true,
+    "description": "Github token",
+    "regex": "gh[pousr]_[A-Za-z0-9_]{35,255}"
   }
 ]

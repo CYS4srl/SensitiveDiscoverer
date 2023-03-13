@@ -7,21 +7,21 @@
   {
     "active": true,
     "description": "Generic API Key",
-    "regex": "(?i)api.{0,5}key.{0,40}?['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
+    "regex": "(?i)api.{0,5}key[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]"
   },
   {
     "active": true,
     "description": "Generic Secret",
-    "regex": "(?i)secret.{0,40}?['\"][a-zA-Z0-9_\\-+=/\\\\]+['\"]"
+    "regex": "(?i)secret[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]"
   },
   {
     "active": true,
     "description": "IP Address",
-    "regex": "(?<![\\.\\d])((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\d])"
+    "regex": "(?<![\\.\\da-zA-Z%\\-])(?<!\\/\\s{0,8})((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\da-zA-Z\\-])"
   },
   {
-  "active": true,
-  "description": "Environment configuration file",
-  "regex": "\\.env"
+    "active": true,
+    "description": "Environment configuration file",
+    "regex": "\\.env"
   }
 ]
