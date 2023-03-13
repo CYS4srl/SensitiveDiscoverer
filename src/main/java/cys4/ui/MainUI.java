@@ -189,7 +189,7 @@ public class MainUI implements ITab {
         originalResponseViewer = this.callbacks.createTextEditor();
         logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this.logEntries, this.originalRequestViewer, this.originalResponseViewer);
 
-        // when you right click on a logTable entry, it will appear a context menu defined here
+        // when you right-click on a logTable entry, it will appear a context menu defined here
         MouseAdapter contextMenu = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
