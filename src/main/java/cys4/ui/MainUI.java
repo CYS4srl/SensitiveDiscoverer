@@ -381,6 +381,28 @@ public class MainUI implements ITab {
         JTable optionExtensionsTable = new JTable(modelExt);
         JPanel buttonPanelExtensions = new JPanel();
 
+        JButton btnEnableAll = new JButton("Enable all");
+        buttonPanelExtensions.add(btnEnableAll);
+        btnEnableAll.addActionListener(actionEvent -> {
+            extensionsList.forEach(extension -> extension.setActive(true));
+
+            modelExt.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+
+        JButton btnDisableAll = new JButton("Disable all");
+        buttonPanelExtensions.add(btnDisableAll);
+        btnDisableAll.addActionListener(actionEvent -> {
+            extensionsList.forEach(extension -> extension.setActive(false));
+
+            modelExt.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+
         JButton btnResetExtension = new JButton("Reset");
         buttonPanelExtensions.add(btnResetExtension);
         btnResetExtension.addActionListener(actionEvent -> {
@@ -571,6 +593,28 @@ public class MainUI implements ITab {
         OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(regexList);
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel buttonPanelRegex = new JPanel();
+
+        JButton btnEnableAll = new JButton("Enable all");
+        buttonPanelRegex.add(btnEnableAll);
+        btnEnableAll.addActionListener(actionEvent -> {
+            regexList.forEach(regex -> regex.setActive(true));
+
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+
+        JButton btnDisableAll = new JButton("Disable all");
+        buttonPanelRegex.add(btnDisableAll);
+        btnDisableAll.addActionListener(actionEvent -> {
+            regexList.forEach(regex -> regex.setActive(false));
+
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
 
         JButton btnResetRegex = new JButton("Reset");
         buttonPanelRegex.add(btnResetRegex);
