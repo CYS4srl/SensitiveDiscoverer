@@ -11,7 +11,6 @@ import burp.IResponseInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cys4.controller.Utils;
-import cys4.model.ExtensionEntity;
 import cys4.model.LogEntity;
 import cys4.model.RegexEntity;
 import cys4.ui.MainUI;
@@ -34,7 +33,7 @@ public class BurpLeaksScanner {
     private final IBurpExtenderCallbacks callbacks;
     private final List<LogEntity> logEntries;
     private final List<RegexEntity> regexList;
-    private final List<ExtensionEntity> extensionsList;
+    private final List<RegexEntity> extensionsList;
     private ArrayList<String> blacklistedMimeTypes;
     private final Gson gson;
     private boolean interruptScan;
@@ -45,7 +44,7 @@ public class BurpLeaksScanner {
     private final Object analyzeLock = new Object();
 
     public BurpLeaksScanner(int numThreads, MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
-            List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
+            List<RegexEntity> regexList, List<RegexEntity> extensionsList) {
         this.numThreads = numThreads;
         this.mainUI = mainUI;
         this.callbacks = callbacks;
@@ -70,13 +69,14 @@ public class BurpLeaksScanner {
         progressBar.setStringPainted(true);
 
         boolean inScope = MainUI.isInScopeSelected();
+        //FIXME code duplicate
         List<RegexEntity> regexListCopy = new ArrayList<>();
         for(RegexEntity e : regexList) {
             regexListCopy.add(new RegexEntity(e));
         }
-        List<ExtensionEntity> extensionListCopy = new ArrayList<>();
-        for(ExtensionEntity e : extensionsList) {
-            extensionListCopy.add(new ExtensionEntity(e));
+        List<RegexEntity> extensionListCopy = new ArrayList<>();
+        for(RegexEntity e : extensionsList) {
+            extensionListCopy.add(new RegexEntity(e));
         }
 
         LogEntity.setIdRequest(0); // responseId will start at 0
@@ -113,7 +113,7 @@ public class BurpLeaksScanner {
     /**
      * The main method that scan for regex in the single request body
      */
-    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, boolean inScopeSelected, List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
+    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, boolean inScopeSelected, List<RegexEntity> regexList, List<RegexEntity> extensionsList) {
         URL requestURL = helpers.analyzeRequest(httpProxyItem).getUrl();
         byte[] response = httpProxyItem.getResponse();
 
@@ -122,6 +122,8 @@ public class BurpLeaksScanner {
 
         IResponseInfo responseInfo = helpers.analyzeResponse(response);
         if (!isValidMimeType(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType())) return;
+
+        //FIXME code duplicate
 
         // convert from bytes to string the body of the request
         String responseBody = helpers.bytesToString(response);
@@ -141,7 +143,7 @@ public class BurpLeaksScanner {
             }
         }
 
-        for (ExtensionEntity entry : extensionsList) {
+        for (RegexEntity entry : extensionsList) {
             if (this.interruptScan) return;
 
             // if the box related to the extensions in the Options tab of the extension is checked
