@@ -211,6 +211,16 @@
   },
   {
     "active": true,
+    "description": "Potential PGP public keyring",
+    "regex": "\\.pkr"
+  },
+  {
+    "active": true,
+    "description": "Potential PGP secret keyring",
+    "regex": "\\.skr"
+  },
+  {
+    "active": true,
     "description": "Potential cryptographic key bundle",
     "regex": "\\.asc"
   },
