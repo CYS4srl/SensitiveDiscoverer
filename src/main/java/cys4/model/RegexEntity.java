@@ -19,7 +19,7 @@ public class RegexEntity {
     }
 
     public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
-        if (regex == null || regex.isEmpty())
+        if (regex == null || regex.isBlank())
             throw new IllegalArgumentException("Invalid regex");
 
         this.active = active;
@@ -33,16 +33,15 @@ public class RegexEntity {
     }
 
     /**
-     * Check if the regex line to be imported is in the format:
-     * "Description", "Regex"
+     * Checks if the input is in the format: `"Description", "Regex"`
      *
-     * @param line Line to check against the format
-     * @return A Matcher object where group(1) = description, and group(2) = regex
+     * @param input Text string to check against the format
+     * @return If the input was in the correct format, a Matcher object where group(1) = description, and group(2) = regex
      */
-    public static Matcher loadRegexEntityFromCSV(String line) {
+    public static Matcher checkRegexEntityFromCSV(String input) {
         return Pattern
                 .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
-                .matcher(line);
+                .matcher(input);
     }
 
     public boolean isActive() {
@@ -75,6 +74,6 @@ public class RegexEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(regex);
+        return Objects.hash(this.getRegex());
     }
 }

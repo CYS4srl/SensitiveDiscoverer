@@ -7,11 +7,9 @@ package cys4.model;
 import burp.IHttpRequestResponse;
 
 import java.net.URL;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LogEntity {
     private final int idRequest;
-    private final static AtomicInteger counter = new AtomicInteger(0);
     private final IHttpRequestResponse requestResponse;
     private final URL url;
     private final String regex;
@@ -21,11 +19,8 @@ public class LogEntity {
     private final boolean isSSL;
     private final String description;
 
-    public LogEntity(IHttpRequestResponse requestResponse, URL url, String description, String regex, String match) {
-        this.idRequest = getCounterIdRequest();
-
-        incrementCounter();
-
+    public LogEntity(IHttpRequestResponse requestResponse, int requestNumber, URL url, String description, String regex, String match) {
+        this.idRequest = requestNumber;
         this.requestResponse = requestResponse;
         this.url = url;
         this.description = description;
@@ -67,34 +62,6 @@ public class LogEntity {
 
     public boolean isSSL() {
         return isSSL;
-    }
-
-    // return the current value of our counter
-    public static int getCounterIdRequest() {
-        return counter.get();
-    }
-
-    // increment the counter in thread safe mode
-    private static void incrementCounter() {
-        while (true) {
-            int existingValue = getCounterIdRequest();
-            int newValue = existingValue + 1;
-            if (counter.compareAndSet(existingValue, newValue)) {
-                return;
-            }
-        }
-    }
-
-    // reset the counter
-    public static void setIdRequest(int counterParam) {
-        int existingValue = getCounterIdRequest();
-        if (existingValue != counterParam) {
-            while (true) {
-                if (counter.compareAndSet(existingValue, counterParam)) {
-                    return;
-                }
-            }
-        }
     }
 
     @Override
