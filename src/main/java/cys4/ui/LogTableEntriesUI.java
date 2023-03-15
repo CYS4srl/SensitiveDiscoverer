@@ -31,7 +31,7 @@ public class LogTableEntriesUI extends AbstractTableModel {
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "#";
+            case 0 -> "Proxy #";
             case 1 -> "URL";
             case 2 -> "Regex";
             case 3 -> "Match";
