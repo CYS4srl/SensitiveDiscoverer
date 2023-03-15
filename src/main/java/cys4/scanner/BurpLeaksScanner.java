@@ -11,7 +11,6 @@ import burp.IResponseInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cys4.controller.Utils;
-import cys4.model.ExtensionEntity;
 import cys4.model.LogEntity;
 import cys4.model.RegexEntity;
 import cys4.ui.MainUI;
@@ -34,7 +33,7 @@ public class BurpLeaksScanner {
     private final IBurpExtenderCallbacks callbacks;
     private final List<LogEntity> logEntries;
     private final List<RegexEntity> regexList;
-    private final List<ExtensionEntity> extensionsList;
+    private final List<RegexEntity> extensionsList;
     private ArrayList<String> blacklistedMimeTypes;
     private final Gson gson;
     private boolean interruptScan;
@@ -45,7 +44,7 @@ public class BurpLeaksScanner {
     private final Object analyzeLock = new Object();
 
     public BurpLeaksScanner(int numThreads, MainUI mainUI, IBurpExtenderCallbacks callbacks, List<LogEntity> logEntries,
-            List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
+            List<RegexEntity> regexList, List<RegexEntity> extensionsList) {
         this.numThreads = numThreads;
         this.mainUI = mainUI;
         this.callbacks = callbacks;
@@ -70,22 +69,23 @@ public class BurpLeaksScanner {
         progressBar.setStringPainted(true);
 
         boolean inScope = MainUI.isInScopeSelected();
+        //FIXME code duplicate
         List<RegexEntity> regexListCopy = new ArrayList<>();
         for(RegexEntity e : regexList) {
             regexListCopy.add(new RegexEntity(e));
         }
-        List<ExtensionEntity> extensionListCopy = new ArrayList<>();
-        for(ExtensionEntity e : extensionsList) {
-            extensionListCopy.add(new ExtensionEntity(e));
+        List<RegexEntity> extensionListCopy = new ArrayList<>();
+        for(RegexEntity e : extensionsList) {
+            extensionListCopy.add(new RegexEntity(e));
         }
-
-        LogEntity.setIdRequest(0); // responseId will start at 0
         
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
-        for (IHttpRequestResponse httpProxyItem : httpRequests) {
+        for (int i = 0; i < httpRequests.length; i++) {
+            IHttpRequestResponse httpProxyItem = httpRequests[i];
+            int reqNumber = i+1;
             executor.execute(() -> {
-                analyzeSingleMessage(httpProxyItem, inScope, regexListCopy, extensionListCopy);
+                analyzeSingleMessage(httpProxyItem, reqNumber, inScope, regexListCopy, extensionListCopy);
 
                 if (interruptScan) return;
 
@@ -113,7 +113,7 @@ public class BurpLeaksScanner {
     /**
      * The main method that scan for regex in the single request body
      */
-    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, boolean inScopeSelected, List<RegexEntity> regexList, List<ExtensionEntity> extensionsList) {
+    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, int requestNumber, boolean inScopeSelected, List<RegexEntity> regexList, List<RegexEntity> extensionsList) {
         URL requestURL = helpers.analyzeRequest(httpProxyItem).getUrl();
         byte[] response = httpProxyItem.getResponse();
 
@@ -122,6 +122,8 @@ public class BurpLeaksScanner {
 
         IResponseInfo responseInfo = helpers.analyzeResponse(response);
         if (!isValidMimeType(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType())) return;
+
+        //FIXME code duplicate
 
         // convert from bytes to string the body of the request
         String responseBody = helpers.bytesToString(response);
@@ -135,13 +137,14 @@ public class BurpLeaksScanner {
             while (regex_matcher.find()) {
                 addLogEntry(
                     httpProxyItem,
+                    requestNumber,
                     entry.getDescription(),
                     entry.getRegex(),
                     regex_matcher.group());
             }
         }
 
-        for (ExtensionEntity entry : extensionsList) {
+        for (RegexEntity entry : extensionsList) {
             if (this.interruptScan) return;
 
             // if the box related to the extensions in the Options tab of the extension is checked
@@ -151,6 +154,7 @@ public class BurpLeaksScanner {
             if (extension_matcher.find()) {
                 addLogEntry(
                     httpProxyItem,
+                    requestNumber,
                     entry.getDescription(),
                     entry.getRegex(),
                     extension_matcher.group());
@@ -158,13 +162,14 @@ public class BurpLeaksScanner {
         }
     }
 
-    private void addLogEntry(IHttpRequestResponse httpProxyItem, String description, String regex, String match) {
+    private void addLogEntry(IHttpRequestResponse httpProxyItem, int requestNumber, String description, String regex, String match) {
         // create a new log entry with the message details
         int row = logEntries.size();
 
         // the group method is used for retrieving the context in which the regex has matched
         LogEntity logEntry = new LogEntity(
             httpProxyItem,
+            requestNumber,
             helpers.analyzeRequest(httpProxyItem).getUrl(),
             description,
             regex,
