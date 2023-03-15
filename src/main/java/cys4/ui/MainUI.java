@@ -390,6 +390,28 @@ public class MainUI implements ITab {
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel buttonPanelRegex = new JPanel();
 
+        JButton btnEnableAll = new JButton("Enable all");
+        buttonPanelRegex.add(btnEnableAll);
+        btnEnableAll.addActionListener(actionEvent -> {
+            ctx.regexList.forEach(regex -> regex.setActive(true));
+
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+
+        JButton btnDisableAll = new JButton("Disable all");
+        buttonPanelRegex.add(btnDisableAll);
+        btnDisableAll.addActionListener(actionEvent -> {
+            ctx.regexList.forEach(regex -> regex.setActive(false));
+
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+
         JButton btnResetRegex = new JButton("Reset");
         buttonPanelRegex.add(btnResetRegex);
         btnResetRegex.addActionListener(actionEvent -> {
