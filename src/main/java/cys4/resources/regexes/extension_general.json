@@ -2,311 +2,311 @@
   {
     "active": true,
     "description": "1Password password manager database file",
-    "regex": "\\.agilekeychain"
+    "regex": "\\.agilekeychain$"
   },
   {
     "active": true,
     "description": "ASP configuration file",
-    "regex": "\\.asa"
+    "regex": "\\.asa$"
   },
   {
     "active": true,
     "description": "Apple Keychain database file",
-    "regex": "\\.keychain"
+    "regex": "\\.keychain$"
   },
   {
     "active": true,
     "description": "Azure service configuration schema file",
-    "regex": "\\.cscfg"
+    "regex": "\\.cscfg$"
   },
   {
     "active": true,
     "description": "Backup file",
-    "regex": "\\.bak"
+    "regex": "\\.bak$"
   },
   {
     "active": true,
     "description": "Certificate file",
-    "regex": "\\.cer"
+    "regex": "\\.cer$"
   },
   {
     "active": true,
     "description": "Certificate file",
-    "regex": "\\.crt"
+    "regex": "\\.crt$"
   },
   {
     "active": true,
     "description": "Certificate file",
-    "regex": "\\.p7b"
+    "regex": "\\.p7b$"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "regex": "\\.zip"
+    "regex": "\\.zip$"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "regex": "\\.tar"
+    "regex": "\\.tar$"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "regex": "\\.gz"
+    "regex": "\\.gz$"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "regex": "\\.tgz"
+    "regex": "\\.tgz$"
   },
   {
     "active": true,
     "description": "Compressed archive file",
-    "regex": "\\.rar"
+    "regex": "\\.rar$"
   },
   {
     "active": true,
     "description": "Configuration file",
-    "regex": "\\.config"
+    "regex": "\\.config$"
   },
   {
     "active": true,
     "description": "Day One journal file",
-    "regex": "\\.dayone"
+    "regex": "\\.dayone$"
   },
   {
     "active": true,
     "description": "Document file",
-    "regex": "\\.docx"
+    "regex": "\\.docx$"
   },
   {
     "active": true,
     "description": "Document file",
-    "regex": "\\.doc"
+    "regex": "\\.doc$"
   },
   {
     "active": true,
     "description": "Document file",
-    "regex": "\\.rtf"
+    "regex": "\\.rtf$"
   },
   {
     "active": true,
     "description": "Excel file",
-    "regex": "\\.xlsx"
+    "regex": "\\.xlsx$"
   },
   {
     "active": true,
     "description": "Excel file",
-    "regex": "\\.xls"
+    "regex": "\\.xls$"
   },
   {
     "active": true,
     "description": "Excel file",
-    "regex": "\\.csv"
+    "regex": "\\.csv$"
   },
   {
     "active": true,
     "description": "GnuCash database file",
-    "regex": "\\.gnucash"
+    "regex": "\\.gnucash$"
   },
   {
     "active": true,
     "description": "Include file",
-    "regex": "\\.inc"
+    "regex": "\\.inc$"
   },
   {
     "active": true,
     "description": "Java file",
-    "regex": "\\.java"
+    "regex": "\\.java$"
   },
   {
     "active": true,
     "description": "Java keystore file",
-    "regex": "\\.jks"
+    "regex": "\\.jks$"
   },
   {
     "active": true,
     "description": "KDE Wallet Manager database file",
-    "regex": "\\.kwallet"
+    "regex": "\\.kwallet$"
   },
   {
     "active": true,
     "description": "Little Snitch firewall configuration file",
-    "regex": "\\.xpl"
+    "regex": "\\.xpl$"
   },
   {
     "active": true,
     "description": "Log file",
-    "regex": "\\.log"
+    "regex": "\\.log$"
   },
   {
     "active": true,
     "description": "Microsoft BitLocker Trusted Platform Module password file",
-    "regex": "\\.tpm"
+    "regex": "\\.tpm$"
   },
   {
     "active": true,
     "description": "Microsoft BitLocker recovery key file",
-    "regex": "\\.bek"
+    "regex": "\\.bek$"
   },
   {
     "active": true,
     "description": "Microsoft SQL database file",
-    "regex": "\\.mdf"
+    "regex": "\\.mdf$"
   },
   {
     "active": true,
     "description": "Microsoft SQL server compact database file",
-    "regex": "\\.sdf"
+    "regex": "\\.sdf$"
   },
   {
     "active": true,
     "description": "Network traffic capture file",
-    "regex": "\\.pcap"
+    "regex": "\\.pcap$"
   },
   {
     "active": true,
     "description": "Old file",
-    "regex": "\\.old"
+    "regex": "\\.old$"
   },
   {
     "active": true,
     "description": "OpenVPN client configuration file",
-    "regex": "\\.ovpn"
+    "regex": "\\.ovpn$"
   },
   {
     "active": true,
     "description": "PDF file",
-    "regex": "\\.pdf"
+    "regex": "\\.pdf$"
   },
   {
     "active": true,
     "description": "PHP file",
-    "regex": "\\.php"
+    "regex": "\\.php$"
   },
   {
     "active": true,
     "description": "Password Safe database file",
-    "regex": "\\.psafe3"
+    "regex": "\\.psafe3$"
   },
   {
     "active": true,
     "description": "Potential configuration file",
-    "regex": "\\.yml"
+    "regex": "\\.yml$"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "regex": "\\.pkcs12"
+    "regex": "\\.pkcs12$"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "regex": "\\.p12"
+    "regex": "\\.p12$"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "regex": "\\.pfx"
+    "regex": "\\.pfx$"
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
-    "regex": "\\.asc"
+    "regex": "\\.asc$"
   },
   {
     "active": true,
     "description": "Potential cryptographic private key",
-    "regex": "\\.pem"
+    "regex": "\\.pem$"
   },
   {
     "active": true,
     "description": "Potential private key",
-    "regex": "otr.private_key"
+    "regex": "otr.private_key$"
   },
   {
     "active": true,
     "description": "Presentation file",
-    "regex": "\\.pptx"
+    "regex": "\\.pptx$"
   },
   {
     "active": true,
     "description": "Presentation file",
-    "regex": "\\.ppt"
+    "regex": "\\.ppt$"
   },
   {
     "active": true,
     "description": "Python file",
-    "regex": "\\.py"
+    "regex": "\\.py$"
   },
   {
     "active": true,
     "description": "Remote Desktop connection file",
-    "regex": "\\.rdp"
+    "regex": "\\.rdp$"
   },
   {
     "active": true,
     "description": "Ruby On Rails file",
-    "regex": "\\.rb"
+    "regex": "\\.rb$"
   },
   {
     "active": true,
     "description": "SQLite database file",
-    "regex": "\\.sqlite"
+    "regex": "\\.sqlite$"
   },
   {
     "active": true,
     "description": "SQLite3 database file",
-    "regex": "\\.sqlite3"
+    "regex": "\\.sqlite3$"
   },
   {
     "active": true,
     "description": "Sequel Pro MySQL database manager bookmark file",
-    "regex": "\\.plist"
+    "regex": "\\.plist$"
   },
   {
     "active": true,
     "description": "Shell configuration file",
-    "regex": "\\.exports"
+    "regex": "\\.exports$"
   },
   {
     "active": true,
     "description": "Shell configuration file",
-    "regex": "\\.functions"
+    "regex": "\\.functions$"
   },
   {
     "active": true,
     "description": "Shell configuration file",
-    "regex": "\\.extra"
+    "regex": "\\.extra$"
   },
   {
     "active": true,
     "description": "Temporary file",
-    "regex": "\\.tmp"
+    "regex": "\\.tmp$"
   },
   {
     "active": true,
     "description": "Terraform variable config file",
-    "regex": "\\terraform.tfvars"
+    "regex": "\\terraform.tfvars$"
   },
   {
     "active": true,
     "description": "Text file",
-    "regex": "\\.txt"
+    "regex": "\\.txt$"
   },
   {
     "active": true,
     "description": "Tunnelblick VPN configuration file",
-    "regex": "\\.tblk"
+    "regex": "\\.tblk$"
   },
   {
     "active": true,
     "description": "Windows BitLocker full volume encrypted data file",
-    "regex": "\\.fve"
+    "regex": "\\.fve$"
   },
   {
     "active": true,
     "description": "XML file",
-    "regex": "\\.xml"
+    "regex": "\\.xml$"
   }
 ]
