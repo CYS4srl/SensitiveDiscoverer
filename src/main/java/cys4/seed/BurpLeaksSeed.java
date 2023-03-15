@@ -7,7 +7,6 @@ package cys4.seed;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cys4.controller.Utils;
-import cys4.model.ExtensionEntity;
 import cys4.model.RegexEntity;
 
 import java.lang.reflect.Type;
@@ -18,37 +17,27 @@ import java.util.stream.Stream;
 
 public class BurpLeaksSeed {
 
-    private static final List<RegexEntity> regexes = new ArrayList<>();
-    private static final List<ExtensionEntity> extensions = new ArrayList<>();
+    private static final List<RegexEntity> general_regexes = new ArrayList<>();
+    private static final List<RegexEntity> extensions_regexes = new ArrayList<>();
     private static final Gson _gson = new Gson();
 
-    private static void fill() {
+    private static void fill(String[] regexFiles, List<RegexEntity> regexEntityList) {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntity>>() {}.getType();
 
-        Stream.of("regex_general.json", "regex_token.json", "regex_url.json")
+        Stream.of(regexFiles)
             .<List<RegexEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListRegexEntity))
             .flatMap(Collection::stream)
             .map(element -> new RegexEntity(element.getDescription(), element.getRegex(), element.isActive()))
-            .forEach(regexes::add);
+            .forEach(regexEntityList::add);
     }
 
-    private static void fill_ext() {
-        Type tArrayListExtensionEntity = new TypeToken<ArrayList<ExtensionEntity>>() {}.getType();
-
-        Stream.of("extension_general.json")
-            .<List<ExtensionEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListExtensionEntity))
-            .flatMap(Collection::stream)
-            .map(element -> new ExtensionEntity(element.getDescription(), element.getRegex(), element.isActive()))
-            .forEach(extensions::add);
+    public static List<RegexEntity> getGeneralRegexes() {
+        fill(new String[]{"regex_general.json", "regex_token.json", "regex_url.json"}, general_regexes);
+        return general_regexes;
     }
 
-    public static List<RegexEntity> getRegex() {
-        fill();
-        return regexes;
-    }
-
-    public static List<ExtensionEntity> getExtensions() {
-        fill_ext();
-        return extensions;
+    public static List<RegexEntity> getExtensionRegexes() {
+        fill(new String[]{"extension_general.json"}, extensions_regexes);
+        return extensions_regexes;
     }
 }
