@@ -205,7 +205,8 @@ public class MainUI implements ITab {
                         LogEntity logentry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogTableEntryUI) {
-                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks).show(e.getComponent(), e.getX(), e.getY());
+                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks)
+                                    .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
                 }

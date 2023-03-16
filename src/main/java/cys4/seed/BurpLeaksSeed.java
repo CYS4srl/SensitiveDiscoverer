@@ -27,7 +27,8 @@ public class BurpLeaksSeed {
         Stream.of(regexFiles)
             .<List<RegexEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListRegexEntity))
             .flatMap(Collection::stream)
-            .map(element -> new RegexEntity(element.getDescription(), element.getRegex(), element.isActive()))
+                //TODO replace with JsonDeserializer
+            .map(element -> new RegexEntity(element.getDescription(), element.getRegex(), element.isActive(), element.getSectionsToMatch()))
             .forEach(regexEntityList::add);
     }
 
