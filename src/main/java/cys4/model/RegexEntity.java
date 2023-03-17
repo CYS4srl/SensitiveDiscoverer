@@ -13,47 +13,32 @@ public class RegexEntity {
     private final String regex;
     private final transient Pattern regexCompiled;
     private final String description;
-    private final List<String> sectionsToMatch; //todo remove, as of now required only for GSON deserialization
     private final EnumSet<ProxyItemSection> sections;
 
+    /**
+     * Used to import from CSV where there's only the description and the regex
+     * @param description
+     * @param regex
+     * @throws IllegalArgumentException
+     */
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
-        this(description, regex, true, Collections.emptyList());
+        this(description, regex, true, null);
     }
 
     public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
-        this(description, regex, active, Collections.emptyList());
-    }
-
-    public RegexEntity(String description, String regex, boolean active, List<String> sectionsToMatch) throws IllegalArgumentException {
-        if (regex == null || regex.isBlank())
-            throw new IllegalArgumentException("Invalid regex");
-
-        this.active = active;
-        this.description = description;
-
-        this.regex = regex;
-        this.regexCompiled = Pattern.compile(regex);
-
-        if (sectionsToMatch.isEmpty()) {
-            this.sections = ProxyItemSection.RES;
-            this.sectionsToMatch = new ArrayList<>(); // String[]{}; //TODO remove this
-        } else {
-            this.sections = ProxyItemSection.parseSectionsToMatch(sectionsToMatch);
-            this.sectionsToMatch = sectionsToMatch; // Arrays.copyOf(sectionsToMatch, sectionsToMatch.length); //TODO remove this
-        }
+        this(description, regex, active, null);
     }
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
         if (regex == null || regex.isBlank())
             throw new IllegalArgumentException("Invalid regex");
+        if (sections == null)
+            throw new IllegalArgumentException("Invalid sections, non-null required");
 
         this.active = active;
         this.description = description;
-
         this.regex = regex;
         this.regexCompiled = Pattern.compile(regex);
-
-        this.sectionsToMatch = new ArrayList<>(); // String[]{}; //TODO remove this
         this.sections = sections;
     }
 
@@ -87,12 +72,6 @@ public class RegexEntity {
 
     public String getDescription() {
         return this.description;
-    }
-
-    public List<String> getSectionsToMatch() {
-        if (Objects.isNull(this.sectionsToMatch))
-            return Collections.emptyList();
-        return List.copyOf(this.sectionsToMatch);
     }
 
     public EnumSet<ProxyItemSection> getSections() {

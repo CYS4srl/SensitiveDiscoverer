@@ -4,7 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.controller;
 
-import cys4.seed.BurpLeaksSeed;
+import cys4.seed.RegexSeeder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ public class Utils {
     {
         String STRING_ReadBuffer = null;
         // load the prop files
-        try (InputStream input = BurpLeaksSeed.class.getClassLoader().getResourceAsStream(STRING_Filename)) {
+        try (InputStream input = RegexSeeder.class.getClassLoader().getResourceAsStream(STRING_Filename)) {
             assert (input != null);
 
             ByteArrayOutputStream result = new ByteArrayOutputStream();
