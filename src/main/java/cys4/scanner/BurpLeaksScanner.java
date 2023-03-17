@@ -9,15 +9,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cys4.controller.Utils;
 import cys4.model.LogEntity;
-import cys4.model.ProxyItemSection;
 import cys4.model.RegexEntity;
 import cys4.ui.MainUI;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -35,7 +31,7 @@ public class BurpLeaksScanner {
     private final List<LogEntity> logEntries;
     private final List<RegexEntity> regexList;
     private final List<RegexEntity> extensionsList;
-    private ArrayList<String> blacklistedMimeTypes;
+    private final List<String> blacklistedMimeTypes;
     private final Gson gson;
     private boolean interruptScan;
     private int numThreads;
@@ -53,6 +49,7 @@ public class BurpLeaksScanner {
         this.logEntries = logEntries;
         this.regexList = regexList;
         this.extensionsList = extensionsList;
+        this.blacklistedMimeTypes = new ArrayList<>();
         this.interruptScan = false;
         this.gson = new Gson();
     }
@@ -197,14 +194,15 @@ public class BurpLeaksScanner {
     private boolean isValidMimeType(String statedMimeType, String inferredMimeType) {
         String mimeType = statedMimeType.isBlank() ? inferredMimeType : statedMimeType;
 
-        if (Objects.isNull(blacklistedMimeTypes)) {
-            blacklistedMimeTypes = new ArrayList<>();
-
+        if (this.blacklistedMimeTypes.isEmpty()) {
             Type tArrayListString = new TypeToken<ArrayList<String>>() {}.getType();
-            List<String> lDeserializedJson = gson.fromJson(
-                Utils.readResourceFile("mime_types.json"),
-                tArrayListString);
-            blacklistedMimeTypes.addAll(lDeserializedJson);
+            Stream.of("mime_types.json")
+                .map(Utils::readResourceFile)
+                .<List<String>>map(mimeTypes -> gson.fromJson(mimeTypes, tArrayListString))
+                // if res == null, then blacklisted will remain empty, which is fine
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .forEach(blacklistedMimeTypes::add);
         }
 
         return !blacklistedMimeTypes.contains(mimeType.toUpperCase());

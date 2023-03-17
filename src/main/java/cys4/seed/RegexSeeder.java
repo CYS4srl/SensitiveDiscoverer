@@ -15,17 +15,20 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RegexSeeder {
-    private static final Gson _gson = new Gson();
+    private static final Gson gson = new Gson();
 
     private static List<RegexEntity> fill(String[] regexFiles) {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {}.getType();
 
         return Stream.of(regexFiles)
-            .<List<JsonRegexEntity>>map(regex_file -> _gson.fromJson(Utils.readResourceFile(regex_file), tArrayListRegexEntity))
+            .map(Utils::readResourceFile)
+            .filter(Objects::nonNull)
+            .<List<JsonRegexEntity>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
             .flatMap(Collection::stream)
             .map(element -> new RegexEntity(
                     element.getDescription(),
