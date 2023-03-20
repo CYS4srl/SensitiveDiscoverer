@@ -4,34 +4,35 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.controller;
 
-import cys4.seed.BurpLeaksSeed;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
+/**
+ * Utils package
+ */
 public class Utils {
 
-    public static String readResourceFile(String STRING_Filename)
+    /**
+     * Read the content of a resource file.
+     * @param filepath Path to the resource file.
+     * @return A UTF-8 string with the content of the file read.
+     */
+    public static String readResourceFile(String filepath)
     {
-        String STRING_ReadBuffer = null;
-        // load the prop files
-        try (InputStream input = BurpLeaksSeed.class.getClassLoader().getResourceAsStream(STRING_Filename)) {
-            assert (input != null);
+        try {
+            InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(filepath);
+            if (Objects.isNull(inputStream)) return null;
 
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            for (int length; (length = input.read(buffer)) != -1; ) {
-                result.write(buffer, 0, length);
-            }
-            // StandardCharsets.UTF_8.name() > JDK 7
-            STRING_ReadBuffer = result.toString(StandardCharsets.UTF_8);
+            InputStreamReader isr = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            BufferedReader reader = new BufferedReader(isr);
 
-        } catch (IOException ex) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        } catch (Exception ex) {
             ex.printStackTrace();
+            return null;
         }
-        return STRING_ReadBuffer;
     }
 }

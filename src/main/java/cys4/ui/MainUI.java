@@ -11,7 +11,7 @@ import burp.SpringUtilities;
 import cys4.model.LogEntity;
 import cys4.model.RegexEntity;
 import cys4.scanner.BurpLeaksScanner;
-import cys4.seed.BurpLeaksSeed;
+import cys4.seed.RegexSeeder;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -58,8 +58,8 @@ public class MainUI implements ITab {
     public MainUI(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
 
-        this.generalRegexList = BurpLeaksSeed.getGeneralRegexes();
-        this.extensionsRegexList = BurpLeaksSeed.getExtensionRegexes();
+        this.generalRegexList = RegexSeeder.getGeneralRegexes();
+        this.extensionsRegexList = RegexSeeder.getExtensionRegexes();
 
         // Analyze Proxy History
         this.analyzeProxyHistoryThread = null;
@@ -205,7 +205,8 @@ public class MainUI implements ITab {
                         LogEntity logentry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogTableEntryUI) {
-                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks).show(e.getComponent(), e.getX(), e.getY());
+                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks)
+                                    .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
                 }
@@ -337,12 +338,12 @@ public class MainUI implements ITab {
         tabPaneOptions.add(new JSeparator());
 
         // Regex
-        createOptions_Regex(tabPaneOptions, createOptions_Regex_Title(), BurpLeaksSeed::getGeneralRegexes, this.generalRegexList)
+        createOptions_Regex(tabPaneOptions, createOptions_Regex_Title(), RegexSeeder::getGeneralRegexes, this.generalRegexList)
             .forEach(tabPaneOptions::add);
         tabPaneOptions.add(new JSeparator());
 
         // Extensions
-        createOptions_Regex(tabPaneOptions, createOptions_Extensions_Title(), BurpLeaksSeed::getExtensionRegexes, this.extensionsRegexList)
+        createOptions_Regex(tabPaneOptions, createOptions_Extensions_Title(), RegexSeeder::getExtensionRegexes, this.extensionsRegexList)
             .forEach(tabPaneOptions::add);
 
         return tabPaneOptions;

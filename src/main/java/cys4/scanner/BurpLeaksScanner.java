@@ -4,10 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.scanner;
 
-import burp.IBurpExtenderCallbacks;
-import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.IResponseInfo;
+import burp.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cys4.controller.Utils;
@@ -16,13 +13,13 @@ import cys4.model.RegexEntity;
 import cys4.ui.MainUI;
 
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.JProgressBar;
 
@@ -34,7 +31,7 @@ public class BurpLeaksScanner {
     private final List<LogEntity> logEntries;
     private final List<RegexEntity> regexList;
     private final List<RegexEntity> extensionsList;
-    private ArrayList<String> blacklistedMimeTypes;
+    private final List<String> blacklistedMimeTypes;
     private final Gson gson;
     private boolean interruptScan;
     private int numThreads;
@@ -52,6 +49,7 @@ public class BurpLeaksScanner {
         this.logEntries = logEntries;
         this.regexList = regexList;
         this.extensionsList = extensionsList;
+        this.blacklistedMimeTypes = new ArrayList<>();
         this.interruptScan = false;
         this.gson = new Gson();
     }
@@ -69,23 +67,18 @@ public class BurpLeaksScanner {
         progressBar.setStringPainted(true);
 
         boolean inScope = MainUI.isInScopeSelected();
-        //FIXME code duplicate
-        List<RegexEntity> regexListCopy = new ArrayList<>();
-        for(RegexEntity e : regexList) {
-            regexListCopy.add(new RegexEntity(e));
-        }
-        List<RegexEntity> extensionListCopy = new ArrayList<>();
-        for(RegexEntity e : extensionsList) {
-            extensionListCopy.add(new RegexEntity(e));
-        }
-        
+        List<RegexEntity> allRegexListCopy = Stream
+                .concat(regexList.stream(), extensionsList.stream())
+                .map(RegexEntity::new)
+                .toList();
+
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         for (int i = 0; i < httpRequests.length; i++) {
             IHttpRequestResponse httpProxyItem = httpRequests[i];
             int reqNumber = i+1;
             executor.execute(() -> {
-                analyzeSingleMessage(httpProxyItem, reqNumber, inScope, regexListCopy, extensionListCopy);
+                analyzeSingleMessage(httpProxyItem, reqNumber, inScope, allRegexListCopy);
 
                 if (interruptScan) return;
 
@@ -113,53 +106,63 @@ public class BurpLeaksScanner {
     /**
      * The main method that scan for regex in the single request body
      */
-    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, int requestNumber, boolean inScopeSelected, List<RegexEntity> regexList, List<RegexEntity> extensionsList) {
-        URL requestURL = helpers.analyzeRequest(httpProxyItem).getUrl();
-        byte[] response = httpProxyItem.getResponse();
+    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, int requestNumber, boolean inScopeSelected, List<RegexEntity> regexList) {
+        byte[] request = httpProxyItem.getRequest();
+        IRequestInfo requestInfo = helpers.analyzeRequest(httpProxyItem);
+        if (inScopeSelected && (!callbacks.isInScope(requestInfo.getUrl()))) return;
 
+        byte[] response = httpProxyItem.getResponse();
         if (Objects.isNull(response)) return;
-        if (inScopeSelected && (!callbacks.isInScope(requestURL))) return;
 
         IResponseInfo responseInfo = helpers.analyzeResponse(response);
         if (!isValidMimeType(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType())) return;
 
-        //FIXME code duplicate
+        int requestBodyOffset = requestInfo.getBodyOffset();
+        String requestBody = helpers.bytesToString(Arrays.copyOfRange(request, requestBodyOffset, request.length));
+        String requestHeaders = String.join("\r\n", requestInfo.getHeaders());
 
-        // convert from bytes to string the body of the request
-        String responseBody = helpers.bytesToString(response);
+        int responseBodyOffset = responseInfo.getBodyOffset();
+        String responseBody = helpers.bytesToString(Arrays.copyOfRange(response, responseBodyOffset, response.length));
+        String responseHeaders = String.join("\r\n", responseInfo.getHeaders());
+
+        String requestUrl = requestInfo.getUrl().toString();
+
         for (RegexEntity entry : regexList) {
             if (this.interruptScan) return;
 
             // if the box related to the regex in the Options tab of the extension is checked
             if (!entry.isActive()) continue;
 
-            Matcher regex_matcher = entry.getRegexCompiled().matcher(responseBody);
-            while (regex_matcher.find()) {
-                addLogEntry(
-                    httpProxyItem,
-                    requestNumber,
-                    entry.getDescription(),
-                    entry.getRegex(),
-                    regex_matcher.group());
-            }
+            getRegexMatchers(entry, requestUrl, requestHeaders, requestBody, responseHeaders, responseBody)
+                .parallelStream()
+                .forEach(matcher -> {
+                    while (matcher.find()) {
+                        addLogEntry(
+                                httpProxyItem,
+                                requestNumber,
+                                entry.getDescription(),
+                                entry.getRegex(),
+                                matcher.group());
+                    }
+                });
         }
+    }
 
-        for (RegexEntity entry : extensionsList) {
-            if (this.interruptScan) return;
+    private List<Matcher> getRegexMatchers(RegexEntity regex, String requestUrl, String requestHeaders, String requestBody, String responseHeaders, String responseBody) {
+        Pattern regexCompiled = regex.getRegexCompiled();
 
-            // if the box related to the extensions in the Options tab of the extension is checked
-            if (!entry.isActive()) continue;
-
-            Matcher extension_matcher = entry.getRegexCompiled().matcher(requestURL.toString());
-            if (extension_matcher.find()) {
-                addLogEntry(
-                    httpProxyItem,
-                    requestNumber,
-                    entry.getDescription(),
-                    entry.getRegex(),
-                    extension_matcher.group());
-            }
-        }
+        return regex.getSections()
+            .parallelStream()
+            .map(proxyItemSection -> switch (proxyItemSection) {
+                case REQ_URL -> requestUrl;
+                case REQ_HEADERS -> requestHeaders;
+                case REQ_BODY -> requestBody;
+                case RES_HEADERS -> responseHeaders;
+                case RES_BODY -> responseBody;
+            })
+            .filter(Objects::nonNull)
+            .map(regexCompiled::matcher)
+            .collect(Collectors.toList());
     }
 
     private void addLogEntry(IHttpRequestResponse httpProxyItem, int requestNumber, String description, String regex, String match) {
@@ -191,14 +194,15 @@ public class BurpLeaksScanner {
     private boolean isValidMimeType(String statedMimeType, String inferredMimeType) {
         String mimeType = statedMimeType.isBlank() ? inferredMimeType : statedMimeType;
 
-        if (Objects.isNull(blacklistedMimeTypes)) {
-            blacklistedMimeTypes = new ArrayList<>();
-
+        if (this.blacklistedMimeTypes.isEmpty()) {
             Type tArrayListString = new TypeToken<ArrayList<String>>() {}.getType();
-            List<String> lDeserializedJson = gson.fromJson(
-                Utils.readResourceFile("mime_types.json"),
-                tArrayListString);
-            blacklistedMimeTypes.addAll(lDeserializedJson);
+            Stream.of("mime_types.json")
+                .map(Utils::readResourceFile)
+                .<List<String>>map(mimeTypes -> gson.fromJson(mimeTypes, tArrayListString))
+                // if res == null, then blacklisted will remain empty, which is fine
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .forEach(blacklistedMimeTypes::add);
         }
 
         return !blacklistedMimeTypes.contains(mimeType.toUpperCase());

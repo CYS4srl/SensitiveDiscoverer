@@ -4,7 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package cys4.model;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,23 +13,37 @@ public class RegexEntity {
     private final String regex;
     private final transient Pattern regexCompiled;
     private final String description;
+    private final EnumSet<ProxyItemSection> sections;
 
+    /**
+     * Used to import from CSV where there's only the description and the regex
+     * @param description
+     * @param regex
+     * @throws IllegalArgumentException
+     */
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
-        this(description, regex, true);
+        this(description, regex, true, null);
     }
 
     public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
+        this(description, regex, active, null);
+    }
+
+    public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
         if (regex == null || regex.isBlank())
             throw new IllegalArgumentException("Invalid regex");
+        if (sections == null)
+            throw new IllegalArgumentException("Invalid sections, non-null required");
 
         this.active = active;
         this.description = description;
         this.regex = regex;
         this.regexCompiled = Pattern.compile(regex);
+        this.sections = sections;
     }
 
     public RegexEntity(RegexEntity entity) throws IllegalArgumentException {
-        this(entity.getDescription(), entity.getRegex(), entity.isActive());
+        this(entity.getDescription(), entity.getRegex(), entity.isActive(), entity.getSections());
     }
 
     /**
@@ -58,6 +72,10 @@ public class RegexEntity {
 
     public String getDescription() {
         return this.description;
+    }
+
+    public EnumSet<ProxyItemSection> getSections() {
+        return sections;
     }
 
     public void setActive(boolean value) {
