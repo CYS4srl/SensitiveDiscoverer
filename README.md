@@ -41,12 +41,14 @@ To see the predefined list go to the Options tab. There you can choose which of 
 
 These are the actions available to manage the lists:
 
-- **Reset**: the plugin will reset to the default list.
 - **New**: a pop-up will appear to insert a new regex or extension.
 - **Delete**: the currently selected row will be deleted from the list.
 - **Clear**: the list will be emptied.
+- **Reset**: the plugin will reset to the default list.
 - **Open**: a pop-up will appear to import a list of regex or extensions from a `.csv` file. For the required file format, refer to the [Importing Lists](#importing-lists) section.
 - **Save**: the current list will be saved to a `.csv`.
+- **Enable all**: disable all the regexes in the current section.
+- **Disable all**: enable all the regexes in the current section.
 
 After customizing the lists it is now possible to start scanning for sensitive information inside HTTP messages. The plugin offers the following mode of operations:
 
