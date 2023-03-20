@@ -23,13 +23,13 @@ public enum ProxyItemSection {
     public static final EnumSet<ProxyItemSection> ALL = EnumSet.allOf(
             ProxyItemSection.class);
 
-    private static EnumSet<ProxyItemSection> _getDefault() {
+    public static EnumSet<ProxyItemSection> getDefault() {
         return ProxyItemSection.RES;
     }
 
     public static EnumSet<ProxyItemSection> parseSectionsToMatch(List<String> sectionsToMatch) {
         if (Objects.isNull(sectionsToMatch))
-            return ProxyItemSection._getDefault();
+            return ProxyItemSection.getDefault();
 
         return sectionsToMatch
             .stream()

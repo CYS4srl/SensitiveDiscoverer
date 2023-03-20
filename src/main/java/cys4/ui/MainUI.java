@@ -461,8 +461,9 @@ public class MainUI implements ITab {
             String expression = textFieldReg.getText();
             String description = textFieldDesc.getText();
 
+            int row = ctx.regexList.size();
             ctx.regexList.add(new RegexEntity(description, expression));
-            modelReg.fireTableDataChanged();
+            modelReg.fireTableRowsInserted(row, row);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -475,7 +476,7 @@ public class MainUI implements ITab {
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
             ctx.regexList.remove(realRow);
 
-            modelReg.fireTableDataChanged();
+            modelReg.fireTableRowsDeleted(realRow, realRow);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -523,12 +524,11 @@ public class MainUI implements ITab {
 
                     if (!ctx.regexList.contains(newRegexEntity)) {
                         ctx.regexList.add(newRegexEntity);
-
-                        modelReg.fireTableDataChanged();
                     } else {
                         alreadyAdded.append(description).append(" - ").append(regex).append("\n");
                     }
                 }
+                modelReg.fireTableDataChanged();
 
                 if (!(alreadyAdded.toString().isBlank())) {
                     alreadyAdded.insert(0, "These regexes are already present:\n");
