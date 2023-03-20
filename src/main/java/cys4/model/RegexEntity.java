@@ -22,11 +22,11 @@ public class RegexEntity {
      * @throws IllegalArgumentException
      */
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
-        this(description, regex, true, null);
+        this(description, regex, true, ProxyItemSection.getDefault());
     }
 
     public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
-        this(description, regex, active, null);
+        this(description, regex, active, ProxyItemSection.getDefault());
     }
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
