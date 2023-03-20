@@ -39,7 +39,7 @@ public class RegexSeeder {
     }
 
     public static List<RegexEntity> getGeneralRegexes() {
-        return fill(new String[]{"regex_general.json", "regex_token.json", "regex_url.json"});
+        return fill(new String[]{"regex_general.jsonc", "regex_token.jsonc", "regex_url.jsonc"});
     }
 
     public static List<RegexEntity> getExtensionRegexes() {
