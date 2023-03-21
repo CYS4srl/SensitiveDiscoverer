@@ -13,13 +13,17 @@ import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
 import com.cys4.sensitivediscoverer.seed.RegexSeeder;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
 import java.util.function.Supplier;
@@ -151,11 +155,10 @@ public class MainUI implements ITab {
 
     private void _initialize() {
         JTabbedPane tabbedPane = new JTabbedPane();
-        JPanel tabPanelLogger = createLoggerPanel();
-        JPanel tabPaneOptions = createOptionsPanel();
 
-        tabbedPane.addTab("Logger", tabPanelLogger);
-        tabbedPane.addTab("Options", tabPaneOptions);
+        tabbedPane.addTab("Logger", createLoggerPanel());
+        tabbedPane.addTab("Options", createOptionsPanel());
+        tabbedPane.addTab("About", createAboutPanel());
 
         // main panel; it shows logger and options tabs
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -164,6 +167,78 @@ public class MainUI implements ITab {
 
         // add the custom tab to Burp's UI
         callbacks.addSuiteTab(MainUI.this);
+    }
+
+    private JPanel createAboutPanel() {
+        JPanel tabAbout = new JPanel();
+        tabAbout.setLayout(new BoxLayout(tabAbout, BoxLayout.Y_AXIS));
+
+        JLabel headerLabel = new JLabel(" SensitiveDiscoverer");
+        headerLabel.setFont(new Font("Lucida Grande", Font.BOLD, 28)); // NOI18N
+
+        JLabel subheaderLabel = new JLabel("  Scan for sensitive strings in HTTP messages");
+        subheaderLabel.setFont(new Font("Lucida Grande", Font.ITALIC, 20)); // NOI18N
+
+        tabAbout.add(new JLabel(" "));
+        tabAbout.add(headerLabel);
+        tabAbout.add(subheaderLabel);
+        tabAbout.add(new JLabel(" "));
+        tabAbout.add(new JLabel("  —————————————————————————————————————————————————"));
+        tabAbout.add(new JLabel(" "));
+
+        for (String s : Arrays.asList("Version: 3.0.0", "Author: CYS4",
+                " ", " ",
+                "Visit our site and our blog.", " ")) {
+            JLabel label = new JLabel("  " + s);
+            label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+            tabAbout.add(label);
+        }
+
+        JButton websiteButton = new JButton("CYS4 Website");
+        websiteButton.setMaximumSize(new Dimension(400, 40));
+        websiteButton.addActionListener(actionEvent -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://cys4.com"));
+            } catch (IOException | URISyntaxException e) {}
+        });
+        tabAbout.add(websiteButton);
+        JButton blogButton = new JButton("CYS4 Blog");
+        blogButton.setMaximumSize(new Dimension(400, 40));
+        blogButton.addActionListener(actionEvent -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://blog.cys4.com"));
+            } catch (IOException | URISyntaxException e) {}
+        });
+        tabAbout.add(blogButton);
+
+        for (String s : Arrays.asList(" ", " ", "We are open to requests and improvements. Visit our Github page!", " ")) {
+            JLabel label = new JLabel("  " + s);
+            label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+            tabAbout.add(label);
+        }
+
+        JButton githubButton = new JButton("Github page");
+        githubButton.setMaximumSize(new Dimension(400, 40));
+        githubButton.addActionListener(actionEvent -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://github.com/CYS4srl/CYS4-SensitiveDiscoverer"));
+            } catch (IOException | URISyntaxException e) {}
+        });
+        tabAbout.add(githubButton);
+
+        tabAbout.add(new JLabel(" "));
+
+        // Logo
+        try {
+            BufferedImage logoImage = ImageIO.read(Objects.requireNonNull(MainUI.class.getClassLoader().getResource("logo.png")));
+            JLabel logoIcon = new JLabel(new ImageIcon(logoImage.getScaledInstance(400, -1, Image.SCALE_DEFAULT)));
+            tabAbout.add(logoIcon);
+            tabAbout.add(new JLabel(" "));
+        } catch (IOException ignored) {}
+
+        callbacks.customizeUiComponent(tabAbout);
+
+        return tabAbout;
     }
 
     private JPanel createLoggerPanel() {
@@ -181,7 +256,6 @@ public class MainUI implements ITab {
         // panel that contains all the graphical elements in the Logger Panel
         JSplitPane mainLoggerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, buttonsLoggerPanel, requestResponseSplitPane);
         tabPanelLogger.add(mainLoggerPanel);
-
 
         callbacks.customizeUiComponent(logTableEntryUI);
         callbacks.customizeUiComponent(mainLoggerPanel);
@@ -327,7 +401,6 @@ public class MainUI implements ITab {
                 });
                 this.analyzeProxyHistoryThread.start();
 
-                //TODO: are they needed?
                 logTableEntryUI.validate();
                 logTableEntryUI.repaint();
             } else {
@@ -349,7 +422,6 @@ public class MainUI implements ITab {
                 }).start();
             }
 
-            //TODO: are they needed?
             tabPanelLogger.validate();
             tabPanelLogger.repaint();
         });
