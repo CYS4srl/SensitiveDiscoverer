@@ -50,5 +50,6 @@ src/build/
 *.jar
 *.lst
 .vscode
+todo
 
 target/maven-status/maven-compiler-plugin/compile/default-compile/
