@@ -58,27 +58,30 @@ public class BurpLeaksScanner {
      * Method for analyzing the elements in Burp > Proxy > HTTP history
      */
     public void analyzeProxyHistory(JProgressBar progressBar) {
-        IHttpRequestResponse[] httpRequests;
-        httpRequests = callbacks.getProxyHistory();
-
+        IHttpRequestResponse[] httpProxyItems = callbacks.getProxyHistory();
         this.analyzedItems = 0;
-        progressBar.setMaximum(httpRequests.length);
+
+        progressBar.setMaximum(httpProxyItems.length);
         progressBar.setValue(this.analyzedItems);
         progressBar.setStringPainted(true);
 
-        boolean inScope = MainUI.isInScopeSelected();
+        // create copy of regex list to protect from changes while scanning
         List<RegexEntity> allRegexListCopy = Stream
                 .concat(regexList.stream(), extensionsList.stream())
                 .map(RegexEntity::new)
                 .toList();
 
-        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        // setup filter parameters for analysis
+        boolean inScope = MainUI.isInScopeOptionSelected();
+        boolean checkMimeType = MainUI.isSkipMediaTypeOptionSelected();
+        int maxRequestSize = MainUI.isSkipMaxSizeOptionSelected() ? MainUI.getMaxSizeValueOption() : -1;
 
-        for (int i = 0; i < httpRequests.length; i++) {
-            IHttpRequestResponse httpProxyItem = httpRequests[i];
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        for (int i = 0; i < httpProxyItems.length; i++) {
+            IHttpRequestResponse httpProxyItem = httpProxyItems[i];
             int reqNumber = i+1;
             executor.execute(() -> {
-                analyzeSingleMessage(httpProxyItem, reqNumber, inScope, allRegexListCopy);
+                analyzeSingleMessage(httpProxyItem, reqNumber, allRegexListCopy, inScope, checkMimeType, maxRequestSize);
 
                 if (interruptScan) return;
 
@@ -106,16 +109,22 @@ public class BurpLeaksScanner {
     /**
      * The main method that scan for regex in the single request body
      */
-    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, int requestNumber, boolean inScopeSelected, List<RegexEntity> regexList) {
+    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem, int requestNumber, List<RegexEntity> regexList,
+                                      boolean inScopeSelected, boolean checkMimeType, int maxRequestSize) {
+        // check if URL is in scope
         byte[] request = httpProxyItem.getRequest();
         IRequestInfo requestInfo = helpers.analyzeRequest(httpProxyItem);
         if (inScopeSelected && (!callbacks.isInScope(requestInfo.getUrl()))) return;
 
+        // skip empty responses
         byte[] response = httpProxyItem.getResponse();
         if (Objects.isNull(response)) return;
+        // check for max request size
+        if (maxRequestSize > 0 && response.length > maxRequestSize) return;
 
+        // check for blacklisted MIME types
         IResponseInfo responseInfo = helpers.analyzeResponse(response);
-        if (!isValidMimeType(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType())) return;
+        if (checkMimeType && isMimeTypeBlacklisted(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType())) return;
 
         int requestBodyOffset = requestInfo.getBodyOffset();
         String requestBody = helpers.bytesToString(Arrays.copyOfRange(request, requestBodyOffset, request.length));
@@ -185,13 +194,13 @@ public class BurpLeaksScanner {
     }
 
     /**
-     * Checks if the MimeType is inside the list of valid mime types "mime_types.json".
+     * Checks if the MimeType is inside the list of blacklisted mime types "mime_types.json".
      * If the stated mime type in the header isBlank, then the inferred mime type is used.
      * @param statedMimeType Stated mime type from a IResponseInfo object
      * @param inferredMimeType Inferred mime type from a IResponseInfo object
-     * @return True if the mime type is valid
+     * @return True if the mime type is blacklisted
      */
-    private boolean isValidMimeType(String statedMimeType, String inferredMimeType) {
+    private boolean isMimeTypeBlacklisted(String statedMimeType, String inferredMimeType) {
         String mimeType = statedMimeType.isBlank() ? inferredMimeType : statedMimeType;
 
         if (this.blacklistedMimeTypes.isEmpty()) {
@@ -205,7 +214,7 @@ public class BurpLeaksScanner {
                 .forEach(blacklistedMimeTypes::add);
         }
 
-        return !blacklistedMimeTypes.contains(mimeType.toUpperCase());
+        return blacklistedMimeTypes.contains(mimeType.toUpperCase());
     }
 
     public void setInterruptScan(boolean interruptScan) {
