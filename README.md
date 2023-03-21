@@ -6,6 +6,7 @@
 * [SensitiveDiscoverer](#sensitivediscoverer)
   * [Introduction](#introduction)
     * [Features](#features)
+    * [Screenshots](#screenshots)
   * [Installation](#installation)
     * [Using the BApp Store](#using-the-bapp-store)
     * [Manual install](#manual-install)
@@ -32,6 +33,16 @@ It uses a list of Regular Expressions and File Extensions to match for in each m
 - Many filters to skip irrelevant messages
 - Customizable regexes lists
 - Import/Export regexes with CSV files
+
+### Screenshots
+
+Main page with the results of the scan:
+
+![Logger tab](images/tab-logger.png)
+
+Options tab to configure filters and scanner options:
+
+![Options tab](images/tab-options.png)
 
 ## Installation
 
