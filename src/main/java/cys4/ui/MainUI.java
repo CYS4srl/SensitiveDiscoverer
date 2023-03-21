@@ -51,9 +51,21 @@ public class MainUI implements ITab {
     private final BurpLeaksScanner burpLeaksScanner;
 
     /**
-     * Check if the options for the scope is selected or not
+     * Checkbox to skip responses not in scope
      */
-    private static boolean inScope = false;
+    private static boolean inScopeCheckbox = false;
+    /**
+     * Checkbox to skip responses over a set max size
+     */
+    private static boolean skipMaxSizeCheckbox = true;
+    /**
+     * Max response size in bytes. Defaults to 10MB
+     */
+    private static int maxSizeValue = 10_000_000;
+    /**
+     * Checkbox to skip responses of a media MIME-type
+     */
+    private static boolean skipMediaTypeCheckbox = true;
 
     public MainUI(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
@@ -94,10 +106,28 @@ public class MainUI implements ITab {
     }
 
     /**
-     * isInScopeSelected return true if the option is selected
+     * returns true if the option checkbox is selected
      */
-    public static boolean isInScopeSelected() {
-        return inScope;
+    public static boolean isInScopeOptionSelected() {
+        return inScopeCheckbox;
+    }
+    /**
+     * returns true if the option checkbox is selected
+     */
+    public static boolean isSkipMaxSizeOptionSelected() {
+        return skipMaxSizeCheckbox;
+    }
+    /**
+     * Returns the set max size for responses
+     */
+    public static int getMaxSizeValueOption() {
+        return maxSizeValue;
+    }
+    /**
+     * returns true if the option checkbox is selected
+     */
+    public static boolean isSkipMediaTypeOptionSelected() {
+        return skipMediaTypeCheckbox;
     }
 
     /**
@@ -590,7 +620,7 @@ public class MainUI implements ITab {
 
     private JPanel createOptions_Configurations() {
         JPanel configurationsPanel = new JPanel();
-        configurationsPanel.setLayout(new BoxLayout(configurationsPanel, BoxLayout.Y_AXIS));
+        configurationsPanel.setLayout(new BoxLayout(configurationsPanel, BoxLayout.X_AXIS));
         configurationsPanel.setAlignmentX(JPanel.RIGHT_ALIGNMENT);
 
         JPanel scopePanel = createOptions_Configuration_Filters();
@@ -604,7 +634,7 @@ public class MainUI implements ITab {
     private JPanel createOptions_Configuration_Filters() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setMaximumSize(new Dimension(500,100));
+//        panel.setMaximumSize(new Dimension(500,100));
         panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
         panel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.gray, 1),
@@ -615,17 +645,28 @@ public class MainUI implements ITab {
                 new Color(255, 102, 51)
                 ));
 
-        JCheckBox inScopeCheckBox = new JCheckBox("Show only in-scope items");
-        inScopeCheckBox.addActionListener(e -> inScope = inScopeCheckBox.getModel().isSelected());
+        JCheckBox inScopeCheckbox = new JCheckBox("Show only in-scope items");
+        inScopeCheckbox.getModel().setSelected(MainUI.inScopeCheckbox);
+        inScopeCheckbox.addActionListener(e -> MainUI.inScopeCheckbox = inScopeCheckbox.getModel().isSelected());
+        panel.add(inScopeCheckbox);
 
-        panel.add(inScopeCheckBox);
+        JCheckBox skipMaxSizeCheckbox = new JCheckBox("Skip responses over set size");
+        skipMaxSizeCheckbox.getModel().setSelected(MainUI.skipMaxSizeCheckbox);
+        skipMaxSizeCheckbox.addActionListener(e -> MainUI.skipMaxSizeCheckbox = skipMaxSizeCheckbox.getModel().isSelected());
+        panel.add(skipMaxSizeCheckbox);
+
+        JCheckBox skipMediaTypeCheckbox = new JCheckBox("Skip media-type responses (images, videos, archives, ...)");
+        skipMediaTypeCheckbox.getModel().setSelected(MainUI.skipMediaTypeCheckbox);
+        skipMediaTypeCheckbox.addActionListener(e -> MainUI.skipMediaTypeCheckbox = skipMediaTypeCheckbox.getModel().isSelected());
+        panel.add(skipMediaTypeCheckbox);
+
         return panel;
     }
 
     private JPanel createOptions_Configuration_Scanner() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setMaximumSize(new Dimension(500,100));
+//        panel.setMaximumSize(new Dimension(500,100));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.gray, 1),
@@ -635,6 +676,17 @@ public class MainUI implements ITab {
                 new Font("Lucida Grande", Font.BOLD, 14), // NOI18N
                 new Color(255, 102, 51)
         ));
+
+        panel.add(createOptions_numThreads());
+        panel.add(createOptions_maxSizeFilter());
+
+        return panel;
+    }
+
+    private JPanel createOptions_numThreads() {
+        JPanel mainGroup = new JPanel();
+        mainGroup.setLayout(new BoxLayout(mainGroup, BoxLayout.Y_AXIS));
+        mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel numThreads = new JPanel();
         JLabel numThreadsDescription = new JLabel("Current number of threads: ");
@@ -664,9 +716,49 @@ public class MainUI implements ITab {
         updateNumThreads.add(updateNumThreadsField);
         updateNumThreads.add(updateNumThreadsSet);
 
-        panel.add(numThreads);
-        panel.add(updateNumThreads);
-        return panel;
+        mainGroup.add(numThreads);
+        mainGroup.add(updateNumThreads);
+        return mainGroup;
+    }
+
+    //TODO enable/disable max size input box with MainUI.skipMaxSizeCheckbox
+    private JPanel createOptions_maxSizeFilter() {
+        JPanel mainGroup = new JPanel();
+        mainGroup.setLayout(new BoxLayout(mainGroup, BoxLayout.Y_AXIS));
+        mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JPanel maxSize = new JPanel();
+        JLabel maxSizeDescription = new JLabel("Current max response size (bytes): ");
+        JLabel maxSizeCurrent = new JLabel(String.valueOf(MainUI.maxSizeValue));
+        maxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
+        maxSize.add(maxSizeDescription);
+        maxSize.add(maxSizeCurrent);
+
+        JPanel updateMaxSize = new JPanel();
+        JLabel updateMaxSizeDescription = new JLabel("Update max response size (bytes): ");
+        JTextField updateMaxSizeField = new JTextField(4);
+        JButton updateMaxSizeSet = new JButton("Set");
+        updateMaxSizeSet.addActionListener(e -> {
+            try {
+                int newMaxSizeValue = Integer.parseInt(updateMaxSizeField.getText());
+                if (newMaxSizeValue < 1)
+                    throw new NumberFormatException("Size must be >= 1");
+
+                MainUI.maxSizeValue = newMaxSizeValue;
+                maxSizeCurrent.setText(String.valueOf(MainUI.getMaxSizeValueOption()));
+                updateMaxSizeField.setText("");
+            } catch (NumberFormatException ignored) {
+            }
+        });
+        updateMaxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
+        updateMaxSize.add(updateMaxSizeDescription);
+        updateMaxSize.add(updateMaxSizeField);
+        updateMaxSize.add(updateMaxSizeSet);
+
+        mainGroup.add(maxSize);
+        mainGroup.add(updateMaxSize);
+
+        return mainGroup;
     }
 
     @Override
