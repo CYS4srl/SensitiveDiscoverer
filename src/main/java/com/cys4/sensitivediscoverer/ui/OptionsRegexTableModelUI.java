@@ -2,9 +2,9 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package cys4.ui;
+package com.cys4.sensitivediscoverer.ui;
 
-import cys4.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.RegexEntity;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;

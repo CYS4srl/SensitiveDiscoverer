@@ -2,15 +2,15 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package cys4.scanner;
+package com.cys4.sensitivediscoverer.scanner;
 
 import burp.*;
+import com.cys4.sensitivediscoverer.controller.Utils;
+import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.ui.MainUI;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import cys4.controller.Utils;
-import cys4.model.LogEntity;
-import cys4.model.RegexEntity;
-import cys4.ui.MainUI;
 
 import java.lang.reflect.Type;
 import java.util.*;

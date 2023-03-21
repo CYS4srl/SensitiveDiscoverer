@@ -2,16 +2,16 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package cys4.ui;
+package com.cys4.sensitivediscoverer.ui;
 
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import burp.ITextEditor;
 import burp.SpringUtilities;
-import cys4.model.LogEntity;
-import cys4.model.RegexEntity;
-import cys4.scanner.BurpLeaksScanner;
-import cys4.seed.RegexSeeder;
+import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
+import com.cys4.sensitivediscoverer.seed.RegexSeeder;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

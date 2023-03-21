@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.cys4.sensitive-discoverer</groupId>
-    <artifactId>sensitive-discoverer</artifactId>
+    <groupId>com.cys4.sensitivediscoverer</groupId>
+    <artifactId>sensitivediscoverer</artifactId>
     <version>3.0.0</version>
 
     <properties>
@@ -31,7 +31,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/java/cys4/resources</directory>
+                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources</directory>
                 <filtering>false</filtering>
                 <includes>
                     <include>config.properties</include>
@@ -39,7 +39,7 @@
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/main/java/cys4/resources/regexes</directory>
+                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources/regexes</directory>
                 <filtering>false</filtering>
                 <includes>
                     <include>*.json</include>
