@@ -44,6 +44,7 @@ buildNumber.properties
 out/
 Burp.iml
 CYS4-SensitiveDiscoverer.iml
+SensitiveDiscoverer.iml
 src/build/
 .idea
 *.jar
