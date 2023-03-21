@@ -58,7 +58,10 @@ public class MainUI implements ITab {
      * Checkbox to skip responses over a set max size
      */
     private static boolean skipMaxSizeCheckbox = true;
-    private static int maxSizeValue = 1_000_000;
+    /**
+     * Max response size in bytes. Defaults to 10MB
+     */
+    private static int maxSizeValue = 10_000_000;
     /**
      * Checkbox to skip responses of a media MIME-type
      */
