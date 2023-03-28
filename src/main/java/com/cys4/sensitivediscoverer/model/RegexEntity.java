@@ -16,12 +16,6 @@ public class RegexEntity {
     private final String description;
     private final EnumSet<ProxyItemSection> sections;
 
-    /**
-     * Used to import from CSV where there's only the description and the regex
-     * @param description
-     * @param regex
-     * @throws IllegalArgumentException
-     */
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true, ProxyItemSection.getDefault());
     }

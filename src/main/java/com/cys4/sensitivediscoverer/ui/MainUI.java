@@ -643,7 +643,7 @@ public class MainUI implements ITab {
                     String description = matcher.group(1);
                     String regex = matcher.group(2);
 
-                    RegexEntity newRegexEntity = new RegexEntity(description, regex);
+                    RegexEntity newRegexEntity = new RegexEntity(description, regex, true, newRegexesSections);
 
                     if (!ctx.regexList.contains(newRegexEntity)) {
                         ctx.regexList.add(newRegexEntity);
