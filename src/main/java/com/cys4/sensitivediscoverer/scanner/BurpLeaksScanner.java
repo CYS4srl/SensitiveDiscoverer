@@ -12,6 +12,7 @@ import com.cys4.sensitivediscoverer.ui.MainUI;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import javax.swing.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -20,8 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.swing.JProgressBar;
 
 public class BurpLeaksScanner {
 

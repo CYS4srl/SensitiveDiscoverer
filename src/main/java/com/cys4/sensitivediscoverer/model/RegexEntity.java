@@ -4,7 +4,8 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,12 +16,6 @@ public class RegexEntity {
     private final String description;
     private final EnumSet<ProxyItemSection> sections;
 
-    /**
-     * Used to import from CSV where there's only the description and the regex
-     * @param description
-     * @param regex
-     * @throws IllegalArgumentException
-     */
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true, ProxyItemSection.getDefault());
     }

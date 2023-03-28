@@ -9,6 +9,7 @@ import burp.ITab;
 import burp.ITextEditor;
 import burp.SpringUtilities;
 import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
 import com.cys4.sensitivediscoverer.seed.RegexSeeder;
@@ -24,8 +25,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
@@ -432,7 +433,6 @@ public class MainUI implements ITab {
     private JPanel createOptionsPanel() {
         JPanel tabPaneOptions = new JPanel();
         tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
-        tabPaneOptions.setBorder(BorderFactory.createTitledBorder("Configuration"));
 
         // Configuration
         JPanel configurationsPanel = createOptions_Configurations();
@@ -440,12 +440,22 @@ public class MainUI implements ITab {
         tabPaneOptions.add(new JSeparator());
 
         // Regex
-        createOptions_Regex(tabPaneOptions, createOptions_Regex_Title(), RegexSeeder::getGeneralRegexes, this.generalRegexList)
+        createOptions_Regex(
+                tabPaneOptions,
+                createOptions_Regex_Title(),
+                RegexSeeder::getGeneralRegexes,
+                this.generalRegexList,
+                ProxyItemSection.getDefault())
             .forEach(tabPaneOptions::add);
         tabPaneOptions.add(new JSeparator());
 
         // Extensions
-        createOptions_Regex(tabPaneOptions, createOptions_Extensions_Title(), RegexSeeder::getExtensionRegexes, this.extensionsRegexList)
+        createOptions_Regex(
+                tabPaneOptions,
+                createOptions_Extensions_Title(),
+                RegexSeeder::getExtensionRegexes,
+                this.extensionsRegexList,
+                EnumSet.of(ProxyItemSection.REQ_URL))
             .forEach(tabPaneOptions::add);
 
         return tabPaneOptions;
@@ -477,14 +487,20 @@ public class MainUI implements ITab {
     }
 
     private JPanel createOptions_Regex_Title() {
-        return createOptions_ParagraphSection("Regex List", "In this section you can manage the regex list.");
+        return createOptions_ParagraphSection("Regex List", "This section contains general regexes that try to match only within the response.");
     }
 
     private JPanel createOptions_Extensions_Title() {
-        return createOptions_ParagraphSection("Extensions List", "In this section you can manage the extension list.");
+        return createOptions_ParagraphSection("Extensions List", "This section contains regexes for filename extensions. These regexes try to match only the URL of the request.");
     }
 
-    private List<JComponent> createOptions_Regex(JPanel tabPaneOptions, JPanel optionsTitlePanel, Supplier<List<RegexEntity>> resetRegexSeeder, List<RegexEntity> regexEntities) {
+    private List<JComponent> createOptions_Regex(
+            JPanel tabPaneOptions,
+            JPanel optionsTitlePanel,
+            Supplier<List<RegexEntity>> resetRegexSeeder,
+            List<RegexEntity> regexEntities,
+            EnumSet<ProxyItemSection> newRegexesSections)
+    {
         var ctx = new Object() {
             final List<RegexEntity> regexList = regexEntities;
         };
@@ -541,7 +557,12 @@ public class MainUI implements ITab {
         btnNewRegex.addActionListener(actionEvent -> {
             String[] labels = {"Regex: ", "Description: "};
             //Create and populate the panel.
+            JPanel mainPanel = new JPanel();
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            JLabel labelSummary = new JLabel("The new regex will only match: " + newRegexesSections.toString(), JLabel.TRAILING);
+            mainPanel.add(labelSummary);
             JPanel inputPanel = new JPanel(new SpringLayout());
+            mainPanel.add(inputPanel);
             JLabel labelExpression = new JLabel(labels[0], JLabel.TRAILING);
             inputPanel.add(labelExpression);
             JTextField textFieldReg = new JTextField(10);
@@ -557,14 +578,14 @@ public class MainUI implements ITab {
                     labels.length, 2, //rows, cols
                     6, 6,        //initX, initY
                     6, 6);       //xPad, yPad
-            int returnValue = JOptionPane.showConfirmDialog(tabPaneOptions, inputPanel, "Add a regular expression", JOptionPane.YES_NO_OPTION);
+            int returnValue = JOptionPane.showConfirmDialog(tabPaneOptions, mainPanel, "Add a regular expression", JOptionPane.YES_NO_OPTION);
             if (returnValue != JOptionPane.YES_OPTION) return;
 
             String expression = textFieldReg.getText();
             String description = textFieldDesc.getText();
 
             int row = ctx.regexList.size();
-            ctx.regexList.add(new RegexEntity(description, expression));
+            ctx.regexList.add(new RegexEntity(description, expression, true, newRegexesSections));
             modelReg.fireTableRowsInserted(row, row);
 
             tabPaneOptions.validate();
@@ -622,7 +643,7 @@ public class MainUI implements ITab {
                     String description = matcher.group(1);
                     String regex = matcher.group(2);
 
-                    RegexEntity newRegexEntity = new RegexEntity(description, regex);
+                    RegexEntity newRegexEntity = new RegexEntity(description, regex, true, newRegexesSections);
 
                     if (!ctx.regexList.contains(newRegexEntity)) {
                         ctx.regexList.add(newRegexEntity);
