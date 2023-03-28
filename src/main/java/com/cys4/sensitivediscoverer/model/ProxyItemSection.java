@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2023 CYS4 Srl
+See the file 'LICENSE' for copying permission
+*/
 package com.cys4.sensitivediscoverer.model;
 
 import java.util.EnumSet;
@@ -46,5 +50,17 @@ public enum ProxyItemSection {
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)));
+    }
+
+    @Override
+    public String toString() {
+        return switch (this) {
+            case REQ_URL -> "RequestURL";
+            case REQ_BODY -> "RequestBody";
+            case REQ_HEADERS -> "RequestHeaders";
+            case RES_BODY -> "ResponseBody";
+            case RES_HEADERS -> "ResponseHeaders";
+            default -> this.name();
+        };
     }
 }
