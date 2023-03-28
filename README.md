@@ -7,6 +7,7 @@
   * [Introduction](#introduction)
     * [Features](#features)
     * [Screenshots](#screenshots)
+    * [About the used regexes](#about-the-used-regexes)
   * [Installation](#installation)
     * [Using the BApp Store](#using-the-bapp-store)
     * [Manual install](#manual-install)
@@ -43,6 +44,24 @@ Main page with the results of the scan:
 Options tab to configure filters and scanner options:
 
 ![Options tab](images/tab-options.png)
+
+### About the used regexes
+
+We aim to provide a default set of regexes that can be used in as many cases as possible without numerous false positives.
+
+As the source, many regexes are written by us, and any other should have the appropriate mention in the [References](#references) section.
+
+Each Proxy list row is divided into sections to improve the matching results and reduce the scan times. As of now, there are five sections:
+
+- Request
+  - Request URL
+  - Request Headers
+  - Request Body
+- Response
+  - Response Headers
+  - Response Body
+
+The extension works with two lists of regexes. One list is for general regexes, which only matches within the Response sections; The other is for filename extensions and only matches the Request URL.
 
 ## Installation
 
@@ -97,7 +116,7 @@ The BApp can be compiled with Maven by following these steps:
 
 1. View > Tool Windows > Maven.
 2. On the new right panel expand the Lifecycle folder.
-3. Double-click on install.
+3. Double-click on "Install".
 
 The compiled extension will be in the "/target" folder.
 
@@ -117,4 +136,7 @@ Check out [our site](https://cys4.com/) and [our blog](https://blog.cys4.com/) f
 
 ## References
 
-- [shhgit](https://github.com/eth0izzle/shhgit/blob/master/config.yaml): Regexes and File Extensions lists used in this project.
+The following is a list of sources for some regexes used in this extension. Many thanks to all!
+
+- https://github.com/eth0izzle/shhgit
+- https://github.com/streaak/keyhacks
