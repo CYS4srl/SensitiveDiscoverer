@@ -1,14 +1,14 @@
-CYS4-SensitiveDiscoverer Public Source License
+SensitiveDiscoverer Public Source License
 
-The CYS4-SensitiveDiscoverer software (henceforth referred to simply as "CYS4-SensitiveDiscoverer") is dual-licensed - Copyright 2020 CYS4 Srl.
+The SensitiveDiscoverer software (henceforth referred to simply as "SensitiveDiscoverer") is dual-licensed - Copyright 2020 CYS4 Srl.
 
-Cases that include commercialization of CYS4-SensitiveDiscoverer require a commercial, non-free license. Otherwise, CYS4-SensitiveDiscoverer can be used without charge under the terms set out below.
+Cases that include commercialization of SensitiveDiscoverer require a commercial, non-free license. Otherwise, SensitiveDiscoverer can be used without charge under the terms set out below.
 
 1. Definitions
 
 1.1 "License" means this document.
-1.2 "Contributor" means each individual or legal entity that creates, contributes to the creation of, or owns CYS4-SensitiveDiscoverer.
-1.3 "CYS4-SensitiveDiscoverer Team" means CYS4-SensitiveDiscoverer’s core developers.
+1.2 "Contributor" means each individual or legal entity that creates, contributes to the creation of, or owns SensitiveDiscoverer.
+1.3 "SensitiveDiscoverer Team" means SensitiveDiscoverer’s core developers.
 
 2. Commercialization
 
@@ -16,15 +16,15 @@ A commercial use is one intended for commercial advantage or monetary compensati
 
 Example cases of commercialization are:
 
- - Using CYS4-SensitiveDiscoverer to provide commercial managed/Software-as-a-Service services.
- - Distributing CYS4-SensitiveDiscoverer as a commercial product or as part of one.
- - Using CYS4-SensitiveDiscoverer as a value added service/product.
+ - Using SensitiveDiscoverer to provide commercial managed/Software-as-a-Service services.
+ - Distributing SensitiveDiscoverer as a commercial product or as part of one.
+ - Using SensitiveDiscoverer as a value added service/product.
 
 Example cases which do not require a commercial license, and thus fall under the terms set out below, include (but are not limited to):
 
- - Penetration testers (or penetration testing organizations) using CYS4-SensitiveDiscoverer as part of their assessment toolkit.
- - Using CYS4-SensitiveDiscoverer to test your own systems.
- - Any non-commercial use of CYS4-SensitiveDiscoverer.
+ - Penetration testers (or penetration testing organizations) using SensitiveDiscoverer as part of their assessment toolkit.
+ - Using SensitiveDiscoverer to test your own systems.
+ - Any non-commercial use of SensitiveDiscoverer.
 
 If you need to purchase a commercial license or are unsure whether you need to purchase a commercial license contact us - info@cys4.com.
 
@@ -34,8 +34,8 @@ Free-use Terms and Conditions;
 
 Redistribution is permitted under the following conditions:
 
- - Unmodified License is provided with CYS4-SensitiveDiscoverer.
- - Unmodified Copyright notices are provided with CYS4-SensitiveDiscoverer.
+ - Unmodified License is provided with SensitiveDiscoverer.
+ - Unmodified Copyright notices are provided with SensitiveDiscoverer.
  - Does not conflict with the commercialization clause.
 
 4. Copying
@@ -48,24 +48,24 @@ Modification is permitted so long as it does not conflict with the Redistributio
 
 6. Contributions
 
-Any Contributions assume the Contributor grants the CYS4-SensitiveDiscoverer Team the unlimited, non-exclusive right to reuse, modify and relicense the Contributor's content.
+Any Contributions assume the Contributor grants the SensitiveDiscoverer Team the unlimited, non-exclusive right to reuse, modify and relicense the Contributor's content.
 
 7. Support
 
-CYS4-SensitiveDiscoverer is provided under an AS-IS basis and without any support, updates or maintenance. Support, updates and maintenance may be given according to the sole discretion of the CYS4-SensitiveDiscoverer Team.
+SensitiveDiscoverer is provided under an AS-IS basis and without any support, updates or maintenance. Support, updates and maintenance may be given according to the sole discretion of the SensitiveDiscoverer Team.
 
 8. Disclaimer of Warranty
 
-CYS4-SensitiveDiscoverer is provided under this License on an "as is" basis, without warranty of any kind, either expressed, implied, or statutory, including, without limitation, warranties that the CYS4-SensitiveDiscoverer is free of defects, merchantable, fit for a particular purpose or non-infringing.
+SensitiveDiscoverer is provided under this License on an "as is" basis, without warranty of any kind, either expressed, implied, or statutory, including, without limitation, warranties that the SensitiveDiscoverer is free of defects, merchantable, fit for a particular purpose or non-infringing.
 
 9. Limitation of Liability
 
-To the extent permitted under Law, CYS4-SensitiveDiscoverer is provided under an AS-IS basis. The CYS4-SensitiveDiscoverer Team shall never, and without any limit, be liable for any damage, cost, expense or any other payment incurred as a result of CYS4-SensitiveDiscoverer's actions, failure, bugs and/or any other interaction between CYS4-SensitiveDiscoverer and end-equipment, computers, other software or any 3rd party, end-equipment, computer or services.
+To the extent permitted under Law, SensitiveDiscoverer is provided under an AS-IS basis. The SensitiveDiscoverer Team shall never, and without any limit, be liable for any damage, cost, expense or any other payment incurred as a result of SensitiveDiscoverer's actions, failure, bugs and/or any other interaction between SensitiveDiscoverer and end-equipment, computers, other software or any 3rd party, end-equipment, computer or services.
 
 10. Disclaimer
 
-Running CYS4-SensitiveDiscoverer against websites without prior mutual consent may be illegal in your country. The CYS4-SensitiveDiscoverer Team accept no liability and are not responsible for any misuse or damage caused by CYS4-SensitiveDiscoverer.
+Running SensitiveDiscoverer against websites without prior mutual consent may be illegal in your country. The SensitiveDiscoverer Team accept no liability and are not responsible for any misuse or damage caused by SensitiveDiscoverer.
 
 11. Trademark
 
-The "CYS4-SensitiveDiscoverer" term is a registered trademark. This License does not grant the use of the "CYS4-SensitiveDiscoverer" trademark.
+The "SensitiveDiscoverer" term is a registered trademark. This License does not grant the use of the "SensitiveDiscoverer" trademark.

@@ -2,14 +2,14 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package cys4.seed;
+package com.cys4.sensitivediscoverer.seed;
 
+import com.cys4.sensitivediscoverer.controller.Utils;
+import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
+import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import cys4.controller.Utils;
-import cys4.model.JsonRegexEntity;
-import cys4.model.ProxyItemSection;
-import cys4.model.RegexEntity;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

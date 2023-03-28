@@ -26,7 +26,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         draft: true
-        files: target/CYS4-SensitiveDiscoverer-*
+        files: target/SensitiveDiscoverer-*
 
     # Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph

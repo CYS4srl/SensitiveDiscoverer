@@ -2,11 +2,11 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package cys4.ui;
+package com.cys4.sensitivediscoverer.ui;
 
 import burp.IBurpExtenderCallbacks;
 import burp.ITextEditor;
-import cys4.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.LogEntity;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ContextMenuUI extends JPopupMenu {
 
-    public ContextMenuUI(LogEntity le, List<LogEntity> logEntries, ITextEditor originalRequestViewer, ITextEditor originalResponseViewer, LogTableEntriesUI logTableEntriesUI, LogTableEntryUI logTableEntryUI,IBurpExtenderCallbacks callbacks) {
+    public ContextMenuUI(LogEntity le, List<LogEntity> logEntries, ITextEditor originalRequestViewer, ITextEditor originalResponseViewer, LogTableEntriesUI logTableEntriesUI, LogTableEntryUI logTableEntryUI, IBurpExtenderCallbacks callbacks) {
         // populate the menu
         String urlLog = le.getURL().toString();
         if (urlLog.length() > 50) urlLog = urlLog.substring(0, 47) + "...";

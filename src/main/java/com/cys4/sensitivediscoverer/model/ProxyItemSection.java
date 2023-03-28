@@ -1,4 +1,4 @@
-package cys4.model;
+package com.cys4.sensitivediscoverer.model;
 
 import java.util.EnumSet;
 import java.util.List;

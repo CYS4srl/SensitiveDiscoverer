@@ -1,23 +1,48 @@
-# CYS4-SensitiveDiscoverer
+# SensitiveDiscoverer
 
 > Burp Suite extension to scan for sensitive strings in HTTP messages
 
-* [CYS4-SensitiveDiscoverer](#cys4-sensitivediscoverer)
+<!-- TOC -->
+* [SensitiveDiscoverer](#sensitivediscoverer)
   * [Introduction](#introduction)
+    * [Features](#features)
+    * [Screenshots](#screenshots)
   * [Installation](#installation)
+    * [Using the BApp Store](#using-the-bapp-store)
+    * [Manual install](#manual-install)
   * [Usage](#usage)
+    * [Importing Lists](#importing-lists)
   * [How to compile from source code](#how-to-compile-from-source-code)
     * [Using Maven from CLI](#using-maven-from-cli)
-  * [Credits](#credits)
+  * [About us](#about-us)
   * [References](#references)
+<!-- TOC -->
 
 ## Introduction
 
 Burp Suite is a useful tool used to do web application security testing. While Burp Suite provides a lot of functionalities, it does not offer the opportunity to scan for particular pattern or file extensions inside HTTP messages. Checking every message by hand can be a very tedious process.
 
-`CYS4-SensitiveDiscoverer` is a Burp Suite extension that solves this problem. With this extension you can automatically search sensitive strings in HTTP messages. It uses a list of Regular Expressions and File Extensions to match for in each message.
+`SensitiveDiscoverer` is a Burp Suite extension that solves this problem. With this extension you can automatically search sensitive strings in HTTP messages.
 
-The plugin is available with a pre-defined set of Regular Expression and File Extensions, but you can also add your custom lists.
+It uses a list of Regular Expressions and File Extensions to match for in each message. The plugin is available with a pre-defined set of Regular Expression and File Extensions, but you can also add your custom lists.
+
+### Features
+
+- Multithreaded scan of messages
+- Pre-defined set of regex
+- Many filters to skip irrelevant messages
+- Customizable regexes lists
+- Import/Export regexes with CSV files
+
+### Screenshots
+
+Main page with the results of the scan:
+
+![Logger tab](images/tab-logger.png)
+
+Options tab to configure filters and scanner options:
+
+![Options tab](images/tab-options.png)
 
 ## Installation
 
@@ -27,11 +52,11 @@ The extension is available in the BApp Store inside Burp's Extender tab
 
 ### Manual install
 
-To install the CYS4-SensitiveDiscoverer extension manually:
+To install the SensitiveDiscoverer extension manually:
 
-1. Download newest CYS4-SensitiveDiscoverer from the Release page.
+1. Download newest SensitiveDiscoverer from the Release page.
 2. Go to Extender -> Extension. Click Add. Set Extension type to Java. Set the path of the (.jar) to the file downloaded at step 1.
-3. CYS4-SensitiveDiscoverer should appear inside Burp Extension list, and a new tab will appear.
+3. SensitiveDiscoverer should appear inside Burp Extension list, and a new tab will appear.
 
 ## Usage
 
@@ -84,11 +109,11 @@ As an alternative, run the following command:
 mvn clean package
 ```
 
-## Credits
+## About us
 
-CYS4 was born in 2015 from a collaboration with an Israeli company in the world of Cyber Security, then detaching its team and ensuring the focus on innovation and quality towards a national context.
+Since 2014 we have been working with our customers to shield their critical business infrastructures. We are qualified security specialists with a strong commitment to addressing our clients' needs, and keeping them secured against today's cyber threats.
 
-Check out [our blog](https://blog.cys4.com/) for more information.
+Check out [our site](https://cys4.com/) and [our blog](https://blog.cys4.com/) for more information.
 
 ## References
 

@@ -2,7 +2,7 @@
 Copyright (C) 2021 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package cys4.controller;
+package com.cys4.sensitivediscoverer.controller;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

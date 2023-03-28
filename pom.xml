@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.cys4.sensitive-discoverer</groupId>
-    <artifactId>cys4-sensitive-discoverer</artifactId>
-    <version>2.2</version>
+    <groupId>com.cys4.sensitivediscoverer</groupId>
+    <artifactId>sensitivediscoverer</artifactId>
+    <version>3.0.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -31,15 +31,16 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/java/cys4/resources</directory>
+                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources</directory>
                 <filtering>false</filtering>
                 <includes>
                     <include>config.properties</include>
                     <include>mime_types.json</include>
+                    <include>logo.png</include>
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/main/java/cys4/resources/regexes</directory>
+                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources/regexes</directory>
                 <filtering>false</filtering>
                 <includes>
                     <include>*.json</include>
@@ -72,7 +73,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>CYS4-SensitiveDiscoverer-${project.version}</finalName>
+                    <finalName>SensitiveDiscoverer-${project.version}</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
