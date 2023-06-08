@@ -1,0 +1,28 @@
+[
+  {
+    "active": true,
+    "description": "Encapsulation boundary for data such as keys and certificates",
+    "regex": "-----BEGIN"
+  },
+  {
+    "active": true,
+    "description": "Generic API Key",
+    "regex": "(?i)api.{0,5}key[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]"
+  },
+  {
+    "active": true,
+    "description": "Generic Secret",
+    "regex": "(?i)secret[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]"
+  },
+  {
+    // Try to match only IPs and not section numbers of js libraries
+    "active": true,
+    "description": "IP Address",
+    "regex": "(?<![\\.\\da-zA-Z%\\-])(?<!\\/\\s{0,8})((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\da-zA-Z\\-])"
+  },
+  {
+    "active": true,
+    "description": "Environment configuration file",
+    "regex": "\\.env"
+  }
+]

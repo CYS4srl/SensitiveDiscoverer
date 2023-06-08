@@ -1,17 +1,13 @@
-<p>Usage:</p>
+<p>SensitiveDiscoverer is a Burp Suite extension to scan for particular pattern or file extensions inside HTTP messages. With this extension you can automatically search for sensitive strings in HTTP messages.</p>
 
-<p>The default configuration has a list of regular expression and file extension. To see the predefined list go to Options TAB. Here you can choose which of them activate or not or you can choose to insert your own regular expression or file extension. For both of them there are a list of actions to interact with them. The actions are:</p>
+<p>It uses a list of Regular Expressions and File Extensions to match for in each message. The plugin is available with a pre-defined set of Regular Expression and File Extensions, but you can also add your custom lists.</p>
+
+<p>Features:</p>
 
 <ul>
-<li><strong>Reset:</strong> the plugin will reset the default list of regular expression or file extension.</li>
-<li><strong>New:</strong> a pop-up will appear and offer the opportunity to insert a new regular expression or file extension.</li>
-<li><strong>Delete:</strong> after selecting a row, this will be deleted from the list.</li>
-<li><strong>Clear:</strong> the plugin will clear the list leave them empty.</li>
-<li><strong>Open:</strong> a pop-up will appear and offer the opportunity to insert in bulk a list of regular expression or file extension from a file.</li>
-<li><strong>Save:</strong> the plugin offer the possibility to save your custom list for future tests. After you have select your own desired configuration you can start to find sensitive informations inside HTTP messages. The plugin will be execute in two different modes:</li>
+    <li>Multithreaded scan of messages</li>
+    <li>Pre-defined set of regex</li>
+    <li>Many filters to skip irrelevant messages</li>
+    <li>Customizable regexes lists</li>
+    <li>Import/Export regexes with CSV files</li>
 </ul>
-
-<ol>
-<li><strong>Analyze HTTP History:</strong> the plugin will parse all http history generated from that moment and it will find any active pattern</li>
-<li><strong>Live:</strong> the plugin will parse request by request as the user will generates one from his web browser.</li>
-</ol>
