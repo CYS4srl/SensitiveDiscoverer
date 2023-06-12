@@ -6,6 +6,7 @@ package com.cys4.sensitivediscoverer.controller;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -64,6 +65,38 @@ public class Utils {
             pwt.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Recursively disable all components that have a certain property set.
+     * When a component with the property specified is found, the component and all the recursive children are enabled to the state specified.
+     * @param component parent component
+     * @param enabled enabled state to set
+     */
+    public static void setEnabledRecursiveComponentsWithProperty(Component component, boolean enabled, String propertyName) {
+        // if component has the property, stop searching this branch and disable everything
+        if (component instanceof JComponent && Objects.nonNull(((JComponent) component).getClientProperty(propertyName))) {
+            component.setEnabled(enabled);
+            setEnabledRecursive(component, enabled);
+            return;
+        }
+
+        // otherwise, continue the search on the children
+        if (component instanceof Container) {
+            for (Component child : ((Container) component).getComponents()) {
+                setEnabledRecursiveComponentsWithProperty(child, enabled, propertyName);
+            }
+        }
+    }
+
+    private static void setEnabledRecursive(Component component, boolean enabled) {
+        component.setEnabled(enabled);
+
+        if (component instanceof Container) {
+            for (Component child : ((Container) component).getComponents()) {
+                setEnabledRecursive(child, enabled);
+            }
         }
     }
 }

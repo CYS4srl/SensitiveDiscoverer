@@ -17,7 +17,14 @@ import java.util.List;
 
 public class ContextMenuUI extends JPopupMenu {
 
-    public ContextMenuUI(LogEntity le, List<LogEntity> logEntries, ITextEditor originalRequestViewer, ITextEditor originalResponseViewer, LogTableEntriesUI logTableEntriesUI, LogTableEntryUI logTableEntryUI, IBurpExtenderCallbacks callbacks) {
+    public ContextMenuUI(LogEntity le,
+                         List<LogEntity> logEntries,
+                         ITextEditor originalRequestViewer,
+                         ITextEditor originalResponseViewer,
+                         LogTableEntriesUI logTableEntriesUI,
+                         LogTableEntryUI logTableEntryUI,
+                         IBurpExtenderCallbacks callbacks,
+                         boolean isAnalysisRunning) {
         // populate the menu
         String urlLog = le.getURL().toString();
         if (urlLog.length() > 50) urlLog = urlLog.substring(0, 47) + "...";
@@ -65,6 +72,7 @@ public class ContextMenuUI extends JPopupMenu {
                 logEntries.remove(le);
 
                 int rowIndex = logTableEntryUI.getSelectedRow();
+                if (rowIndex == -1) return;
                 int realRow = logTableEntryUI.convertRowIndexToModel(rowIndex);
                 logTableEntriesUI.fireTableRowsDeleted(realRow, realRow);
 
@@ -72,8 +80,8 @@ public class ContextMenuUI extends JPopupMenu {
                 originalRequestViewer.setText(new byte[0]);
             }
         });
+        if (isAnalysisRunning) removeItem.setEnabled(false);
         this.add(removeItem);
-
 
         this.add(new JMenuItem(new AbstractAction("Copy URL") {
             @Override

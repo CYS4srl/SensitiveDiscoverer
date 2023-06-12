@@ -167,7 +167,7 @@ public class MainUI implements ITab {
         tabbedPane.addTab("Options", createOptionsPanel());
         tabbedPane.addTab("About", createAboutPanel());
 
-        // main panel; it shows logger and options tabs
+        // main panel
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.add(tabbedPane);
         callbacks.customizeUiComponent(splitPane);
@@ -303,6 +303,8 @@ public class MainUI implements ITab {
         originalRequestViewer = this.callbacks.createTextEditor();
         originalResponseViewer = this.callbacks.createTextEditor();
         logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this.logEntries, this.originalRequestViewer, this.originalResponseViewer);
+        // disable sorting on columns while scanning. This helps to prevent Swing exceptions.
+        logTableEntryUI.getTableHeader().putClientProperty("analysisDependent", "1");
 
         // when you right-click on a logTable entry, it will appear a context menu defined here
         MouseAdapter contextMenu = new MouseAdapter() {
@@ -314,13 +316,14 @@ public class MainUI implements ITab {
             private void onMouseEvent(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int row = logTableEntryUI.getSelectedRow();
+                    if (row == -1) return;
                     logTableEntryUI.setRowSelectionInterval(row, row);
                     if (logTableEntryUI.getSelectedRowCount() == 1) {
                         int realRow = logTableEntryUI.convertRowIndexToModel(row);
                         LogEntity logentry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogTableEntryUI) {
-                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks)
+                            new ContextMenuUI(logentry, logEntries, originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, callbacks, isAnalysisRunning)
                                     .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
@@ -384,6 +387,7 @@ public class MainUI implements ITab {
             scrollPaneLogger.repaint();
         });
 
+        btnClearLogs.putClientProperty("analysisDependent", "1");
         return btnClearLogs;
     }
 
@@ -394,6 +398,7 @@ public class MainUI implements ITab {
     private JMenuBar createLogger_ExportLogs() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Export logs...");
+        menu.putClientProperty("analysisDependent", "1");
 
         JMenuItem itemToCSV = new JMenuItem("to CSV");
         itemToCSV.addActionListener(actionEvent -> {
@@ -444,6 +449,24 @@ public class MainUI implements ITab {
         return menuBar;
     }
 
+    /**
+     * Function to call before an analysis start.
+     * It performs operations required before an analysis.
+     */
+    private void preAnalysisOperations() {
+        // disable components that shouldn't be used while scanning
+        Utils.setEnabledRecursiveComponentsWithProperty(this.getSplitPane(), false, "analysisDependent");
+    }
+
+    /**
+     * Function to call after an analysis start.
+     * It performs operations required after an analysis.
+     */
+    private void postAnalysisOperations() {
+        // re-enable components not usable while scanning
+        Utils.setEnabledRecursiveComponentsWithProperty(this.getSplitPane(), true, "analysisDependent");
+    }
+
     private List<JComponent> createLogger_AnalyzeHTTPHistory(JPanel tabPanelLogger) {
         final String textAnalysisStart = "Analyze HTTP History";
         final String textAnalysisStop = "Stop analysis";
@@ -454,6 +477,7 @@ public class MainUI implements ITab {
 
         btnAnalysis.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
+                preAnalysisOperations();
                 this.isAnalysisRunning = true;
                 this.analyzeProxyHistoryThread = new Thread(() -> {
                     String previousText = btnAnalysis.getText();
@@ -466,6 +490,7 @@ public class MainUI implements ITab {
                     logTableEntryUI.setAutoCreateRowSorter(true);
                     this.analyzeProxyHistoryThread = null;
                     this.isAnalysisRunning = false;
+                    postAnalysisOperations();
                 });
                 this.analyzeProxyHistoryThread.start();
 
@@ -525,6 +550,7 @@ public class MainUI implements ITab {
                 EnumSet.of(ProxyItemSection.REQ_URL))
             .forEach(tabPaneOptions::add);
 
+        tabPaneOptions.putClientProperty("analysisDependent", "1");
         return tabPaneOptions;
     }
 
