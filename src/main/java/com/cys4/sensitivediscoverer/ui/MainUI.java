@@ -8,11 +8,16 @@ import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import burp.ITextEditor;
 import burp.SpringUtilities;
+import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
 import com.cys4.sensitivediscoverer.seed.RegexSeeder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -268,6 +274,8 @@ public class MainUI implements ITab {
 
     /**
      * Panel that contains the buttonsPanel and the loggerPane
+     * @param tabPanelLogger Panel where everything is rendered.
+     * @param scrollPaneLogger Scroll pane where log entries are saved.
      */
     private JPanel createLogger_ButtonPanel(JPanel tabPanelLogger, JScrollPane scrollPaneLogger) {
         JPanel buttonPanelLog = new JPanel();
@@ -276,8 +284,10 @@ public class MainUI implements ITab {
         createLogger_AnalyzeHTTPHistory(tabPanelLogger)
             .forEach((component) -> buttonPanelLog.add(component, BorderLayout.NORTH));
 
-        JButton btn = createLogger_ClearLogs(scrollPaneLogger);
-        buttonPanelLog.add(btn, BorderLayout.NORTH);
+        JButton clearLogsBtn = createLogger_ClearLogs(scrollPaneLogger);
+        buttonPanelLog.add(clearLogsBtn, BorderLayout.NORTH);
+        JMenuBar exportLogsMenu = createLogger_ExportLogs();
+        buttonPanelLog.add(exportLogsMenu, BorderLayout.NORTH);
 
         JPanel buttonsLoggerPanel = new JPanel();
         buttonsLoggerPanel.setLayout(new BoxLayout(buttonsLoggerPanel, BoxLayout.Y_AXIS));
@@ -375,6 +385,63 @@ public class MainUI implements ITab {
         });
 
         return btnClearLogs;
+    }
+
+    /**
+     * Export logs menu, to export the log entries to file
+     * @return JMenuBar for exporting logs
+     */
+    private JMenuBar createLogger_ExportLogs() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Export logs...");
+
+        JMenuItem itemToCSV = new JMenuItem("to CSV");
+        itemToCSV.addActionListener(actionEvent -> {
+            List<String> lines = new ArrayList<>();
+
+            lines.add(String.format("\"%s\",\"%s\",\"%s\"",
+                    this.logTableEntriesUI.getColumnNameFormatted(0),
+                    this.logTableEntriesUI.getColumnNameFormatted(1),
+                    this.logTableEntriesUI.getColumnNameFormatted(3)));
+
+            // values
+            for (int i = 0; i < this.logTableEntriesUI.getRowCount(); i++) {
+                String request_id = this.logTableEntriesUI.getValueAt(i, 0).toString();
+                String url = this.logTableEntriesUI.getValueAt(i, 1).toString();
+                String matchEscaped = this.logTableEntriesUI.getValueAt(i, 3).toString().replaceAll("\"", "\"\"");
+                lines.add(String.format("\"%s\",\"%s\",\"%s\"", request_id, url, matchEscaped));
+            }
+
+            Utils.saveToFile("csv", lines);
+        });
+        menu.add(itemToCSV);
+
+        JMenuItem itemToJSON = new JMenuItem("to JSON");
+        itemToJSON.addActionListener(actionEvent -> {
+            List<JsonObject> lines = new ArrayList<>();
+
+            String prop1 = this.logTableEntriesUI.getColumnNameFormatted(0);
+            String prop2 = this.logTableEntriesUI.getColumnNameFormatted(1);
+            String prop3 = this.logTableEntriesUI.getColumnNameFormatted(3);
+
+            // values
+            for (int i = 0; i < this.logTableEntriesUI.getRowCount(); i++) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(prop1, this.logTableEntriesUI.getValueAt(i, 0).toString());
+                obj.addProperty(prop2, this.logTableEntriesUI.getValueAt(i, 1).toString());
+                obj.addProperty(prop3, this.logTableEntriesUI.getValueAt(i, 3).toString());
+                lines.add(obj);
+            }
+
+            GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
+            Gson gson = builder.create();
+            Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {}.getType();
+            Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+        });
+        menu.add(itemToJSON);
+
+        menuBar.add(menu);
+        return menuBar;
     }
 
     private List<JComponent> createLogger_AnalyzeHTTPHistory(JPanel tabPanelLogger) {
@@ -596,6 +663,7 @@ public class MainUI implements ITab {
         buttonPanelRegex.add(btnDeleteRegex);
         btnDeleteRegex.addActionListener(actionEvent -> {
             int rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
             ctx.regexList.remove(realRow);
 
@@ -670,32 +738,21 @@ public class MainUI implements ITab {
         JButton btnSaveRegex = new JButton("Save");
         buttonPanelRegex.add(btnSaveRegex);
         btnSaveRegex.addActionListener(actionEvent -> {
-            JFrame parentFrame = new JFrame();
-            JFileChooser fileChooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
-            fileChooser.setFileFilter(filter);
-            fileChooser.setDialogTitle("Specify the export file");
+            List<String> lines = new ArrayList<>();
 
-            int userSelection = fileChooser.showSaveDialog(parentFrame);
-            if (userSelection != JFileChooser.APPROVE_OPTION) return;
+            // header
+            lines.add(String.format("\"%s\",\"%s\"",
+                    modelReg.getColumnNameFormatted(2),
+                    modelReg.getColumnNameFormatted(1)));
 
-            String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
-            if (!exportFilePath.endsWith(".csv")) {
-                exportFilePath += ".csv";
+            // values
+            int rowCount = modelReg.getRowCount();
+            for (int i = 0; i < rowCount; i++) {
+                String description = modelReg.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
+                String regex = modelReg.getValueAt(i, 1).toString().replaceAll("\"", "\"\"");
+                lines.add(String.format("\"%s\",\"%s\"", description, regex));
             }
-            try {
-                PrintWriter pwt = new PrintWriter(exportFilePath);
-
-                int rowCount = modelReg.getRowCount();
-                for (int i = 0; i < rowCount; i++) {
-                    String regex = modelReg.getValueAt(i, 1).toString();
-                    String description = modelReg.getValueAt(i, 2).toString();
-                    pwt.println("\"" + description + "\"," + "\"" + regex + "\"");
-                }
-                pwt.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            Utils.saveToFile("csv", lines);
         });
 
         optionsRegexTable.setAutoCreateRowSorter(true);
