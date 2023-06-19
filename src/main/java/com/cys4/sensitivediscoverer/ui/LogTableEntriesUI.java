@@ -39,6 +39,16 @@ public class LogTableEntriesUI extends AbstractTableModel {
         };
     }
 
+    public String getColumnNameFormatted(int columnIndex) {
+        return switch (columnIndex) {
+            case 0 -> "request_id";
+            case 1 -> "url";
+            case 2 -> "regex";
+            case 3 -> "match";
+            default -> "";
+        };
+    }
+
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         if (columnIndex == 0) {

@@ -37,6 +37,15 @@ public class OptionsRegexTableModelUI extends AbstractTableModel {
         };
     }
 
+    public String getColumnNameFormatted(int columnIndex) {
+        return switch (columnIndex) {
+            case 0 -> "active";
+            case 1 -> "regex";
+            case 2 -> "description";
+            default -> "";
+        };
+    }
+
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         if (columnIndex == 0) {
