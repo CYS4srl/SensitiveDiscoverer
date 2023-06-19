@@ -7,6 +7,7 @@ package com.cys4.sensitivediscoverer.ui;
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import burp.ITextEditor;
+import com.cys4.sensitivediscoverer.controller.Messages;
 import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
@@ -20,6 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -77,14 +79,7 @@ public class MainUI implements ITab {
      */
     private static boolean skipMediaTypeCheckbox = true;
 
-    /**
-     * i18n resource bundle
-     */
-    private final ResourceBundle bundle;
-
     public MainUI(IBurpExtenderCallbacks callbacks) {
-        this.bundle = ResourceBundle.getBundle("TextUI", new Locale("en", "US"));
-
         this.callbacks = callbacks;
 
         this.generalRegexList = RegexSeeder.getGeneralRegexes();
@@ -169,9 +164,9 @@ public class MainUI implements ITab {
     private void _initialize() {
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        tabbedPane.addTab("Logger", createLoggerPanel());
-        tabbedPane.addTab("Options", createOptionsPanel());
-        tabbedPane.addTab("About", createAboutPanel());
+        tabbedPane.addTab(Messages.getString("tab-logger"), createLoggerPanel());
+        tabbedPane.addTab(Messages.getString("tab-options"), createOptionsPanel());
+        tabbedPane.addTab(Messages.getString("tab-about"), createAboutPanel());
 
         // main panel
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -184,30 +179,32 @@ public class MainUI implements ITab {
 
     private JPanel createAboutPanel() {
         JPanel tabAbout = new JPanel();
+        tabAbout.setBorder(new EmptyBorder(0,20,0,0));
         tabAbout.setLayout(new BoxLayout(tabAbout, BoxLayout.Y_AXIS));
 
-        JLabel headerLabel = new JLabel(" SensitiveDiscoverer");
+        JLabel headerLabel = new JLabel(Messages.getString("about-header-label"));
         headerLabel.setFont(new Font("Lucida Grande", Font.BOLD, 28)); // NOI18N
 
-        JLabel subheaderLabel = new JLabel("  Scan for sensitive strings in HTTP messages");
+        JLabel subheaderLabel = new JLabel(Messages.getString("about-subheader-label"));
         subheaderLabel.setFont(new Font("Lucida Grande", Font.ITALIC, 20)); // NOI18N
 
         tabAbout.add(new JLabel(" "));
         tabAbout.add(headerLabel);
         tabAbout.add(subheaderLabel);
         tabAbout.add(new JLabel(" "));
-        tabAbout.add(new JLabel("  —————————————————————————————————————————————————"));
+        tabAbout.add(new JLabel("—————————————————————————————————————————————————"));
         tabAbout.add(new JLabel(" "));
 
-        for (String s : Arrays.asList("Version: 3.0.0", "Author: CYS4",
+        for (String s : Arrays.asList(
+                Messages.getString("about-version-label")+" 3.0.0", Messages.getString("about-author-label")+" CYS4",
                 " ", " ",
-                "Visit our site and our blog.", " ")) {
-            JLabel label = new JLabel("  " + s);
+                Messages.getString("about-website-label"), " ")) {
+            JLabel label = new JLabel(s);
             label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
             tabAbout.add(label);
         }
 
-        JButton websiteButton = new JButton("CYS4 Website");
+        JButton websiteButton = new JButton(Messages.getString("about-website-button"));
         websiteButton.setMaximumSize(new Dimension(400, 40));
         websiteButton.addActionListener(actionEvent -> {
             try {
@@ -215,7 +212,7 @@ public class MainUI implements ITab {
             } catch (IOException | URISyntaxException e) {}
         });
         tabAbout.add(websiteButton);
-        JButton blogButton = new JButton("CYS4 Blog");
+        JButton blogButton = new JButton(Messages.getString("about-blog-button"));
         blogButton.setMaximumSize(new Dimension(400, 40));
         blogButton.addActionListener(actionEvent -> {
             try {
@@ -224,13 +221,13 @@ public class MainUI implements ITab {
         });
         tabAbout.add(blogButton);
 
-        for (String s : Arrays.asList(" ", " ", "We are open to requests and improvements. Visit our Github page!", " ")) {
-            JLabel label = new JLabel("  " + s);
+        for (String s : Arrays.asList(" ", " ", Messages.getString("about-support-label"), " ")) {
+            JLabel label = new JLabel(s);
             label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
             tabAbout.add(label);
         }
 
-        JButton githubButton = new JButton("Github page");
+        JButton githubButton = new JButton(Messages.getString("about-github-button"));
         githubButton.setMaximumSize(new Dimension(400, 40));
         githubButton.addActionListener(actionEvent -> {
             try {
@@ -352,14 +349,14 @@ public class MainUI implements ITab {
         requestResponsePanel.add(requestResponseSplitPane);
 
         JPanel originalRequestPanel = new JPanel();
-        JLabel originalRequestLabel = new JLabel("Request");
+        JLabel originalRequestLabel = new JLabel(Messages.getString("common-request"));
         originalRequestLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
         originalRequestLabel.setForeground(new Color(255, 102, 51));
         originalRequestPanel.add(originalRequestLabel);
         originalRequestPanel.add(originalRequestViewer.getComponent());
 
         JPanel originalResponsePanel = new JPanel();
-        JLabel originalResponseLabel = new JLabel("Response");
+        JLabel originalResponseLabel = new JLabel(Messages.getString("common-response"));
         originalResponseLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14)); // NOI18N
         originalResponseLabel.setForeground(new Color(255, 102, 51));
         originalResponsePanel.add(originalResponseLabel);
@@ -377,9 +374,9 @@ public class MainUI implements ITab {
     }
 
     private JButton createLogger_ClearLogs(JScrollPane scrollPaneLogger) {
-        JButton btnClearLogs = new JButton("Clear Logs");
+        JButton btnClearLogs = new JButton(Messages.getString("logger-clearLogs-label"));
         btnClearLogs.addActionListener(e -> {
-            int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the logs in the list?");
+            int dialog = JOptionPane.showConfirmDialog(null, Messages.getString("logger-clearLogs-confirm"));
             if (dialog == JOptionPane.YES_OPTION) {
                 logEntries.clear();
                 logTableEntriesUI.clear();
@@ -403,10 +400,10 @@ public class MainUI implements ITab {
      */
     private JMenuBar createLogger_ExportLogs() {
         JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu("Export logs...");
+        JMenu menu = new JMenu(Messages.getString("logger-exportLogs-label"));
         menu.putClientProperty("analysisDependent", "1");
 
-        JMenuItem itemToCSV = new JMenuItem("to CSV");
+        JMenuItem itemToCSV = new JMenuItem(Messages.getString("common-toCSV"));
         itemToCSV.addActionListener(actionEvent -> {
             List<String> lines = new ArrayList<>();
 
@@ -427,7 +424,7 @@ public class MainUI implements ITab {
         });
         menu.add(itemToCSV);
 
-        JMenuItem itemToJSON = new JMenuItem("to JSON");
+        JMenuItem itemToJSON = new JMenuItem(Messages.getString("common-toJSON"));
         itemToJSON.addActionListener(actionEvent -> {
             List<JsonObject> lines = new ArrayList<>();
 
@@ -474,9 +471,9 @@ public class MainUI implements ITab {
     }
 
     private List<JComponent> createLogger_AnalyzeHTTPHistory(JPanel tabPanelLogger) {
-        final String textAnalysisStart = this.bundle.getString("analysis-start");
-        final String textAnalysisStop = this.bundle.getString("analysis-stop");
-        final String textAnalysisStopping = this.bundle.getString("analysis-stopping");
+        final String textAnalysisStart = Messages.getString("logger-analysis-start");
+        final String textAnalysisStop = Messages.getString("logger-analysis-stop");
+        final String textAnalysisStopping = Messages.getString("logger-analysis-stopping");
 
         JButton btnAnalysis = new JButton(textAnalysisStart);
         JProgressBar progressBar = new JProgressBar(0, 1);
@@ -586,11 +583,17 @@ public class MainUI implements ITab {
     }
 
     private JPanel createOptions_Regex_Title() {
-        return createOptions_ParagraphSection("Regex List", "This section contains general regexes that try to match only within the response.");
+        return createOptions_ParagraphSection(
+                Messages.getString("options-regexList-title"),
+                Messages.getString("options-regexList-description")
+        );
     }
 
     private JPanel createOptions_Extensions_Title() {
-        return createOptions_ParagraphSection("Extensions List", "This section contains regexes for filename extensions. These regexes try to match only the URL of the request.");
+        return createOptions_ParagraphSection(
+                Messages.getString("options-extensionsList-title"),
+                Messages.getString("options-extensionsList-description")
+        );
     }
 
     /**
@@ -620,7 +623,7 @@ public class MainUI implements ITab {
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel buttonPanelRegex = new JPanel();
 
-        JButton btnEnableAll = new JButton("Enable all");
+        JButton btnEnableAll = new JButton(Messages.getString("options-list-enableAll"));
         buttonPanelRegex.add(btnEnableAll);
         btnEnableAll.addActionListener(actionEvent -> {
             ctx.regexList.forEach(regex -> regex.setActive(true));
@@ -631,7 +634,7 @@ public class MainUI implements ITab {
             tabPaneOptions.repaint();
         });
 
-        JButton btnDisableAll = new JButton("Disable all");
+        JButton btnDisableAll = new JButton(Messages.getString("options-list-disableAll"));
         buttonPanelRegex.add(btnDisableAll);
         btnDisableAll.addActionListener(actionEvent -> {
             ctx.regexList.forEach(regex -> regex.setActive(false));
@@ -642,13 +645,13 @@ public class MainUI implements ITab {
             tabPaneOptions.repaint();
         });
 
-        JButton btnResetRegex = new JButton("Reset default list");
+        JButton btnResetRegex = new JButton(Messages.getString("options-list-reset"));
         buttonPanelRegex.add(btnResetRegex);
         btnResetRegex.addActionListener(actionEvent -> {
             // start from the end and iterate to the beginning to delete because when you delete,
             // it is deleting elements from data, and you are skipping some rows when you iterate
             // to the next element (via i++)
-            int dialog = JOptionPane.showConfirmDialog(null, "By confirming, you will return to init setting");
+            int dialog = JOptionPane.showConfirmDialog(null, Messages.getString("options-list-reset-confirm"));
             if (dialog != JOptionPane.YES_OPTION) return;
 
             if (ctx.regexList.size() > 0) {
@@ -663,10 +666,10 @@ public class MainUI implements ITab {
             tabPaneOptions.repaint();
         });
 
-        JButton btnClearRegex = new JButton("Clear list");
+        JButton btnClearRegex = new JButton(Messages.getString("options-list-clear"));
         buttonPanelRegex.add(btnClearRegex);
         btnClearRegex.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the regex in the list?");
+            int dialog = JOptionPane.showConfirmDialog(null, Messages.getString("options-list-clear-confirm"));
             if (dialog != JOptionPane.YES_OPTION) return;
 
             if (ctx.regexList.size() > 0) {
@@ -678,7 +681,7 @@ public class MainUI implements ITab {
             }
         });
 
-        JButton btnOpenRegex = new JButton("Open list");
+        JButton btnOpenRegex = new JButton(Messages.getString("options-list-open"));
         buttonPanelRegex.add(btnOpenRegex);
         btnOpenRegex.addActionListener(actionEvent -> {
             JFileChooser chooser = new JFileChooser();
@@ -688,7 +691,10 @@ public class MainUI implements ITab {
             if (returnVal != JFileChooser.APPROVE_OPTION) return;
 
             File selectedFile = chooser.getSelectedFile();
-            System.out.println("Importing regex file (" + chooser.getTypeDescription(selectedFile) + "): " + selectedFile.getName());
+            System.out.printf("%s (%s): %s%n",
+                    Messages.getString("options-list-open-logMessage"),
+                    chooser.getTypeDescription(selectedFile),
+                    selectedFile.getName());
             try {
                 Scanner scanner = new Scanner(chooser.getSelectedFile());
                 StringBuilder alreadyAdded = new StringBuilder();
@@ -712,9 +718,9 @@ public class MainUI implements ITab {
                 modelReg.fireTableDataChanged();
 
                 if (!(alreadyAdded.toString().isBlank())) {
-                    alreadyAdded.insert(0, "These regexes are already present:\n");
+                    alreadyAdded.insert(0, Messages.getString("options-list-open-alreadyPresentWarn")+'\n');
                     JDialog alreadyAddedDialog = new JDialog();
-                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAdded.toString(), "Already Added Alert", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAdded.toString(), Messages.getString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
                     alreadyAddedDialog.setVisible(true);
                 }
             } catch (IOException e) {
@@ -725,7 +731,7 @@ public class MainUI implements ITab {
             }
         });
 
-        JButton btnSaveRegex = new JButton("Save list");
+        JButton btnSaveRegex = new JButton(Messages.getString("options-list-save"));
         buttonPanelRegex.add(btnSaveRegex);
         btnSaveRegex.addActionListener(actionEvent -> {
             List<String> lines = new ArrayList<>();
@@ -745,13 +751,13 @@ public class MainUI implements ITab {
             Utils.saveToFile("csv", lines);
         });
 
-        JButton btnNewRegex = new JButton("New regex");
+        JButton btnNewRegex = new JButton(Messages.getString("options-list-new"));
         buttonPanelRegex.add(btnNewRegex);
         btnNewRegex.addActionListener(actionEvent -> {
             boolean ret;
 
             RegexModalDialog dialog = new RegexModalDialog();
-            ret = dialog.showDialog(tabPaneOptions, "Add a regular expression", newRegexesSections);
+            ret = dialog.showDialog(tabPaneOptions, Messages.getString("options-list-new-dialogTitle"), newRegexesSections);
             if (!ret) return;
 
             String newRegex = dialog.getRegex();
@@ -766,7 +772,7 @@ public class MainUI implements ITab {
             tabPaneOptions.repaint();
         });
 
-        JButton btnDeleteRegex = new JButton("Delete regex");
+        JButton btnDeleteRegex = new JButton(Messages.getString("options-list-delete"));
         btnDeleteRegex.setEnabled(false);
         buttonPanelRegex.add(btnDeleteRegex);
         btnDeleteRegex.addActionListener(actionEvent -> {
@@ -785,7 +791,7 @@ public class MainUI implements ITab {
             btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
         });
 
-        JButton btnEditRegex = new JButton("Edit regex");
+        JButton btnEditRegex = new JButton(Messages.getString("options-list-edit"));
         btnEditRegex.setEnabled(false);
         buttonPanelRegex.add(btnEditRegex);
         btnEditRegex.addActionListener(actionEvent -> {
@@ -799,7 +805,7 @@ public class MainUI implements ITab {
 
             RegexEntity previousEntity = ctx.regexList.get(realRow);
             RegexModalDialog dialog = new RegexModalDialog(previousEntity);
-            ret = dialog.showDialog(tabPaneOptions, "Edit regular expression", newRegexesSections);
+            ret = dialog.showDialog(tabPaneOptions, Messages.getString("options-list-edit-dialogTitle"), newRegexesSections);
             if (!ret) return;
 
             String newRegex = dialog.getRegex();
@@ -851,24 +857,24 @@ public class MainUI implements ITab {
         panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
         panel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.gray, 1),
-                "Filters",
+                Messages.getString("options-filters-title"),
                 TitledBorder.LEFT,
                 TitledBorder.DEFAULT_POSITION,
                 new Font("Lucida Grande", Font.BOLD, 14), // NOI18N
                 new Color(255, 102, 51)
                 ));
 
-        JCheckBox inScopeCheckbox = new JCheckBox("Show only in-scope items");
+        JCheckBox inScopeCheckbox = new JCheckBox(Messages.getString("options-filters-showOnlyInScopeItems"));
         inScopeCheckbox.getModel().setSelected(MainUI.inScopeCheckbox);
         inScopeCheckbox.addActionListener(e -> MainUI.inScopeCheckbox = inScopeCheckbox.getModel().isSelected());
         panel.add(inScopeCheckbox);
 
-        JCheckBox skipMaxSizeCheckbox = new JCheckBox("Skip responses over set size");
+        JCheckBox skipMaxSizeCheckbox = new JCheckBox(Messages.getString("options-filters-skipResponsesOverSetSize"));
         skipMaxSizeCheckbox.getModel().setSelected(MainUI.skipMaxSizeCheckbox);
         skipMaxSizeCheckbox.addActionListener(e -> MainUI.skipMaxSizeCheckbox = skipMaxSizeCheckbox.getModel().isSelected());
         panel.add(skipMaxSizeCheckbox);
 
-        JCheckBox skipMediaTypeCheckbox = new JCheckBox("Skip media-type responses (images, videos, archives, ...)");
+        JCheckBox skipMediaTypeCheckbox = new JCheckBox(Messages.getString("options-filters-skipMediaTypeResponses"));
         skipMediaTypeCheckbox.getModel().setSelected(MainUI.skipMediaTypeCheckbox);
         skipMediaTypeCheckbox.addActionListener(e -> MainUI.skipMediaTypeCheckbox = skipMediaTypeCheckbox.getModel().isSelected());
         panel.add(skipMediaTypeCheckbox);
@@ -883,7 +889,7 @@ public class MainUI implements ITab {
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.gray, 1),
-                "Scanner",
+                Messages.getString("options-scanner-title"),
                 TitledBorder.LEFT,
                 TitledBorder.DEFAULT_POSITION,
                 new Font("Lucida Grande", Font.BOLD, 14), // NOI18N
@@ -902,21 +908,21 @@ public class MainUI implements ITab {
         mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel numThreads = new JPanel();
-        JLabel numThreadsDescription = new JLabel("Current number of threads: ");
+        JLabel numThreadsDescription = new JLabel(Messages.getString("options-scanner-currentNumberOfThreads"));
         JLabel numThreadsCurrent = new JLabel(String.valueOf(this.burpLeaksScanner.getNumThreads()));
         numThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
         numThreads.add(numThreadsDescription);
         numThreads.add(numThreadsCurrent);
 
         JPanel updateNumThreads = new JPanel();
-        JLabel updateNumThreadsDescription = new JLabel("Update number of threads (1-128): ");
+        JLabel updateNumThreadsDescription = new JLabel("%s (1-128): ".formatted(Messages.getString("options-scanner-updateNumberOfThreads")));
         JTextField updateNumThreadsField = new JTextField(4);
-        JButton updateNumThreadsSet = new JButton("Set");
+        JButton updateNumThreadsSet = new JButton(Messages.getString("common-set"));
         updateNumThreadsSet.addActionListener(e -> {
             try {
                 int newThreadNumber = Integer.parseInt(updateNumThreadsField.getText());
                 if (newThreadNumber < 1 || newThreadNumber > 128)
-                    throw new NumberFormatException("Number not in the expected range");
+                    throw new NumberFormatException(Messages.getString("exception-numberNotInTheExpectedRange"));
 
                 this.burpLeaksScanner.setNumThreads(newThreadNumber);
                 numThreadsCurrent.setText(String.valueOf(this.burpLeaksScanner.getNumThreads()));
@@ -941,21 +947,21 @@ public class MainUI implements ITab {
         mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel maxSize = new JPanel();
-        JLabel maxSizeDescription = new JLabel("Current max response size (bytes): ");
+        JLabel maxSizeDescription = new JLabel(Messages.getString("options-scanner-currentMaxResponseSize"));
         JLabel maxSizeCurrent = new JLabel(String.valueOf(MainUI.maxSizeValue));
         maxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
         maxSize.add(maxSizeDescription);
         maxSize.add(maxSizeCurrent);
 
         JPanel updateMaxSize = new JPanel();
-        JLabel updateMaxSizeDescription = new JLabel("Update max response size (bytes): ");
+        JLabel updateMaxSizeDescription = new JLabel(Messages.getString("options-scanner-updateMaxResponseSize"));
         JTextField updateMaxSizeField = new JTextField(4);
-        JButton updateMaxSizeSet = new JButton("Set");
+        JButton updateMaxSizeSet = new JButton(Messages.getString("common-set"));
         updateMaxSizeSet.addActionListener(e -> {
             try {
                 int newMaxSizeValue = Integer.parseInt(updateMaxSizeField.getText());
                 if (newMaxSizeValue < 1)
-                    throw new NumberFormatException("Size must be >= 1");
+                    throw new NumberFormatException(Messages.getString("exception-sizeMustBeGreaterEqualThanOne"));
 
                 MainUI.maxSizeValue = newMaxSizeValue;
                 maxSizeCurrent.setText(String.valueOf(MainUI.getMaxSizeValueOption()));
