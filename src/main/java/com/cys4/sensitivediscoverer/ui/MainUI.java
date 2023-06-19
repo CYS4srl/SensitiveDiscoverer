@@ -77,7 +77,14 @@ public class MainUI implements ITab {
      */
     private static boolean skipMediaTypeCheckbox = true;
 
+    /**
+     * i18n resource bundle
+     */
+    private final ResourceBundle bundle;
+
     public MainUI(IBurpExtenderCallbacks callbacks) {
+        this.bundle = ResourceBundle.getBundle("TextUI", new Locale("en", "US"));
+
         this.callbacks = callbacks;
 
         this.generalRegexList = RegexSeeder.getGeneralRegexes();
@@ -467,9 +474,9 @@ public class MainUI implements ITab {
     }
 
     private List<JComponent> createLogger_AnalyzeHTTPHistory(JPanel tabPanelLogger) {
-        final String textAnalysisStart = "Analyze HTTP History";
-        final String textAnalysisStop = "Stop analysis";
-        final String textAnalysisStopping = "Stopping the analysis...";
+        final String textAnalysisStart = this.bundle.getString("analysis-start");
+        final String textAnalysisStop = this.bundle.getString("analysis-stop");
+        final String textAnalysisStopping = this.bundle.getString("analysis-stopping");
 
         JButton btnAnalysis = new JButton(textAnalysisStart);
         JProgressBar progressBar = new JProgressBar(0, 1);
