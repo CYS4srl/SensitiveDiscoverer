@@ -7,7 +7,6 @@ package com.cys4.sensitivediscoverer.ui;
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import burp.ITextEditor;
-import burp.SpringUtilities;
 import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
@@ -587,6 +586,18 @@ public class MainUI implements ITab {
         return createOptions_ParagraphSection("Extensions List", "This section contains regexes for filename extensions. These regexes try to match only the URL of the request.");
     }
 
+    /**
+     * Creates the components to work on a list of Regexes.
+     * <br><br>
+     * The components are mainly a table to display the regexes and some buttons to do operations on the list.
+     * The input regexEntities is modified accordingly each time an action is performed.
+     * @param tabPaneOptions parent panel to repaint on changes.
+     * @param optionsTitlePanel Panel for the title.
+     * @param resetRegexSeeder default set of regexes when the list is cleared.
+     * @param regexEntities The list of regexes that the list keeps track of.
+     * @param newRegexesSections Request/Response sections where the regex is applied.
+     * @return A list of the components to render.
+     */
     private List<JComponent> createOptions_Regex(
             JPanel tabPaneOptions,
             JPanel optionsTitlePanel,
@@ -624,7 +635,7 @@ public class MainUI implements ITab {
             tabPaneOptions.repaint();
         });
 
-        JButton btnResetRegex = new JButton("Reset");
+        JButton btnResetRegex = new JButton("Reset default list");
         buttonPanelRegex.add(btnResetRegex);
         btnResetRegex.addActionListener(actionEvent -> {
             // start from the end and iterate to the beginning to delete because when you delete,
@@ -645,61 +656,7 @@ public class MainUI implements ITab {
             tabPaneOptions.repaint();
         });
 
-        JButton btnNewRegex = new JButton("New");
-        buttonPanelRegex.add(btnNewRegex);
-        btnNewRegex.addActionListener(actionEvent -> {
-            String[] labels = {"Regex: ", "Description: "};
-            //Create and populate the panel.
-            JPanel mainPanel = new JPanel();
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            JLabel labelSummary = new JLabel("The new regex will only match: " + newRegexesSections.toString(), JLabel.TRAILING);
-            mainPanel.add(labelSummary);
-            JPanel inputPanel = new JPanel(new SpringLayout());
-            mainPanel.add(inputPanel);
-            JLabel labelExpression = new JLabel(labels[0], JLabel.TRAILING);
-            inputPanel.add(labelExpression);
-            JTextField textFieldReg = new JTextField(10);
-            labelExpression.setLabelFor(textFieldReg);
-            inputPanel.add(textFieldReg);
-            JLabel labelDescription = new JLabel(labels[1], JLabel.TRAILING);
-            inputPanel.add(labelDescription);
-            JTextField textFieldDesc = new JTextField(10);
-            labelDescription.setLabelFor(textFieldDesc);
-            inputPanel.add(textFieldDesc);
-            //Lay out the panel.
-            SpringUtilities.makeCompactGrid(inputPanel,
-                    labels.length, 2, //rows, cols
-                    6, 6,        //initX, initY
-                    6, 6);       //xPad, yPad
-            int returnValue = JOptionPane.showConfirmDialog(tabPaneOptions, mainPanel, "Add a regular expression", JOptionPane.YES_NO_OPTION);
-            if (returnValue != JOptionPane.YES_OPTION) return;
-
-            String expression = textFieldReg.getText();
-            String description = textFieldDesc.getText();
-
-            int row = ctx.regexList.size();
-            ctx.regexList.add(new RegexEntity(description, expression, true, newRegexesSections));
-            modelReg.fireTableRowsInserted(row, row);
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
-
-        JButton btnDeleteRegex = new JButton("Delete");
-        buttonPanelRegex.add(btnDeleteRegex);
-        btnDeleteRegex.addActionListener(actionEvent -> {
-            int rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-            ctx.regexList.remove(realRow);
-
-            modelReg.fireTableRowsDeleted(realRow, realRow);
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
-
-        JButton btnClearRegex = new JButton("Clear");
+        JButton btnClearRegex = new JButton("Clear list");
         buttonPanelRegex.add(btnClearRegex);
         btnClearRegex.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, "Delete ALL the regex in the list?");
@@ -714,7 +671,7 @@ public class MainUI implements ITab {
             }
         });
 
-        JButton btnOpenRegex = new JButton("Open");
+        JButton btnOpenRegex = new JButton("Open list");
         buttonPanelRegex.add(btnOpenRegex);
         btnOpenRegex.addActionListener(actionEvent -> {
             JFileChooser chooser = new JFileChooser();
@@ -761,7 +718,7 @@ public class MainUI implements ITab {
             }
         });
 
-        JButton btnSaveRegex = new JButton("Save");
+        JButton btnSaveRegex = new JButton("Save list");
         buttonPanelRegex.add(btnSaveRegex);
         btnSaveRegex.addActionListener(actionEvent -> {
             List<String> lines = new ArrayList<>();
@@ -779,6 +736,79 @@ public class MainUI implements ITab {
                 lines.add(String.format("\"%s\",\"%s\"", description, regex));
             }
             Utils.saveToFile("csv", lines);
+        });
+
+        JButton btnNewRegex = new JButton("New regex");
+        buttonPanelRegex.add(btnNewRegex);
+        btnNewRegex.addActionListener(actionEvent -> {
+            boolean ret;
+
+            RegexModalDialog dialog = new RegexModalDialog();
+            ret = dialog.showDialog(tabPaneOptions, "Add a regular expression", newRegexesSections);
+            if (!ret) return;
+
+            String newRegex = dialog.getRegex();
+            String newDescription = dialog.getDescription();
+            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+
+            int row = ctx.regexList.size();
+            ctx.regexList.add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+            modelReg.fireTableRowsInserted(row, row);
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+
+        JButton btnDeleteRegex = new JButton("Delete regex");
+        btnDeleteRegex.setEnabled(false);
+        buttonPanelRegex.add(btnDeleteRegex);
+        btnDeleteRegex.addActionListener(actionEvent -> {
+            int rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
+            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+            ctx.regexList.remove(realRow);
+
+            modelReg.fireTableRowsDeleted(realRow, realRow);
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
+            int viewRow = optionsRegexTable.getSelectedRow();
+            btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        });
+
+        JButton btnEditRegex = new JButton("Edit regex");
+        btnEditRegex.setEnabled(false);
+        buttonPanelRegex.add(btnEditRegex);
+        btnEditRegex.addActionListener(actionEvent -> {
+            boolean ret;
+            int rowIndex;
+            int realRow;
+
+            rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
+            realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+
+            RegexEntity previousEntity = ctx.regexList.get(realRow);
+            RegexModalDialog dialog = new RegexModalDialog(previousEntity);
+            ret = dialog.showDialog(tabPaneOptions, "Edit regular expression", newRegexesSections);
+            if (!ret) return;
+
+            String newRegex = dialog.getRegex();
+            String newDescription = dialog.getDescription();
+            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+            if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription)) return;
+
+            ctx.regexList.set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+
+            modelReg.fireTableRowsUpdated(realRow, realRow);
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
+            int viewRow = optionsRegexTable.getSelectedRow();
+            btnEditRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
         });
 
         optionsRegexTable.setAutoCreateRowSorter(true);

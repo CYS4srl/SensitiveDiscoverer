@@ -76,25 +76,38 @@ public class Utils {
      */
     public static void setEnabledRecursiveComponentsWithProperty(Component component, boolean enabled, String propertyName) {
         // if component has the property, stop searching this branch and disable everything
-        if (component instanceof JComponent && Objects.nonNull(((JComponent) component).getClientProperty(propertyName))) {
-            component.setEnabled(enabled);
+        if (component instanceof JComponent jComponent && Objects.nonNull(jComponent.getClientProperty(propertyName))) {
             setEnabledRecursive(component, enabled);
             return;
         }
 
         // otherwise, continue the search on the children
-        if (component instanceof Container) {
-            for (Component child : ((Container) component).getComponents()) {
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
                 setEnabledRecursiveComponentsWithProperty(child, enabled, propertyName);
             }
         }
     }
 
     private static void setEnabledRecursive(Component component, boolean enabled) {
-        component.setEnabled(enabled);
+        boolean newState = enabled;
 
-        if (component instanceof Container) {
-            for (Component child : ((Container) component).getComponents()) {
+        if (component instanceof JComponent jComponent) {
+            if (component.isEnabled() == enabled) {
+                // if component is already in the required state, save this information in case the operation needs to be reversed
+                jComponent.putClientProperty("previouslyEnabled", enabled);
+            } else {
+                // set the state to the previous if present, otherwise use the passed one
+                Object previousState = jComponent.getClientProperty("previouslyEnabled");
+                jComponent.putClientProperty("previouslyEnabled", null);
+                newState = (Objects.nonNull(previousState)) ? (boolean)previousState : enabled;
+            }
+        }
+
+        component.setEnabled(newState);
+
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
                 setEnabledRecursive(child, enabled);
             }
         }
