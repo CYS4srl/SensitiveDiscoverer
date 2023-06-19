@@ -1,6 +1,7 @@
 package com.cys4.sensitivediscoverer.ui;
 
 import burp.SpringUtilities;
+import com.cys4.sensitivediscoverer.controller.Messages;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
@@ -37,10 +38,16 @@ public class RegexModalDialog {
      */
     public boolean showDialog(Component parentComponent, String dialogTitle, EnumSet<ProxyItemSection> regexSections) {
         //Create and populate the panel.
-        String[] labels = {"Regex: ", "Description: "};
+        String[] labels = {
+                "%s: ".formatted(Messages.getString("common-regex")),
+                "%s: ".formatted(Messages.getString("common-description"))
+        };
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        JLabel labelSummary = new JLabel("The new regex will only match: " + regexSections.toString(), JLabel.TRAILING);
+        JLabel labelSummary = new JLabel("%s: %s".formatted(
+                Messages.getString("options-list-regexModal-matchedSections"),
+                regexSections.toString()
+        ), JLabel.TRAILING);
         mainPanel.add(labelSummary);
 
         JPanel inputPanel = new JPanel(new SpringLayout());

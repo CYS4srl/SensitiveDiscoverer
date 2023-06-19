@@ -4,6 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
 
+import com.cys4.sensitivediscoverer.controller.Messages;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 
 import javax.swing.table.AbstractTableModel;
@@ -31,10 +32,10 @@ public class LogTableEntriesUI extends AbstractTableModel {
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "Proxy #";
-            case 1 -> "URL";
-            case 2 -> "Regex";
-            case 3 -> "Match";
+            case 0 -> Messages.getString("logger-table-requestId");
+            case 1 -> Messages.getString("common-url");
+            case 2 -> Messages.getString("common-regex");
+            case 3 -> Messages.getString("common-match");
             default -> "";
         };
     }
