@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+
 
 /**
  * Utils package
@@ -50,7 +52,7 @@ public class Utils {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
         fileChooser.setFileFilter(filter);
-        fileChooser.setDialogTitle(Messages.getString("utils-saveToFile-exportFile"));
+        fileChooser.setDialogTitle(getLocaleString("utils-saveToFile-exportFile"));
 
         int userSelection = fileChooser.showSaveDialog(parentFrame);
         if (userSelection != JFileChooser.APPROVE_OPTION) return;

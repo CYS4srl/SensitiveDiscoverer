@@ -1,13 +1,14 @@
 package com.cys4.sensitivediscoverer.ui;
 
 import burp.SpringUtilities;
-import com.cys4.sensitivediscoverer.controller.Messages;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.EnumSet;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 /**
  * RegexModalDialog - Dialog for creating and modifying a regex
@@ -39,13 +40,13 @@ public class RegexModalDialog {
     public boolean showDialog(Component parentComponent, String dialogTitle, EnumSet<ProxyItemSection> regexSections) {
         //Create and populate the panel.
         String[] labels = {
-                "%s: ".formatted(Messages.getString("common-regex")),
-                "%s: ".formatted(Messages.getString("common-description"))
+                "%s: ".formatted(getLocaleString("common-regex")),
+                "%s: ".formatted(getLocaleString("common-description"))
         };
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         JLabel labelSummary = new JLabel("%s: %s".formatted(
-                Messages.getString("options-list-regexModal-matchedSections"),
+                getLocaleString("options-list-regexModal-matchedSections"),
                 regexSections.toString()
         ), JLabel.TRAILING);
         mainPanel.add(labelSummary);

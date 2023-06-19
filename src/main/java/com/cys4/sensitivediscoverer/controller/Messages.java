@@ -9,7 +9,7 @@ public class Messages {
     private static final String LOCALE_COUNTRY="US";
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle(RB_BUNDLE, new Locale(LOCALE_LANGUAGE, LOCALE_COUNTRY));
 
-    public static String getString(String key) {
+    public static String getLocaleString(String key) {
         return resourceBundle.getString(key);
     }
 }

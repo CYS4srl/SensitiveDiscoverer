@@ -4,11 +4,12 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
 
-import com.cys4.sensitivediscoverer.controller.Messages;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class OptionsRegexTableModelUI extends AbstractTableModel {
 
@@ -31,9 +32,9 @@ public class OptionsRegexTableModelUI extends AbstractTableModel {
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> Messages.getString("common-active");
-            case 1 -> Messages.getString("common-regex");
-            case 2 -> Messages.getString("common-description");
+            case 0 -> getLocaleString("common-active");
+            case 1 -> getLocaleString("common-regex");
+            case 2 -> getLocaleString("common-description");
             default -> "";
         };
     }

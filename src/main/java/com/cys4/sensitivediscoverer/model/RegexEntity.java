@@ -4,12 +4,12 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
 
-import com.cys4.sensitivediscoverer.controller.Messages;
-
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class RegexEntity {
     private boolean active;
@@ -28,9 +28,9 @@ public class RegexEntity {
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
         if (regex == null || regex.isBlank())
-            throw new IllegalArgumentException(Messages.getString("exception-invalidRegex"));
+            throw new IllegalArgumentException(getLocaleString("exception-invalidRegex"));
         if (sections == null)
-            throw new IllegalArgumentException(Messages.getString("exception-invalidSections"));
+            throw new IllegalArgumentException(getLocaleString("exception-invalidSections"));
 
         this.active = active;
         this.description = description;
