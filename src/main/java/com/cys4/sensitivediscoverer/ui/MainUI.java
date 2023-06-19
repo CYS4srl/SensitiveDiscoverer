@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 public class MainUI implements ITab {
 
@@ -195,14 +196,16 @@ public class MainUI implements ITab {
         tabAbout.add(new JLabel("—————————————————————————————————————————————————"));
         tabAbout.add(new JLabel(" "));
 
-        for (String s : Arrays.asList(
-                Messages.getString("about-version-label")+" 3.0.0", Messages.getString("about-author-label")+" CYS4",
+        Stream.of(
+                "%s %s".formatted(Messages.getString("about-version-label"), Utils.getExtensionVersion()),
+                "%s CYS4".formatted(Messages.getString("about-author-label")),
                 " ", " ",
-                Messages.getString("about-website-label"), " ")) {
-            JLabel label = new JLabel(s);
-            label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-            tabAbout.add(label);
-        }
+                Messages.getString("about-website-label"), " ")
+                    .map(JLabel::new)
+                    .forEachOrdered(label -> {
+                        label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+                        tabAbout.add(label);
+                    });
 
         JButton websiteButton = new JButton(Messages.getString("about-website-button"));
         websiteButton.setMaximumSize(new Dimension(400, 40));

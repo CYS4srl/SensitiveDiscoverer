@@ -112,4 +112,8 @@ public class Utils {
             }
         }
     }
+
+    public static String getExtensionVersion() {
+        return Utils.class.getPackage().getImplementationVersion();
+    }
 }

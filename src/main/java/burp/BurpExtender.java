@@ -1,5 +1,6 @@
 package burp;
 
+import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.ui.MainUI;
 
 public class BurpExtender implements IBurpExtender {
@@ -11,6 +12,6 @@ public class BurpExtender implements IBurpExtender {
 
         callbacks.setExtensionName(mainUI.getNameExtension());
 
-        callbacks.printOutput("Extension loaded successfully!");
+        callbacks.printOutput("Extension loaded successfully!%nVersion loaded: %s".formatted(Utils.getExtensionVersion()));
     }
 }

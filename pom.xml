@@ -4,6 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>SensitiveDiscoverer</name>
+    <organization>
+        <name>CYS4</name>
+        <url>https://cys4.com/</url>
+    </organization>
+
     <groupId>com.cys4.sensitivediscoverer</groupId>
     <artifactId>sensitivediscoverer</artifactId>
     <version>3.0.0</version>
@@ -71,6 +77,13 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
