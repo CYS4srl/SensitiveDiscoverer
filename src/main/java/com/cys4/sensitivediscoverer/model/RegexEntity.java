@@ -1,8 +1,10 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
+
+import com.cys4.sensitivediscoverer.controller.Messages;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -26,9 +28,9 @@ public class RegexEntity {
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
         if (regex == null || regex.isBlank())
-            throw new IllegalArgumentException("Invalid regex");
+            throw new IllegalArgumentException(Messages.getString("exception-invalidRegex"));
         if (sections == null)
-            throw new IllegalArgumentException("Invalid sections, non-null required");
+            throw new IllegalArgumentException(Messages.getString("exception-invalidSections"));
 
         this.active = active;
         this.description = description;

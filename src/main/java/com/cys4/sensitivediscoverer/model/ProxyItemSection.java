@@ -4,6 +4,8 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
 
+import com.cys4.sensitivediscoverer.controller.Messages;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -55,11 +57,11 @@ public enum ProxyItemSection {
     @Override
     public String toString() {
         return switch (this) {
-            case REQ_URL -> "RequestURL";
-            case REQ_BODY -> "RequestBody";
-            case REQ_HEADERS -> "RequestHeaders";
-            case RES_BODY -> "ResponseBody";
-            case RES_HEADERS -> "ResponseHeaders";
+            case REQ_URL -> Messages.getString("regex-section-reqURL");
+            case REQ_BODY -> Messages.getString("regex-section-reqBody");
+            case REQ_HEADERS -> Messages.getString("regex-section-reqHeaders");
+            case RES_BODY -> Messages.getString("regex-section-resBody");
+            case RES_HEADERS -> Messages.getString("regex-section-resHeaders");
             default -> this.name();
         };
     }

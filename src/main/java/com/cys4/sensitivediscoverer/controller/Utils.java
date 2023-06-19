@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.controller;
@@ -50,7 +50,7 @@ public class Utils {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
         fileChooser.setFileFilter(filter);
-        fileChooser.setDialogTitle("Specify the export file");
+        fileChooser.setDialogTitle(Messages.getString("utils-saveToFile-exportFile"));
 
         int userSelection = fileChooser.showSaveDialog(parentFrame);
         if (userSelection != JFileChooser.APPROVE_OPTION) return;
