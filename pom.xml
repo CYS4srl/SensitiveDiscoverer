@@ -34,26 +34,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>config.properties</include>
-                    <include>mime_types.json</include>
-                    <include>logo.png</include>
-                    <include>TextUI_en_US.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources/regexes</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>*.json</include>
-                    <include>*.jsonc</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
