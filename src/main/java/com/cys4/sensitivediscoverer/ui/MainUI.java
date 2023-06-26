@@ -666,7 +666,11 @@ public class MainUI implements ITab {
         return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
     }
 
-    private static JButton createOptions_Regex_btnEdit(RegexContext ctx, EnumSet<ProxyItemSection> newRegexesSections, JTable optionsRegexTable, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnEdit(RegexContext ctx,
+                                                       EnumSet<ProxyItemSection> newRegexesSections,
+                                                       JTable optionsRegexTable,
+                                                       JPanel tabPaneOptions,
+                                                       OptionsRegexTableModelUI modelReg) {
         JButton btnEditRegex = new JButton(getLocaleString("options-list-edit"));
         btnEditRegex.setEnabled(false);
         btnEditRegex.addActionListener(actionEvent -> {
@@ -701,7 +705,10 @@ public class MainUI implements ITab {
         return btnEditRegex;
     }
 
-    private static JButton createOptions_Regex_btnDelete(RegexContext ctx, JTable optionsRegexTable, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnDelete(RegexContext ctx,
+                                                         JTable optionsRegexTable,
+                                                         JPanel tabPaneOptions,
+                                                         OptionsRegexTableModelUI modelReg) {
         JButton btnDeleteRegex = new JButton(getLocaleString("options-list-delete"));
         btnDeleteRegex.setEnabled(false);
         btnDeleteRegex.addActionListener(actionEvent -> {
@@ -722,7 +729,10 @@ public class MainUI implements ITab {
         return btnDeleteRegex;
     }
 
-    private static JButton createOptions_Regex_btnNew(RegexContext ctx, EnumSet<ProxyItemSection> newRegexesSections, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnNew(RegexContext ctx,
+                                                      EnumSet<ProxyItemSection> newRegexesSections,
+                                                      JPanel tabPaneOptions,
+                                                      OptionsRegexTableModelUI modelReg) {
         JButton btnNewRegex = new JButton(getLocaleString("options-list-new"));
         btnNewRegex.addActionListener(actionEvent -> {
             boolean ret;
@@ -767,7 +777,11 @@ public class MainUI implements ITab {
         return btnSaveRegex;
     }
 
-    private static JButton createOptions_Regex_btnListOpen(RegexContext ctx, EnumSet<ProxyItemSection> newRegexesSections, JPanel buttonPanelRegex, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnListOpen(RegexContext ctx,
+                                                           EnumSet<ProxyItemSection> newRegexesSections,
+                                                           JPanel buttonPanelRegex,
+                                                           JPanel tabPaneOptions,
+                                                           OptionsRegexTableModelUI modelReg) {
         JButton btnOpenRegex = new JButton(getLocaleString("options-list-open"));
         btnOpenRegex.addActionListener(actionEvent -> {
             JFileChooser chooser = new JFileChooser();
@@ -819,7 +833,9 @@ public class MainUI implements ITab {
         return btnOpenRegex;
     }
 
-    private static JButton createOptions_Regex_btnListClear(RegexContext ctx, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnListClear(RegexContext ctx,
+                                                            JPanel tabPaneOptions,
+                                                            OptionsRegexTableModelUI modelReg) {
         JButton btnClearRegex = new JButton(getLocaleString("options-list-clear"));
         btnClearRegex.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
@@ -836,7 +852,10 @@ public class MainUI implements ITab {
         return btnClearRegex;
     }
 
-    private static JButton createOptions_Regex_btnListReset(RegexContext ctx, Supplier<List<RegexEntity>> resetRegexSeeder, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnListReset(RegexContext ctx,
+                                                            Supplier<List<RegexEntity>> resetRegexSeeder,
+                                                            JPanel tabPaneOptions,
+                                                            OptionsRegexTableModelUI modelReg) {
         JButton btnResetRegex = new JButton(getLocaleString("options-list-reset"));
         btnResetRegex.addActionListener(actionEvent -> {
             // start from the end and iterate to the beginning to delete because when you delete,
@@ -859,7 +878,11 @@ public class MainUI implements ITab {
         return btnResetRegex;
     }
 
-    private static JButton createOptions_Regex_btnSetEnabled(RegexContext ctx, String btnLabelKey, boolean isEnabled, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+    private static JButton createOptions_Regex_btnSetEnabled(RegexContext ctx,
+                                                             String btnLabelKey,
+                                                             boolean isEnabled,
+                                                             JPanel tabPaneOptions,
+                                                             OptionsRegexTableModelUI modelReg) {
         JButton btnSetAllEnabled = new JButton(getLocaleString(btnLabelKey));
         btnSetAllEnabled.addActionListener(actionEvent -> {
             ctx.getRegexEntities().forEach(regex -> regex.setActive(isEnabled));
