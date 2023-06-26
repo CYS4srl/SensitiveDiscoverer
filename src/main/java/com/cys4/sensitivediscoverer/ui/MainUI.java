@@ -666,7 +666,7 @@ public class MainUI implements ITab {
         return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
     }
 
-    private static JButton createOptions_Regex_btnEdit(RegexContext ctx,
+    private JButton createOptions_Regex_btnEdit(RegexContext ctx,
                                                        EnumSet<ProxyItemSection> newRegexesSections,
                                                        JTable optionsRegexTable,
                                                        JPanel tabPaneOptions,
@@ -705,7 +705,7 @@ public class MainUI implements ITab {
         return btnEditRegex;
     }
 
-    private static JButton createOptions_Regex_btnDelete(RegexContext ctx,
+    private JButton createOptions_Regex_btnDelete(RegexContext ctx,
                                                          JTable optionsRegexTable,
                                                          JPanel tabPaneOptions,
                                                          OptionsRegexTableModelUI modelReg) {
@@ -729,7 +729,7 @@ public class MainUI implements ITab {
         return btnDeleteRegex;
     }
 
-    private static JButton createOptions_Regex_btnNew(RegexContext ctx,
+    private JButton createOptions_Regex_btnNew(RegexContext ctx,
                                                       EnumSet<ProxyItemSection> newRegexesSections,
                                                       JPanel tabPaneOptions,
                                                       OptionsRegexTableModelUI modelReg) {
@@ -755,7 +755,7 @@ public class MainUI implements ITab {
         return btnNewRegex;
     }
 
-    private static JButton createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
+    private JButton createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
         JButton btnSaveRegex = new JButton(getLocaleString("options-list-save"));
         btnSaveRegex.addActionListener(actionEvent -> {
             List<String> lines = new ArrayList<>();
@@ -777,7 +777,7 @@ public class MainUI implements ITab {
         return btnSaveRegex;
     }
 
-    private static JButton createOptions_Regex_btnListOpen(RegexContext ctx,
+    private JButton createOptions_Regex_btnListOpen(RegexContext ctx,
                                                            EnumSet<ProxyItemSection> newRegexesSections,
                                                            JPanel buttonPanelRegex,
                                                            JPanel tabPaneOptions,
@@ -833,7 +833,7 @@ public class MainUI implements ITab {
         return btnOpenRegex;
     }
 
-    private static JButton createOptions_Regex_btnListClear(RegexContext ctx,
+    private JButton createOptions_Regex_btnListClear(RegexContext ctx,
                                                             JPanel tabPaneOptions,
                                                             OptionsRegexTableModelUI modelReg) {
         JButton btnClearRegex = new JButton(getLocaleString("options-list-clear"));
@@ -852,7 +852,7 @@ public class MainUI implements ITab {
         return btnClearRegex;
     }
 
-    private static JButton createOptions_Regex_btnListReset(RegexContext ctx,
+    private JButton createOptions_Regex_btnListReset(RegexContext ctx,
                                                             Supplier<List<RegexEntity>> resetRegexSeeder,
                                                             JPanel tabPaneOptions,
                                                             OptionsRegexTableModelUI modelReg) {
@@ -878,7 +878,7 @@ public class MainUI implements ITab {
         return btnResetRegex;
     }
 
-    private static JButton createOptions_Regex_btnSetEnabled(RegexContext ctx,
+    private JButton createOptions_Regex_btnSetEnabled(RegexContext ctx,
                                                              String btnLabelKey,
                                                              boolean isEnabled,
                                                              JPanel tabPaneOptions,
