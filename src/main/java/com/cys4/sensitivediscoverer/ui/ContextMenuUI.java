@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
@@ -14,6 +14,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.util.List;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class ContextMenuUI extends JPopupMenu {
 
@@ -31,7 +33,7 @@ public class ContextMenuUI extends JPopupMenu {
         this.add(new JMenuItem(urlLog));
         this.add(new JPopupMenu.Separator());
 
-        JMenuItem sendToRepeater = new JMenuItem(new AbstractAction("Send to Repeater") {
+        JMenuItem sendToRepeater = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToRepeater")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 callbacks.sendToRepeater(le.getHost(), le.getPort(), le.isSSL(), le.getRequestResponse().getRequest(), "regext");
@@ -39,7 +41,7 @@ public class ContextMenuUI extends JPopupMenu {
         });
         this.add(sendToRepeater);
 
-        JMenuItem sendToIntruder = new JMenuItem(new AbstractAction("Send to Intruder") {
+        JMenuItem sendToIntruder = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToIntruder")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 callbacks.sendToIntruder(le.getHost(), le.getPort(), le.isSSL(), le.getRequestResponse().getRequest());
@@ -47,8 +49,8 @@ public class ContextMenuUI extends JPopupMenu {
         });
         this.add(sendToIntruder);
 
-        JMenu sendToComparer = new JMenu("Send to Comparer");
-        JMenuItem comparerRequest = new JMenuItem(new AbstractAction("Request") {
+        JMenu sendToComparer = new JMenu(getLocaleString("logger-ctxMenu-sendToComparer"));
+        JMenuItem comparerRequest = new JMenuItem(new AbstractAction(getLocaleString("common-request")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 callbacks.sendToComparer(le.getRequestResponse().getRequest());
@@ -56,7 +58,7 @@ public class ContextMenuUI extends JPopupMenu {
         });
         sendToComparer.add(comparerRequest);
 
-        JMenuItem comparerResponse = new JMenuItem(new AbstractAction("Response") {
+        JMenuItem comparerResponse = new JMenuItem(new AbstractAction(getLocaleString("common-response")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 callbacks.sendToComparer(le.getRequestResponse().getResponse());
@@ -66,7 +68,7 @@ public class ContextMenuUI extends JPopupMenu {
         this.add(sendToComparer);
 
         this.add(new JPopupMenu.Separator());
-        JMenuItem removeItem = new JMenuItem(new AbstractAction("Remove Item") {
+        JMenuItem removeItem = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-removeItem")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 logEntries.remove(le);
@@ -83,7 +85,7 @@ public class ContextMenuUI extends JPopupMenu {
         if (isAnalysisRunning) removeItem.setEnabled(false);
         this.add(removeItem);
 
-        this.add(new JMenuItem(new AbstractAction("Copy URL") {
+        this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyURL")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 StringSelection stsel = new StringSelection(le.getURL().toString());
@@ -92,7 +94,7 @@ public class ContextMenuUI extends JPopupMenu {
             }
         }));
 
-        this.add(new JMenuItem(new AbstractAction("Copy Description") {
+        this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyDescription")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 StringSelection stsel = new StringSelection(le.getDescription());
@@ -101,7 +103,7 @@ public class ContextMenuUI extends JPopupMenu {
             }
         }));
 
-        this.add(new JMenuItem(new AbstractAction("Copy Regex") {
+        this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyRegex")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 StringSelection stsel = new StringSelection(le.getRegex());
@@ -110,7 +112,7 @@ public class ContextMenuUI extends JPopupMenu {
             }
         }));
 
-        this.add(new JMenuItem(new AbstractAction("Copy Match") {
+        this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyMatch")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 StringSelection stsel = new StringSelection(le.getMatch());

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.controller;
@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 
 /**
@@ -50,7 +52,7 @@ public class Utils {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
         fileChooser.setFileFilter(filter);
-        fileChooser.setDialogTitle("Specify the export file");
+        fileChooser.setDialogTitle(getLocaleString("utils-saveToFile-exportFile"));
 
         int userSelection = fileChooser.showSaveDialog(parentFrame);
         if (userSelection != JFileChooser.APPROVE_OPTION) return;
@@ -111,5 +113,9 @@ public class Utils {
                 setEnabledRecursive(child, enabled);
             }
         }
+    }
+
+    public static String getExtensionVersion() {
+        return Utils.class.getPackage().getImplementationVersion();
     }
 }

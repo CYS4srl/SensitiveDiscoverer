@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
@@ -13,7 +13,10 @@ public class LogEntity {
     private final IHttpRequestResponse requestResponse;
     private final URL url;
     private final String regex;
-    private final String match; // string from the body that matches
+    /**
+     * string from the body that matches
+     */
+    private final String match;
     private final String host;
     private final int port;
     private final boolean isSSL;

@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.EnumSet;
 
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+
 /**
  * RegexModalDialog - Dialog for creating and modifying a regex
  */
@@ -37,10 +39,16 @@ public class RegexModalDialog {
      */
     public boolean showDialog(Component parentComponent, String dialogTitle, EnumSet<ProxyItemSection> regexSections) {
         //Create and populate the panel.
-        String[] labels = {"Regex: ", "Description: "};
+        String[] labels = {
+                "%s: ".formatted(getLocaleString("common-regex")),
+                "%s: ".formatted(getLocaleString("common-description"))
+        };
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        JLabel labelSummary = new JLabel("The new regex will only match: " + regexSections.toString(), JLabel.TRAILING);
+        JLabel labelSummary = new JLabel("%s: %s".formatted(
+                getLocaleString("options-list-regexModal-matchedSections"),
+                regexSections.toString()
+        ), JLabel.TRAILING);
         mainPanel.add(labelSummary);
 
         JPanel inputPanel = new JPanel(new SpringLayout());

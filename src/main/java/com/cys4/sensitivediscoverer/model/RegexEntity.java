@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
@@ -8,6 +8,8 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class RegexEntity {
     private boolean active;
@@ -26,9 +28,9 @@ public class RegexEntity {
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
         if (regex == null || regex.isBlank())
-            throw new IllegalArgumentException("Invalid regex");
+            throw new IllegalArgumentException(getLocaleString("exception-invalidRegex"));
         if (sections == null)
-            throw new IllegalArgumentException("Invalid sections, non-null required");
+            throw new IllegalArgumentException(getLocaleString("exception-invalidSections"));
 
         this.active = active;
         this.description = description;

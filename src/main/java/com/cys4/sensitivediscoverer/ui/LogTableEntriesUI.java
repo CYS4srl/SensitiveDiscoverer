@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 CYS4 Srl
+Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
@@ -8,6 +8,8 @@ import com.cys4.sensitivediscoverer.model.LogEntity;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
+
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class LogTableEntriesUI extends AbstractTableModel {
 
@@ -31,10 +33,10 @@ public class LogTableEntriesUI extends AbstractTableModel {
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "Proxy #";
-            case 1 -> "URL";
-            case 2 -> "Regex";
-            case 3 -> "Match";
+            case 0 -> getLocaleString("logger-table-requestId");
+            case 1 -> getLocaleString("common-url");
+            case 2 -> getLocaleString("common-regex");
+            case 3 -> getLocaleString("common-match");
             default -> "";
         };
     }
