@@ -11,10 +11,7 @@ import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateListener;
 import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateMaxSizeListener;
 import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateNumThreadsListener;
 import com.cys4.sensitivediscoverer.controller.Utils;
-import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
-import com.cys4.sensitivediscoverer.model.RegexContext;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
 import com.cys4.sensitivediscoverer.seed.RegexSeeder;
 import com.google.gson.Gson;
@@ -763,9 +760,13 @@ public class MainUI implements ITab {
         return btnNewRegex;
     }
 
-    private JButton createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
-        JButton btnSaveRegex = new JButton(getLocaleString("options-list-save"));
-        btnSaveRegex.addActionListener(actionEvent -> {
+    //TODO loses info on sections used
+    private JMenuBar createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu(getLocaleString("options-list-save"));
+
+        JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
+        itemToCSV.addActionListener(actionEvent -> {
             List<String> lines = new ArrayList<>();
 
             // header
@@ -786,33 +787,77 @@ public class MainUI implements ITab {
                 throw new RuntimeException(e);
             }
         });
-        return btnSaveRegex;
+        menu.add(itemToCSV);
+
+        JMenuItem itemToJSON = new JMenuItem(getLocaleString("common-toJSON"));
+        itemToJSON.addActionListener(actionEvent -> {
+            List<JsonObject> lines = new ArrayList<>();
+
+            String prop1 = modelReg.getColumnNameFormatted(2);
+            String prop2 = modelReg.getColumnNameFormatted(1);
+
+            // values
+            for (int i = 0; i < modelReg.getRowCount(); i++) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(prop1, modelReg.getValueAt(i, 2).toString());
+                obj.addProperty(prop2, modelReg.getValueAt(i, 1).toString());
+                lines.add(obj);
+            }
+
+            GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
+            Gson gson = builder.create();
+            Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {}.getType();
+            try {
+                Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        menu.add(itemToJSON);
+
+        menuBar.add(menu);
+        return menuBar;
     }
 
-    private JButton createOptions_Regex_btnListOpen(RegexContext ctx,
+    //TODO loses info on sections used
+    private JMenuBar createOptions_Regex_btnListOpen(RegexContext ctx,
                                                     EnumSet<ProxyItemSection> newRegexesSections,
                                                     JPanel tabPaneOptions,
                                                     OptionsRegexTableModelUI modelReg) {
-        JButton btnOpenRegex = new JButton(getLocaleString("options-list-open"));
-        btnOpenRegex.addActionListener(actionEvent -> {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu(getLocaleString("options-list-open"));
+
+        JMenuItem itemFromCSV = new JMenuItem(getLocaleString("common-fromCSV"));
+        itemFromCSV.addActionListener(actionEvent -> {
             try {
                 StringBuilder alreadyAddedMsg = new StringBuilder();
 
                 List<String> lines = Utils.linesFromFile("csv");
                 if (Objects.isNull(lines)) return;
+
                 lines.forEach(line -> {
                     Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
                     if (!matcher.find()) return;
 
-                    String description = matcher.group(1);
-                    String regex = matcher.group(2);
+                    String description = matcher.group(1).replaceAll("\"\"", "\"");
+                    String regex = matcher.group(2).replaceAll("\"\"", "\"");
+                    if (description.equals(modelReg.getColumnNameFormatted(2)) && regex.equals(modelReg.getColumnNameFormatted(1))) return;
 
-                    RegexEntity newRegexEntity = new RegexEntity(description, regex, true, newRegexesSections);
+                    RegexEntity newRegexEntity = new RegexEntity(
+                            description,
+                            regex,
+                            true,
+                            newRegexesSections
+                    );
 
                     if (!ctx.getRegexEntities().contains(newRegexEntity)) {
                         ctx.getRegexEntities().add(newRegexEntity);
                     } else {
-                        alreadyAddedMsg.append(description).append(" - ").append(regex).append("\n");
+                        alreadyAddedMsg
+                                .append(newRegexEntity.getDescription())
+                                .append(" - ")
+                                .append(newRegexEntity.getRegex())
+                                .append("\n");
                     }
                 });
                 modelReg.fireTableDataChanged();
@@ -823,14 +868,65 @@ public class MainUI implements ITab {
                     JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
                     alreadyAddedDialog.setVisible(true);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
                 tabPaneOptions.validate();
                 tabPaneOptions.repaint();
             }
         });
-        return btnOpenRegex;
+        menu.add(itemFromCSV);
+
+        JMenuItem itemFromJSON = new JMenuItem(getLocaleString("common-fromJSON"));
+        itemFromJSON.addActionListener(actionEvent -> {
+            try {
+                Gson gson = new Gson();
+                StringBuilder alreadyAddedMsg = new StringBuilder();
+
+                List<String> lines = Utils.linesFromFile("json");
+                if (Objects.isNull(lines)) return;
+
+                Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {}.getType();
+                Stream.of(String.join("", lines))
+                        .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
+                        .filter(Objects::nonNull)
+                        .flatMap(Collection::stream)
+                        .map(element -> new RegexEntity(
+                                element.getDescription(),
+                                element.getRegex(),
+                                true,
+                                newRegexesSections))
+                        .forEachOrdered(regexEntity -> {
+                            if (!ctx.getRegexEntities().contains(regexEntity)) {
+                                ctx.getRegexEntities().add(regexEntity);
+                            } else {
+                                alreadyAddedMsg
+                                        .append(regexEntity.getDescription())
+                                        .append(" - ")
+                                        .append(regexEntity.getRegex())
+                                        .append("\n");
+                            }
+                        });
+
+                modelReg.fireTableDataChanged();
+
+                if (!(alreadyAddedMsg.toString().isBlank())) {
+                    alreadyAddedMsg.insert(0, getLocaleString("options-list-open-alreadyPresentWarn")+'\n');
+                    JDialog alreadyAddedDialog = new JDialog();
+                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
+                    alreadyAddedDialog.setVisible(true);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
+            }
+        });
+        menu.add(itemFromJSON);
+
+        menuBar.add(menu);
+        return menuBar;
     }
 
     private JButton createOptions_Regex_btnListClear(RegexContext ctx,
