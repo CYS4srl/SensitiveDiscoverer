@@ -626,58 +626,134 @@ public class MainUI implements ITab {
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel buttonPanelRegex = new JPanel();
 
-        JButton btnEnableAll = createOptions_Regex_enable(ctx, tabPaneOptions, modelReg);
-        buttonPanelRegex.add(btnEnableAll);
+        Stream.of(
+            createOptions_Regex_btnSetEnabled(ctx, "options-list-enableAll", true, tabPaneOptions, modelReg),
+            createOptions_Regex_btnSetEnabled(ctx, "options-list-disableAll", false, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListReset(ctx, resetRegexSeeder, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListClear(ctx, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListOpen(ctx, newRegexesSections, buttonPanelRegex, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListSave(modelReg),
+            createOptions_Regex_btnNew(ctx, newRegexesSections, tabPaneOptions, modelReg),
+            createOptions_Regex_btnDelete(ctx, optionsRegexTable, tabPaneOptions, modelReg),
+            createOptions_Regex_btnEdit(ctx, newRegexesSections, optionsRegexTable, tabPaneOptions, modelReg))
+                .forEachOrdered(buttonPanelRegex::add);
 
-        JButton btnDisableAll = new JButton(getLocaleString("options-list-disableAll"));
-        buttonPanelRegex.add(btnDisableAll);
-        btnDisableAll.addActionListener(actionEvent -> {
-            ctx.getRegexEntities().forEach(regex -> regex.setActive(false));
+        optionsRegexTable.setAutoCreateRowSorter(true);
 
-            modelReg.fireTableDataChanged();
+        JScrollPane scrollPaneRegOptions = new JScrollPane(optionsRegexTable);
+        optionsRegexTable.getColumnModel().getColumn(0).setMinWidth(80);
+        optionsRegexTable.getColumnModel().getColumn(0).setMaxWidth(80);
+        optionsRegexTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+
+        callbacks.customizeUiComponent(optionsRegexTable);
+        callbacks.customizeUiComponent(scrollPaneRegOptions);
+
+        return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
+    }
+
+    private static JButton createOptions_Regex_btnEdit(RegexContext ctx, EnumSet<ProxyItemSection> newRegexesSections, JTable optionsRegexTable, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnEditRegex = new JButton(getLocaleString("options-list-edit"));
+        btnEditRegex.setEnabled(false);
+        btnEditRegex.addActionListener(actionEvent -> {
+            boolean ret;
+            int rowIndex;
+            int realRow;
+
+            rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
+            realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+
+            RegexEntity previousEntity = ctx.getRegexEntities().get(realRow);
+            RegexModalDialog dialog = new RegexModalDialog(previousEntity);
+            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
+            if (!ret) return;
+
+            String newRegex = dialog.getRegex();
+            String newDescription = dialog.getDescription();
+            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+            if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription)) return;
+
+            ctx.getRegexEntities().set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+
+            modelReg.fireTableRowsUpdated(realRow, realRow);
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
+            int viewRow = optionsRegexTable.getSelectedRow();
+            btnEditRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        });
+        return btnEditRegex;
+    }
+
+    private static JButton createOptions_Regex_btnDelete(RegexContext ctx, JTable optionsRegexTable, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnDeleteRegex = new JButton(getLocaleString("options-list-delete"));
+        btnDeleteRegex.setEnabled(false);
+        btnDeleteRegex.addActionListener(actionEvent -> {
+            int rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
+            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+            ctx.getRegexEntities().remove(realRow);
+
+            modelReg.fireTableRowsDeleted(realRow, realRow);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
+        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
+            int viewRow = optionsRegexTable.getSelectedRow();
+            btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        });
+        return btnDeleteRegex;
+    }
 
-        JButton btnResetRegex = new JButton(getLocaleString("options-list-reset"));
-        buttonPanelRegex.add(btnResetRegex);
-        btnResetRegex.addActionListener(actionEvent -> {
-            // start from the end and iterate to the beginning to delete because when you delete,
-            // it is deleting elements from data, and you are skipping some rows when you iterate
-            // to the next element (via i++)
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
-            if (dialog != JOptionPane.YES_OPTION) return;
+    private static JButton createOptions_Regex_btnNew(RegexContext ctx, EnumSet<ProxyItemSection> newRegexesSections, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnNewRegex = new JButton(getLocaleString("options-list-new"));
+        btnNewRegex.addActionListener(actionEvent -> {
+            boolean ret;
 
-            if (ctx.getRegexEntities().size() > 0) {
-                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
-            }
+            RegexModalDialog dialog = new RegexModalDialog();
+            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"), newRegexesSections);
+            if (!ret) return;
 
-            ctx.getRegexEntities().clear();
-            ctx.getRegexEntities().addAll(resetRegexSeeder.get());
-            modelReg.fireTableDataChanged();
+            String newRegex = dialog.getRegex();
+            String newDescription = dialog.getDescription();
+            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+
+            int row = ctx.getRegexEntities().size();
+            ctx.getRegexEntities().add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+            modelReg.fireTableRowsInserted(row, row);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
+        return btnNewRegex;
+    }
 
-        JButton btnClearRegex = new JButton(getLocaleString("options-list-clear"));
-        buttonPanelRegex.add(btnClearRegex);
-        btnClearRegex.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
-            if (dialog != JOptionPane.YES_OPTION) return;
+    private static JButton createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
+        JButton btnSaveRegex = new JButton(getLocaleString("options-list-save"));
+        btnSaveRegex.addActionListener(actionEvent -> {
+            List<String> lines = new ArrayList<>();
 
-            if (ctx.getRegexEntities().size() > 0) {
-                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
-                modelReg.fireTableDataChanged();
+            // header
+            lines.add(String.format("\"%s\",\"%s\"",
+                    modelReg.getColumnNameFormatted(2),
+                    modelReg.getColumnNameFormatted(1)));
 
-                tabPaneOptions.validate();
-                tabPaneOptions.repaint();
+            // values
+            int rowCount = modelReg.getRowCount();
+            for (int i = 0; i < rowCount; i++) {
+                String description = modelReg.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
+                String regex = modelReg.getValueAt(i, 1).toString().replaceAll("\"", "\"\"");
+                lines.add(String.format("\"%s\",\"%s\"", description, regex));
             }
+            Utils.saveToFile("csv", lines);
         });
+        return btnSaveRegex;
+    }
 
+    private static JButton createOptions_Regex_btnListOpen(RegexContext ctx, EnumSet<ProxyItemSection> newRegexesSections, JPanel buttonPanelRegex, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
         JButton btnOpenRegex = new JButton(getLocaleString("options-list-open"));
-        buttonPanelRegex.add(btnOpenRegex);
         btnOpenRegex.addActionListener(actionEvent -> {
             JFileChooser chooser = new JFileChooser();
             FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
@@ -725,124 +801,60 @@ public class MainUI implements ITab {
                 tabPaneOptions.repaint();
             }
         });
-
-        JButton btnSaveRegex = new JButton(getLocaleString("options-list-save"));
-        buttonPanelRegex.add(btnSaveRegex);
-        btnSaveRegex.addActionListener(actionEvent -> {
-            List<String> lines = new ArrayList<>();
-
-            // header
-            lines.add(String.format("\"%s\",\"%s\"",
-                    modelReg.getColumnNameFormatted(2),
-                    modelReg.getColumnNameFormatted(1)));
-
-            // values
-            int rowCount = modelReg.getRowCount();
-            for (int i = 0; i < rowCount; i++) {
-                String description = modelReg.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
-                String regex = modelReg.getValueAt(i, 1).toString().replaceAll("\"", "\"\"");
-                lines.add(String.format("\"%s\",\"%s\"", description, regex));
-            }
-            Utils.saveToFile("csv", lines);
-        });
-
-        JButton btnNewRegex = new JButton(getLocaleString("options-list-new"));
-        buttonPanelRegex.add(btnNewRegex);
-        btnNewRegex.addActionListener(actionEvent -> {
-            boolean ret;
-
-            RegexModalDialog dialog = new RegexModalDialog();
-            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"), newRegexesSections);
-            if (!ret) return;
-
-            String newRegex = dialog.getRegex();
-            String newDescription = dialog.getDescription();
-            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
-
-            int row = ctx.getRegexEntities().size();
-            ctx.getRegexEntities().add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
-            modelReg.fireTableRowsInserted(row, row);
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
-
-        JButton btnDeleteRegex = new JButton(getLocaleString("options-list-delete"));
-        btnDeleteRegex.setEnabled(false);
-        buttonPanelRegex.add(btnDeleteRegex);
-        btnDeleteRegex.addActionListener(actionEvent -> {
-            int rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-            ctx.getRegexEntities().remove(realRow);
-
-            modelReg.fireTableRowsDeleted(realRow, realRow);
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
-        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
-            int viewRow = optionsRegexTable.getSelectedRow();
-            btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
-        });
-
-        JButton btnEditRegex = new JButton(getLocaleString("options-list-edit"));
-        btnEditRegex.setEnabled(false);
-        buttonPanelRegex.add(btnEditRegex);
-        btnEditRegex.addActionListener(actionEvent -> {
-            boolean ret;
-            int rowIndex;
-            int realRow;
-
-            rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-
-            RegexEntity previousEntity = ctx.getRegexEntities().get(realRow);
-            RegexModalDialog dialog = new RegexModalDialog(previousEntity);
-            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
-            if (!ret) return;
-
-            String newRegex = dialog.getRegex();
-            String newDescription = dialog.getDescription();
-            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
-            if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription)) return;
-
-            ctx.getRegexEntities().set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
-
-            modelReg.fireTableRowsUpdated(realRow, realRow);
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
-        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
-            int viewRow = optionsRegexTable.getSelectedRow();
-            btnEditRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
-        });
-
-        optionsRegexTable.setAutoCreateRowSorter(true);
-
-        JScrollPane scrollPaneRegOptions = new JScrollPane(optionsRegexTable);
-        optionsRegexTable.getColumnModel().getColumn(0).setMinWidth(80);
-        optionsRegexTable.getColumnModel().getColumn(0).setMaxWidth(80);
-        optionsRegexTable.getColumnModel().getColumn(0).setPreferredWidth(80);
-
-        callbacks.customizeUiComponent(optionsRegexTable);
-        callbacks.customizeUiComponent(scrollPaneRegOptions);
-
-        return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
+        return btnOpenRegex;
     }
 
-    private static JButton createOptions_Regex_enable(RegexContext ctx, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
-        JButton btnEnableAll = new JButton(getLocaleString("options-list-enableAll"));
-        btnEnableAll.addActionListener(actionEvent -> {
-            ctx.getRegexEntities().forEach(regex -> regex.setActive(true));
+    private static JButton createOptions_Regex_btnListClear(RegexContext ctx, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnClearRegex = new JButton(getLocaleString("options-list-clear"));
+        btnClearRegex.addActionListener(actionEvent -> {
+            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
+            if (dialog != JOptionPane.YES_OPTION) return;
+
+            if (ctx.getRegexEntities().size() > 0) {
+                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
+                modelReg.fireTableDataChanged();
+
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
+            }
+        });
+        return btnClearRegex;
+    }
+
+    private static JButton createOptions_Regex_btnListReset(RegexContext ctx, Supplier<List<RegexEntity>> resetRegexSeeder, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnResetRegex = new JButton(getLocaleString("options-list-reset"));
+        btnResetRegex.addActionListener(actionEvent -> {
+            // start from the end and iterate to the beginning to delete because when you delete,
+            // it is deleting elements from data, and you are skipping some rows when you iterate
+            // to the next element (via i++)
+            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
+            if (dialog != JOptionPane.YES_OPTION) return;
+
+            if (ctx.getRegexEntities().size() > 0) {
+                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
+            }
+
+            ctx.getRegexEntities().clear();
+            ctx.getRegexEntities().addAll(resetRegexSeeder.get());
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+        return btnResetRegex;
+    }
+
+    private static JButton createOptions_Regex_btnSetEnabled(RegexContext ctx, String btnLabelKey, boolean isEnabled, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnSetAllEnabled = new JButton(getLocaleString(btnLabelKey));
+        btnSetAllEnabled.addActionListener(actionEvent -> {
+            ctx.getRegexEntities().forEach(regex -> regex.setActive(isEnabled));
 
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
-        return btnEnableAll;
+        return btnSetAllEnabled;
     }
 
     private JPanel createOptions_Configurations() {
