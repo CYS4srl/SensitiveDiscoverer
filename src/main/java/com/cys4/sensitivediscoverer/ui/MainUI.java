@@ -26,12 +26,11 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -197,7 +196,7 @@ public class MainUI implements ITab {
 
     private JPanel createAboutPanel() {
         JPanel tabAbout = new JPanel();
-        tabAbout.setBorder(new EmptyBorder(0,20,0,0));
+        tabAbout.setBorder(new EmptyBorder(0,10,0,0));
         tabAbout.setLayout(new BoxLayout(tabAbout, BoxLayout.Y_AXIS));
 
         JLabel headerLabel = new JLabel(getLocaleString("about-header-label"));
@@ -440,7 +439,11 @@ public class MainUI implements ITab {
                 lines.add(String.format("\"%s\",\"%s\",\"%s\"", request_id, url, matchEscaped));
             }
 
-            Utils.saveToFile("csv", lines);
+            try {
+                Utils.saveToFile("csv", lines);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         });
         menu.add(itemToCSV);
 
@@ -464,7 +467,11 @@ public class MainUI implements ITab {
             GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
             Gson gson = builder.create();
             Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {}.getType();
-            Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+            try {
+                Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         });
         menu.add(itemToJSON);
 
@@ -547,6 +554,7 @@ public class MainUI implements ITab {
 
     private JPanel createOptionsPanel() {
         JPanel tabPaneOptions = new JPanel();
+        tabPaneOptions.setBorder(new EmptyBorder(0,10,0,10));
         tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
 
         // Configuration
@@ -646,7 +654,7 @@ public class MainUI implements ITab {
             createOptions_Regex_btnSetEnabled(ctx, "options-list-disableAll", false, tabPaneOptions, modelReg),
             createOptions_Regex_btnListReset(ctx, resetRegexSeeder, tabPaneOptions, modelReg),
             createOptions_Regex_btnListClear(ctx, tabPaneOptions, modelReg),
-            createOptions_Regex_btnListOpen(ctx, newRegexesSections, buttonPanelRegex, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListOpen(ctx, newRegexesSections, tabPaneOptions, modelReg),
             createOptions_Regex_btnListSave(modelReg),
             createOptions_Regex_btnNew(ctx, newRegexesSections, tabPaneOptions, modelReg),
             createOptions_Regex_btnDelete(ctx, optionsRegexTable, tabPaneOptions, modelReg),
@@ -772,37 +780,29 @@ public class MainUI implements ITab {
                 String regex = modelReg.getValueAt(i, 1).toString().replaceAll("\"", "\"\"");
                 lines.add(String.format("\"%s\",\"%s\"", description, regex));
             }
-            Utils.saveToFile("csv", lines);
+            try {
+                Utils.saveToFile("csv", lines);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         });
         return btnSaveRegex;
     }
 
     private JButton createOptions_Regex_btnListOpen(RegexContext ctx,
-                                                           EnumSet<ProxyItemSection> newRegexesSections,
-                                                           JPanel buttonPanelRegex,
-                                                           JPanel tabPaneOptions,
-                                                           OptionsRegexTableModelUI modelReg) {
+                                                    EnumSet<ProxyItemSection> newRegexesSections,
+                                                    JPanel tabPaneOptions,
+                                                    OptionsRegexTableModelUI modelReg) {
         JButton btnOpenRegex = new JButton(getLocaleString("options-list-open"));
         btnOpenRegex.addActionListener(actionEvent -> {
-            JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(buttonPanelRegex);
-            if (returnVal != JFileChooser.APPROVE_OPTION) return;
-
-            File selectedFile = chooser.getSelectedFile();
-            System.out.printf("%s (%s): %s%n",
-                    getLocaleString("options-list-open-logMessage"),
-                    chooser.getTypeDescription(selectedFile),
-                    selectedFile.getName());
             try {
-                Scanner scanner = new Scanner(chooser.getSelectedFile());
-                StringBuilder alreadyAdded = new StringBuilder();
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
+                StringBuilder alreadyAddedMsg = new StringBuilder();
 
+                List<String> lines = Utils.linesFromFile("csv");
+                if (Objects.isNull(lines)) return;
+                lines.forEach(line -> {
                     Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
-                    if (!matcher.find()) continue;
+                    if (!matcher.find()) return;
 
                     String description = matcher.group(1);
                     String regex = matcher.group(2);
@@ -812,19 +812,19 @@ public class MainUI implements ITab {
                     if (!ctx.getRegexEntities().contains(newRegexEntity)) {
                         ctx.getRegexEntities().add(newRegexEntity);
                     } else {
-                        alreadyAdded.append(description).append(" - ").append(regex).append("\n");
+                        alreadyAddedMsg.append(description).append(" - ").append(regex).append("\n");
                     }
-                }
+                });
                 modelReg.fireTableDataChanged();
 
-                if (!(alreadyAdded.toString().isBlank())) {
-                    alreadyAdded.insert(0, getLocaleString("options-list-open-alreadyPresentWarn")+'\n');
+                if (!(alreadyAddedMsg.toString().isBlank())) {
+                    alreadyAddedMsg.insert(0, getLocaleString("options-list-open-alreadyPresentWarn")+'\n');
                     JDialog alreadyAddedDialog = new JDialog();
-                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAdded.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
                     alreadyAddedDialog.setVisible(true);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             } finally {
                 tabPaneOptions.validate();
                 tabPaneOptions.repaint();

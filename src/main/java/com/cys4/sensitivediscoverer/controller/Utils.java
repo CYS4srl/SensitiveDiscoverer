@@ -9,6 +9,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,8 +47,9 @@ public class Utils {
      * Open JFileChooser to save lines to a file
      * @param extensionName the extension of the saved file
      * @param lines The lines to write in the file
+     * @throws FileNotFoundException If file could not be written
      */
-    public static void saveToFile(String extensionName, List<String> lines) {
+    public static void saveToFile(String extensionName, List<String> lines) throws FileNotFoundException {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
@@ -61,13 +63,30 @@ public class Utils {
         if (!exportFilePath.endsWith("."+extensionName)) {
             exportFilePath += "."+extensionName;
         }
-        try {
-            PrintWriter pwt = new PrintWriter(exportFilePath);
-            lines.forEach(pwt::println);
-            pwt.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
+        PrintWriter pwt = new PrintWriter(exportFilePath);
+        lines.forEach(pwt::println);
+        pwt.close();
+    }
+
+    /**
+     * Open JFileChooser to get lines from a file
+     * @param extensionName the extension to filter files
+     * @return The lines from the file
+     * @throws IOException if file could not be read
+     */
+    public static List<String> linesFromFile(String extensionName) throws IOException {
+        JFrame parentFrame = new JFrame();
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
+        fileChooser.setFileFilter(filter);
+        fileChooser.setDialogTitle(getLocaleString("utils-linesFromFile-importFile"));
+
+        int userSelection = fileChooser.showOpenDialog(parentFrame);
+        if (userSelection != JFileChooser.APPROVE_OPTION) return null;
+
+        File selectedFile = fileChooser.getSelectedFile();
+        return Files.readAllLines(selectedFile.toPath());
     }
 
     /**
