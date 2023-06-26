@@ -10,6 +10,7 @@ import burp.ITextEditor;
 import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.RegexContext;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
 import com.cys4.sensitivediscoverer.seed.RegexSeeder;
@@ -619,29 +620,19 @@ public class MainUI implements ITab {
             List<RegexEntity> regexEntities,
             EnumSet<ProxyItemSection> newRegexesSections)
     {
-        var ctx = new Object() {
-            final List<RegexEntity> regexList = regexEntities;
-        };
+        RegexContext ctx = new RegexContext(regexEntities);
 
-        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(ctx.regexList);
+        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(ctx.getRegexEntities());
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel buttonPanelRegex = new JPanel();
 
-        JButton btnEnableAll = new JButton(getLocaleString("options-list-enableAll"));
+        JButton btnEnableAll = createOptions_Regex_enable(ctx, tabPaneOptions, modelReg);
         buttonPanelRegex.add(btnEnableAll);
-        btnEnableAll.addActionListener(actionEvent -> {
-            ctx.regexList.forEach(regex -> regex.setActive(true));
-
-            modelReg.fireTableDataChanged();
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
 
         JButton btnDisableAll = new JButton(getLocaleString("options-list-disableAll"));
         buttonPanelRegex.add(btnDisableAll);
         btnDisableAll.addActionListener(actionEvent -> {
-            ctx.regexList.forEach(regex -> regex.setActive(false));
+            ctx.getRegexEntities().forEach(regex -> regex.setActive(false));
 
             modelReg.fireTableDataChanged();
 
@@ -658,12 +649,12 @@ public class MainUI implements ITab {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
             if (dialog != JOptionPane.YES_OPTION) return;
 
-            if (ctx.regexList.size() > 0) {
-                ctx.regexList.subList(0, ctx.regexList.size()).clear();
+            if (ctx.getRegexEntities().size() > 0) {
+                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
             }
 
-            ctx.regexList.clear();
-            ctx.regexList.addAll(resetRegexSeeder.get());
+            ctx.getRegexEntities().clear();
+            ctx.getRegexEntities().addAll(resetRegexSeeder.get());
             modelReg.fireTableDataChanged();
 
             tabPaneOptions.validate();
@@ -676,8 +667,8 @@ public class MainUI implements ITab {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
             if (dialog != JOptionPane.YES_OPTION) return;
 
-            if (ctx.regexList.size() > 0) {
-                ctx.regexList.subList(0, ctx.regexList.size()).clear();
+            if (ctx.getRegexEntities().size() > 0) {
+                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
                 modelReg.fireTableDataChanged();
 
                 tabPaneOptions.validate();
@@ -713,8 +704,8 @@ public class MainUI implements ITab {
 
                     RegexEntity newRegexEntity = new RegexEntity(description, regex, true, newRegexesSections);
 
-                    if (!ctx.regexList.contains(newRegexEntity)) {
-                        ctx.regexList.add(newRegexEntity);
+                    if (!ctx.getRegexEntities().contains(newRegexEntity)) {
+                        ctx.getRegexEntities().add(newRegexEntity);
                     } else {
                         alreadyAdded.append(description).append(" - ").append(regex).append("\n");
                     }
@@ -768,8 +759,8 @@ public class MainUI implements ITab {
             String newDescription = dialog.getDescription();
             if (newRegex.isEmpty() && newDescription.isEmpty()) return;
 
-            int row = ctx.regexList.size();
-            ctx.regexList.add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+            int row = ctx.getRegexEntities().size();
+            ctx.getRegexEntities().add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
             modelReg.fireTableRowsInserted(row, row);
 
             tabPaneOptions.validate();
@@ -783,7 +774,7 @@ public class MainUI implements ITab {
             int rowIndex = optionsRegexTable.getSelectedRow();
             if (rowIndex == -1) return;
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-            ctx.regexList.remove(realRow);
+            ctx.getRegexEntities().remove(realRow);
 
             modelReg.fireTableRowsDeleted(realRow, realRow);
 
@@ -807,7 +798,7 @@ public class MainUI implements ITab {
             if (rowIndex == -1) return;
             realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
 
-            RegexEntity previousEntity = ctx.regexList.get(realRow);
+            RegexEntity previousEntity = ctx.getRegexEntities().get(realRow);
             RegexModalDialog dialog = new RegexModalDialog(previousEntity);
             ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
             if (!ret) return;
@@ -817,7 +808,7 @@ public class MainUI implements ITab {
             if (newRegex.isEmpty() && newDescription.isEmpty()) return;
             if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription)) return;
 
-            ctx.regexList.set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+            ctx.getRegexEntities().set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
 
             modelReg.fireTableRowsUpdated(realRow, realRow);
             tabPaneOptions.validate();
@@ -839,6 +830,19 @@ public class MainUI implements ITab {
         callbacks.customizeUiComponent(scrollPaneRegOptions);
 
         return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
+    }
+
+    private static JButton createOptions_Regex_enable(RegexContext ctx, JPanel tabPaneOptions, OptionsRegexTableModelUI modelReg) {
+        JButton btnEnableAll = new JButton(getLocaleString("options-list-enableAll"));
+        btnEnableAll.addActionListener(actionEvent -> {
+            ctx.getRegexEntities().forEach(regex -> regex.setActive(true));
+
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+        return btnEnableAll;
     }
 
     private JPanel createOptions_Configurations() {
