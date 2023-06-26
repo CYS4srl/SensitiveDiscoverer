@@ -7,6 +7,9 @@ package com.cys4.sensitivediscoverer.ui;
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import burp.ITextEditor;
+import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateListener;
+import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateMaxSizeListener;
+import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateNumThreadsListener;
 import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
@@ -28,7 +31,9 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -76,7 +81,7 @@ public class MainUI implements ITab {
     /**
      * Max response size in bytes. Defaults to 10MB
      */
-    private static int maxSizeValue = 10_000_000;
+    private int maxSizeValue = 10_000_000;
     /**
      * Checkbox to skip responses of a media MIME-type
      */
@@ -114,6 +119,13 @@ public class MainUI implements ITab {
     }
 
     /**
+     * Returns the burpLeaksScanner instance used for scanning log entries
+     */
+    public BurpLeaksScanner getBurpLeaksScanner() {
+        return burpLeaksScanner;
+    }
+
+    /**
      * GetNameExtension return the name of the extension from the configuration file
      */
     public String getNameExtension() {
@@ -135,8 +147,11 @@ public class MainUI implements ITab {
     /**
      * Returns the set max size for responses
      */
-    public static int getMaxSizeValueOption() {
+    public int getMaxSizeValueOption() {
         return maxSizeValue;
+    }
+    public void setMaxSizeValueOption(int newMaxSizeValue) {
+        this.maxSizeValue = newMaxSizeValue;
     }
     /**
      * returns true if the option checkbox is selected
@@ -916,86 +931,55 @@ public class MainUI implements ITab {
                 new Color(255, 102, 51)
         ));
 
-        panel.add(createOptions_numThreads());
-        panel.add(createOptions_maxSizeFilter());
+        panel.add(createOptions_Configuration_Scanner_numThreads());
+        panel.add(createOptions_Configuration_Scanner_maxSizeFilter());
 
         return panel;
     }
 
-    private JPanel createOptions_numThreads() {
-        JPanel mainGroup = new JPanel();
-        mainGroup.setLayout(new BoxLayout(mainGroup, BoxLayout.Y_AXIS));
-        mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel numThreads = new JPanel();
-        JLabel numThreadsDescription = new JLabel(getLocaleString("options-scanner-currentNumberOfThreads"));
-        JLabel numThreadsCurrent = new JLabel(String.valueOf(this.burpLeaksScanner.getNumThreads()));
-        numThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
-        numThreads.add(numThreadsDescription);
-        numThreads.add(numThreadsCurrent);
-
-        JPanel updateNumThreads = new JPanel();
-        JLabel updateNumThreadsDescription = new JLabel("%s (1-128): ".formatted(getLocaleString("options-scanner-updateNumberOfThreads")));
-        JTextField updateNumThreadsField = new JTextField(4);
-        JButton updateNumThreadsSet = new JButton(getLocaleString("common-set"));
-        updateNumThreadsSet.addActionListener(e -> {
-            try {
-                int newThreadNumber = Integer.parseInt(updateNumThreadsField.getText());
-                if (newThreadNumber < 1 || newThreadNumber > 128)
-                    throw new NumberFormatException(getLocaleString("exception-numberNotInTheExpectedRange"));
-
-                this.burpLeaksScanner.setNumThreads(newThreadNumber);
-                numThreadsCurrent.setText(String.valueOf(this.burpLeaksScanner.getNumThreads()));
-                updateNumThreadsField.setText("");
-            } catch (NumberFormatException ignored) {
-            }
-        });
-        updateNumThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
-        updateNumThreads.add(updateNumThreadsDescription);
-        updateNumThreads.add(updateNumThreadsField);
-        updateNumThreads.add(updateNumThreadsSet);
-
-        mainGroup.add(numThreads);
-        mainGroup.add(updateNumThreads);
-        return mainGroup;
+    private JPanel createOptions_Configuration_Scanner_numThreads() {
+        return createOptions_Configuration_Scanner_newLimit(getLocaleString("options-scanner-currentNumberOfThreads"),
+                String.valueOf(this.getBurpLeaksScanner().getNumThreads()),
+                "%s (1-128): ".formatted(getLocaleString("options-scanner-updateNumberOfThreads")),
+                new OptionsScannerUpdateNumThreadsListener(this));
     }
 
-    //TODO enable/disable max size input box with MainUI.skipMaxSizeCheckbox
-    private JPanel createOptions_maxSizeFilter() {
+    private JPanel createOptions_Configuration_Scanner_maxSizeFilter() {
+        return createOptions_Configuration_Scanner_newLimit(getLocaleString("options-scanner-currentMaxResponseSize"),
+                String.valueOf(this.getMaxSizeValueOption()),
+                getLocaleString("options-scanner-updateMaxResponseSize"),
+                new OptionsScannerUpdateMaxSizeListener(this));
+    }
+
+    private JPanel createOptions_Configuration_Scanner_newLimit(String currentDescription,
+                                                                       String currentValue,
+                                                                       String updateDescription,
+                                                                       OptionsScannerUpdateListener updateActionListener) {
         JPanel mainGroup = new JPanel();
         mainGroup.setLayout(new BoxLayout(mainGroup, BoxLayout.Y_AXIS));
         mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel maxSize = new JPanel();
-        JLabel maxSizeDescription = new JLabel(getLocaleString("options-scanner-currentMaxResponseSize"));
-        JLabel maxSizeCurrent = new JLabel(String.valueOf(MainUI.maxSizeValue));
-        maxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
-        maxSize.add(maxSizeDescription);
-        maxSize.add(maxSizeCurrent);
+        JPanel currentStatusPanel = new JPanel();
+        currentStatusPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        currentStatusPanel.add(new JLabel(currentDescription));
+        JLabel currentValueLabel = new JLabel(currentValue);
+        currentStatusPanel.add(currentValueLabel);
 
-        JPanel updateMaxSize = new JPanel();
-        JLabel updateMaxSizeDescription = new JLabel(getLocaleString("options-scanner-updateMaxResponseSize"));
-        JTextField updateMaxSizeField = new JTextField(4);
-        JButton updateMaxSizeSet = new JButton(getLocaleString("common-set"));
-        updateMaxSizeSet.addActionListener(e -> {
-            try {
-                int newMaxSizeValue = Integer.parseInt(updateMaxSizeField.getText());
-                if (newMaxSizeValue < 1)
-                    throw new NumberFormatException(getLocaleString("exception-sizeMustBeGreaterEqualThanOne"));
+        JPanel updatedStatusPanel = new JPanel();
+        JTextField updatedStatusField = new JTextField(4);
 
-                MainUI.maxSizeValue = newMaxSizeValue;
-                maxSizeCurrent.setText(String.valueOf(MainUI.getMaxSizeValueOption()));
-                updateMaxSizeField.setText("");
-            } catch (NumberFormatException ignored) {
-            }
-        });
-        updateMaxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
-        updateMaxSize.add(updateMaxSizeDescription);
-        updateMaxSize.add(updateMaxSizeField);
-        updateMaxSize.add(updateMaxSizeSet);
+        JButton updatedStatusSetBtn = new JButton(getLocaleString("common-set"));
+        updateActionListener.setCurrentValueLabel(currentValueLabel);
+        updateActionListener.setUpdatedStatusField(updatedStatusField);
+        updatedStatusSetBtn.addActionListener(updateActionListener);
 
-        mainGroup.add(maxSize);
-        mainGroup.add(updateMaxSize);
+        updatedStatusPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        updatedStatusPanel.add(new JLabel(updateDescription));
+        updatedStatusPanel.add(updatedStatusField);
+        updatedStatusPanel.add(updatedStatusSetBtn);
+
+        mainGroup.add(currentStatusPanel);
+        mainGroup.add(updatedStatusPanel);
 
         return mainGroup;
     }
