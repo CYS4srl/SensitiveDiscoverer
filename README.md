@@ -85,26 +85,41 @@ To see the predefined list go to the Options tab. There you can choose which of 
 
 These are the actions available to manage the lists:
 
-- **New**: a pop-up will appear to insert a new regex or extension.
-- **Delete**: the currently selected row will be deleted from the list.
-- **Clear**: the list will be emptied.
-- **Reset**: the plugin will reset to the default list.
-- **Open**: a pop-up will appear to import a list of regex or extensions from a `.csv` file. For the required file format, refer to the [Importing Lists](#importing-lists) section.
-- **Save**: the current list will be saved to a `.csv`.
 - **Enable all**: disable all the regexes in the current section.
 - **Disable all**: enable all the regexes in the current section.
+- **Reset default list**: the list will be reset to the default list.
+- **Clear list**: the list will be emptied.
+- **Open list**: a pop-up will appear to import a list of regex or extensions from a `csv` or `json` file. For the required file format, refer to the [Importing Lists](#importing-lists) section.
+- **Save list**: a pop-up will appear to save the current list of regex to a `csv` or `json` file.
+- **New regex**: a pop-up will appear to insert a new regex or extension.
+- **Delete regex**: the currently selected row will be deleted from the list.
+- **Edit regex**: a pop-up will appear to modify the currently selected row.
 
-After customizing the lists it is now possible to start scanning for sensitive information inside HTTP messages. The plugin offers the following mode of operations:
-
-1. **Analyze HTTP History**: the plugin will parse all http history generated up to that moment, matching all active patterns.
+After customizing the lists it is now possible to start scanning for sensitive information inside HTTP messages. The extension parses all http request generated up to that moment in the Proxy tab, and tries to match all active patterns.
 
 ### Importing Lists
 
-Using the "Open" and "Save" buttons it's possible to import custom lists, and save the current list to a file.
+Using the "Open list" and "Save list" buttons it's possible to import custom lists, and save the current list to a file.
 
-The files must have the `.csv` extension.
+Both `CSV` and `JSON` files with their respective extensions are supported.
 
-Each line in the file represents an entry and should have the following format: `"Description","Regex"`. The quotation marks and the comma are required.
+- For **CSV** files, the first line represent the header line `"description","regex"` and each next line represents an entry. Entries must have the following format: `"Description","Regex"`. The quotation marks and the comma are required. Any double-quote inside the fields must be escaped with another double-quote. E.g.:
+
+  ```csv
+  "description","regex"
+  "Google e-mail","\w+@gmail.com"
+  ```
+
+- For **JSON** files, the file must be in the following format:
+  
+  ```json
+  [
+    {
+      "description": "Google e-mail",
+      "regex": "\\w+@gmail.com"
+    }
+  ]
+  ```
 
 Regexes must be compliant with the Java's Regexes Style. If in doubt, use [regex101](https://regex101.com/) with the `Java 8` flavour to test regexes.
 
