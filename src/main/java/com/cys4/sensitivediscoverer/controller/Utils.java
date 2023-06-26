@@ -47,9 +47,8 @@ public class Utils {
      * Open JFileChooser to save lines to a file
      * @param extensionName the extension of the saved file
      * @param lines The lines to write in the file
-     * @throws FileNotFoundException If file could not be written
      */
-    public static void saveToFile(String extensionName, List<String> lines) throws FileNotFoundException {
+    public static void saveToFile(String extensionName, List<String> lines) {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
@@ -64,18 +63,21 @@ public class Utils {
             exportFilePath += "."+extensionName;
         }
 
-        PrintWriter pwt = new PrintWriter(exportFilePath);
-        lines.forEach(pwt::println);
-        pwt.close();
+        try {
+            PrintWriter pwt = new PrintWriter(exportFilePath);
+            lines.forEach(pwt::println);
+            pwt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * Open JFileChooser to get lines from a file
      * @param extensionName the extension to filter files
-     * @return The lines from the file
-     * @throws IOException if file could not be read
+     * @return The lines from the file, or null if there was an error
      */
-    public static List<String> linesFromFile(String extensionName) throws IOException {
+    public static List<String> linesFromFile(String extensionName) {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
@@ -86,7 +88,12 @@ public class Utils {
         if (userSelection != JFileChooser.APPROVE_OPTION) return null;
 
         File selectedFile = fileChooser.getSelectedFile();
-        return Files.readAllLines(selectedFile.toPath());
+        try {
+            return Files.readAllLines(selectedFile.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
