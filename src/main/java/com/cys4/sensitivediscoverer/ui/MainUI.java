@@ -7,10 +7,11 @@ package com.cys4.sensitivediscoverer.ui;
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import burp.ITextEditor;
+import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateListener;
+import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateMaxSizeListener;
+import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateNumThreadsListener;
 import com.cys4.sensitivediscoverer.controller.Utils;
-import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
 import com.cys4.sensitivediscoverer.seed.RegexSeeder;
 import com.google.gson.Gson;
@@ -22,15 +23,15 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.*;
 import java.util.function.Supplier;
@@ -75,7 +76,7 @@ public class MainUI implements ITab {
     /**
      * Max response size in bytes. Defaults to 10MB
      */
-    private static int maxSizeValue = 10_000_000;
+    private int maxSizeValue = 10_000_000;
     /**
      * Checkbox to skip responses of a media MIME-type
      */
@@ -83,6 +84,10 @@ public class MainUI implements ITab {
 
     public MainUI(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
+
+        // setup stdout/stderr
+        System.setOut(new PrintStream(callbacks.getStdout(), true));
+        System.setErr(new PrintStream(callbacks.getStderr(), true));
 
         this.generalRegexList = RegexSeeder.getGeneralRegexes();
         this.extensionsRegexList = RegexSeeder.getExtensionRegexes();
@@ -95,10 +100,10 @@ public class MainUI implements ITab {
         this.logEntries = new ArrayList<>();
         this.burpLeaksScanner = new BurpLeaksScanner(4, this, callbacks, logEntries, this.generalRegexList, this.extensionsRegexList);
 
-        LoadConfigFile();
+        loadConfigFile();
     }
 
-    private void LoadConfigFile() {
+    private void loadConfigFile() {
         // load the prop files
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             assert (input != null);
@@ -110,6 +115,13 @@ public class MainUI implements ITab {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Returns the burpLeaksScanner instance used for scanning log entries
+     */
+    public BurpLeaksScanner getBurpLeaksScanner() {
+        return burpLeaksScanner;
     }
 
     /**
@@ -134,8 +146,11 @@ public class MainUI implements ITab {
     /**
      * Returns the set max size for responses
      */
-    public static int getMaxSizeValueOption() {
+    public int getMaxSizeValueOption() {
         return maxSizeValue;
+    }
+    public void setMaxSizeValueOption(int newMaxSizeValue) {
+        this.maxSizeValue = newMaxSizeValue;
     }
     /**
      * returns true if the option checkbox is selected
@@ -181,7 +196,7 @@ public class MainUI implements ITab {
 
     private JPanel createAboutPanel() {
         JPanel tabAbout = new JPanel();
-        tabAbout.setBorder(new EmptyBorder(0,20,0,0));
+        tabAbout.setBorder(new EmptyBorder(0,10,0,0));
         tabAbout.setLayout(new BoxLayout(tabAbout, BoxLayout.Y_AXIS));
 
         JLabel headerLabel = new JLabel(getLocaleString("about-header-label"));
@@ -213,7 +228,7 @@ public class MainUI implements ITab {
         websiteButton.addActionListener(actionEvent -> {
             try {
                 Desktop.getDesktop().browse(new URI("https://cys4.com"));
-            } catch (IOException | URISyntaxException e) {}
+            } catch (Exception ignored) {}
         });
         tabAbout.add(websiteButton);
         JButton blogButton = new JButton(getLocaleString("about-blog-button"));
@@ -221,7 +236,7 @@ public class MainUI implements ITab {
         blogButton.addActionListener(actionEvent -> {
             try {
                 Desktop.getDesktop().browse(new URI("https://blog.cys4.com"));
-            } catch (IOException | URISyntaxException e) {}
+            } catch (Exception ignored) {}
         });
         tabAbout.add(blogButton);
 
@@ -236,7 +251,7 @@ public class MainUI implements ITab {
         githubButton.addActionListener(actionEvent -> {
             try {
                 Desktop.getDesktop().browse(new URI("https://github.com/CYS4srl/CYS4-SensitiveDiscoverer"));
-            } catch (IOException | URISyntaxException e) {}
+            } catch (Exception ignored) {}
         });
         tabAbout.add(githubButton);
 
@@ -248,7 +263,7 @@ public class MainUI implements ITab {
             JLabel logoIcon = new JLabel(new ImageIcon(logoImage.getScaledInstance(400, -1, Image.SCALE_DEFAULT)));
             tabAbout.add(logoIcon);
             tabAbout.add(new JLabel(" "));
-        } catch (IOException ignored) {}
+        } catch (Exception ignored) {}
 
         callbacks.customizeUiComponent(tabAbout);
 
@@ -514,8 +529,8 @@ public class MainUI implements ITab {
                     try {
                         this.analyzeProxyHistoryThread.join();
                         burpLeaksScanner.setInterruptScan(false);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                     btnAnalysis.setEnabled(true);
                     btnAnalysis.setText(textAnalysisStart);
@@ -531,6 +546,7 @@ public class MainUI implements ITab {
 
     private JPanel createOptionsPanel() {
         JPanel tabPaneOptions = new JPanel();
+        tabPaneOptions.setBorder(new EmptyBorder(0,10,0,10));
         tabPaneOptions.setLayout(new BoxLayout(tabPaneOptions, BoxLayout.Y_AXIS));
 
         // Configuration
@@ -619,125 +635,133 @@ public class MainUI implements ITab {
             List<RegexEntity> regexEntities,
             EnumSet<ProxyItemSection> newRegexesSections)
     {
-        var ctx = new Object() {
-            final List<RegexEntity> regexList = regexEntities;
-        };
+        RegexContext ctx = new RegexContext(regexEntities);
 
-        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(ctx.regexList);
+        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(ctx.getRegexEntities());
         JTable optionsRegexTable = new JTable(modelReg);
         JPanel buttonPanelRegex = new JPanel();
 
-        JButton btnEnableAll = new JButton(getLocaleString("options-list-enableAll"));
-        buttonPanelRegex.add(btnEnableAll);
-        btnEnableAll.addActionListener(actionEvent -> {
-            ctx.regexList.forEach(regex -> regex.setActive(true));
+        Stream.of(
+            createOptions_Regex_btnSetEnabled(ctx, "options-list-enableAll", true, tabPaneOptions, modelReg),
+            createOptions_Regex_btnSetEnabled(ctx, "options-list-disableAll", false, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListReset(ctx, resetRegexSeeder, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListClear(ctx, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListOpen(ctx, newRegexesSections, tabPaneOptions, modelReg),
+            createOptions_Regex_btnListSave(modelReg),
+            createOptions_Regex_btnNew(ctx, newRegexesSections, tabPaneOptions, modelReg),
+            createOptions_Regex_btnDelete(ctx, optionsRegexTable, tabPaneOptions, modelReg),
+            createOptions_Regex_btnEdit(ctx, newRegexesSections, optionsRegexTable, tabPaneOptions, modelReg))
+                .forEachOrdered(buttonPanelRegex::add);
 
-            modelReg.fireTableDataChanged();
+        optionsRegexTable.setAutoCreateRowSorter(true);
+
+        JScrollPane scrollPaneRegOptions = new JScrollPane(optionsRegexTable);
+        optionsRegexTable.getColumnModel().getColumn(0).setMinWidth(80);
+        optionsRegexTable.getColumnModel().getColumn(0).setMaxWidth(80);
+        optionsRegexTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+
+        callbacks.customizeUiComponent(optionsRegexTable);
+        callbacks.customizeUiComponent(scrollPaneRegOptions);
+
+        return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
+    }
+
+    private JButton createOptions_Regex_btnEdit(RegexContext ctx,
+                                                       EnumSet<ProxyItemSection> newRegexesSections,
+                                                       JTable optionsRegexTable,
+                                                       JPanel tabPaneOptions,
+                                                       OptionsRegexTableModelUI modelReg) {
+        JButton btnEditRegex = new JButton(getLocaleString("options-list-edit"));
+        btnEditRegex.setEnabled(false);
+        btnEditRegex.addActionListener(actionEvent -> {
+            boolean ret;
+            int rowIndex;
+            int realRow;
+
+            rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
+            realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+
+            RegexEntity previousEntity = ctx.getRegexEntities().get(realRow);
+            RegexModalDialog dialog = new RegexModalDialog(previousEntity);
+            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
+            if (!ret) return;
+
+            String newRegex = dialog.getRegex();
+            String newDescription = dialog.getDescription();
+            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+            if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription)) return;
+
+            ctx.getRegexEntities().set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+
+            modelReg.fireTableRowsUpdated(realRow, realRow);
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
+        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
+            int viewRow = optionsRegexTable.getSelectedRow();
+            btnEditRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        });
+        return btnEditRegex;
+    }
+
+    private JButton createOptions_Regex_btnDelete(RegexContext ctx,
+                                                         JTable optionsRegexTable,
+                                                         JPanel tabPaneOptions,
+                                                         OptionsRegexTableModelUI modelReg) {
+        JButton btnDeleteRegex = new JButton(getLocaleString("options-list-delete"));
+        btnDeleteRegex.setEnabled(false);
+        btnDeleteRegex.addActionListener(actionEvent -> {
+            int rowIndex = optionsRegexTable.getSelectedRow();
+            if (rowIndex == -1) return;
+            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+            ctx.getRegexEntities().remove(realRow);
+
+            modelReg.fireTableRowsDeleted(realRow, realRow);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
+        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
+            int viewRow = optionsRegexTable.getSelectedRow();
+            btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        });
+        return btnDeleteRegex;
+    }
 
-        JButton btnDisableAll = new JButton(getLocaleString("options-list-disableAll"));
-        buttonPanelRegex.add(btnDisableAll);
-        btnDisableAll.addActionListener(actionEvent -> {
-            ctx.regexList.forEach(regex -> regex.setActive(false));
+    private JButton createOptions_Regex_btnNew(RegexContext ctx,
+                                                      EnumSet<ProxyItemSection> newRegexesSections,
+                                                      JPanel tabPaneOptions,
+                                                      OptionsRegexTableModelUI modelReg) {
+        JButton btnNewRegex = new JButton(getLocaleString("options-list-new"));
+        btnNewRegex.addActionListener(actionEvent -> {
+            boolean ret;
 
-            modelReg.fireTableDataChanged();
+            RegexModalDialog dialog = new RegexModalDialog();
+            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"), newRegexesSections);
+            if (!ret) return;
+
+            String newRegex = dialog.getRegex();
+            String newDescription = dialog.getDescription();
+            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+
+            int row = ctx.getRegexEntities().size();
+            ctx.getRegexEntities().add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+            modelReg.fireTableRowsInserted(row, row);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
+        return btnNewRegex;
+    }
 
-        JButton btnResetRegex = new JButton(getLocaleString("options-list-reset"));
-        buttonPanelRegex.add(btnResetRegex);
-        btnResetRegex.addActionListener(actionEvent -> {
-            // start from the end and iterate to the beginning to delete because when you delete,
-            // it is deleting elements from data, and you are skipping some rows when you iterate
-            // to the next element (via i++)
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
-            if (dialog != JOptionPane.YES_OPTION) return;
+    //TODO loses info on sections used
+    private JMenuBar createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu(getLocaleString("options-list-save"));
 
-            if (ctx.regexList.size() > 0) {
-                ctx.regexList.subList(0, ctx.regexList.size()).clear();
-            }
-
-            ctx.regexList.clear();
-            ctx.regexList.addAll(resetRegexSeeder.get());
-            modelReg.fireTableDataChanged();
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
-        });
-
-        JButton btnClearRegex = new JButton(getLocaleString("options-list-clear"));
-        buttonPanelRegex.add(btnClearRegex);
-        btnClearRegex.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
-            if (dialog != JOptionPane.YES_OPTION) return;
-
-            if (ctx.regexList.size() > 0) {
-                ctx.regexList.subList(0, ctx.regexList.size()).clear();
-                modelReg.fireTableDataChanged();
-
-                tabPaneOptions.validate();
-                tabPaneOptions.repaint();
-            }
-        });
-
-        JButton btnOpenRegex = new JButton(getLocaleString("options-list-open"));
-        buttonPanelRegex.add(btnOpenRegex);
-        btnOpenRegex.addActionListener(actionEvent -> {
-            JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(".csv","csv");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(buttonPanelRegex);
-            if (returnVal != JFileChooser.APPROVE_OPTION) return;
-
-            File selectedFile = chooser.getSelectedFile();
-            System.out.printf("%s (%s): %s%n",
-                    getLocaleString("options-list-open-logMessage"),
-                    chooser.getTypeDescription(selectedFile),
-                    selectedFile.getName());
-            try {
-                Scanner scanner = new Scanner(chooser.getSelectedFile());
-                StringBuilder alreadyAdded = new StringBuilder();
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-
-                    Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
-                    if (!matcher.find()) continue;
-
-                    String description = matcher.group(1);
-                    String regex = matcher.group(2);
-
-                    RegexEntity newRegexEntity = new RegexEntity(description, regex, true, newRegexesSections);
-
-                    if (!ctx.regexList.contains(newRegexEntity)) {
-                        ctx.regexList.add(newRegexEntity);
-                    } else {
-                        alreadyAdded.append(description).append(" - ").append(regex).append("\n");
-                    }
-                }
-                modelReg.fireTableDataChanged();
-
-                if (!(alreadyAdded.toString().isBlank())) {
-                    alreadyAdded.insert(0, getLocaleString("options-list-open-alreadyPresentWarn")+'\n');
-                    JDialog alreadyAddedDialog = new JDialog();
-                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAdded.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
-                    alreadyAddedDialog.setVisible(true);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                tabPaneOptions.validate();
-                tabPaneOptions.repaint();
-            }
-        });
-
-        JButton btnSaveRegex = new JButton(getLocaleString("options-list-save"));
-        buttonPanelRegex.add(btnSaveRegex);
-        btnSaveRegex.addActionListener(actionEvent -> {
+        JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
+        itemToCSV.addActionListener(actionEvent -> {
             List<String> lines = new ArrayList<>();
 
             // header
@@ -754,91 +778,196 @@ public class MainUI implements ITab {
             }
             Utils.saveToFile("csv", lines);
         });
+        menu.add(itemToCSV);
 
-        JButton btnNewRegex = new JButton(getLocaleString("options-list-new"));
-        buttonPanelRegex.add(btnNewRegex);
-        btnNewRegex.addActionListener(actionEvent -> {
-            boolean ret;
+        JMenuItem itemToJSON = new JMenuItem(getLocaleString("common-toJSON"));
+        itemToJSON.addActionListener(actionEvent -> {
+            List<JsonObject> lines = new ArrayList<>();
 
-            RegexModalDialog dialog = new RegexModalDialog();
-            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"), newRegexesSections);
-            if (!ret) return;
+            String prop1 = modelReg.getColumnNameFormatted(2);
+            String prop2 = modelReg.getColumnNameFormatted(1);
 
-            String newRegex = dialog.getRegex();
-            String newDescription = dialog.getDescription();
-            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+            // values
+            for (int i = 0; i < modelReg.getRowCount(); i++) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(prop1, modelReg.getValueAt(i, 2).toString());
+                obj.addProperty(prop2, modelReg.getValueAt(i, 1).toString());
+                lines.add(obj);
+            }
 
-            int row = ctx.regexList.size();
-            ctx.regexList.add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
-            modelReg.fireTableRowsInserted(row, row);
+            GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
+            Gson gson = builder.create();
+            Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {}.getType();
+            Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+        });
+        menu.add(itemToJSON);
+
+        menuBar.add(menu);
+        return menuBar;
+    }
+
+    //TODO loses info on sections used
+    private JMenuBar createOptions_Regex_btnListOpen(RegexContext ctx,
+                                                    EnumSet<ProxyItemSection> newRegexesSections,
+                                                    JPanel tabPaneOptions,
+                                                    OptionsRegexTableModelUI modelReg) {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu(getLocaleString("options-list-open"));
+
+        JMenuItem itemFromCSV = new JMenuItem(getLocaleString("common-fromCSV"));
+        itemFromCSV.addActionListener(actionEvent -> {
+            StringBuilder alreadyAddedMsg = new StringBuilder();
+
+            List<String> lines = Utils.linesFromFile("csv");
+            if (Objects.isNull(lines)) return;
+
+            lines.forEach(line -> {
+                Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
+                if (!matcher.find()) return;
+
+                String description = matcher.group(1).replaceAll("\"\"", "\"");
+                String regex = matcher.group(2).replaceAll("\"\"", "\"");
+                if (description.equals(modelReg.getColumnNameFormatted(2)) && regex.equals(modelReg.getColumnNameFormatted(1))) return;
+
+                RegexEntity newRegexEntity = new RegexEntity(
+                        description,
+                        regex,
+                        true,
+                        newRegexesSections
+                );
+
+                if (!ctx.getRegexEntities().contains(newRegexEntity)) {
+                    ctx.getRegexEntities().add(newRegexEntity);
+                } else {
+                    alreadyAddedMsg
+                            .append(newRegexEntity.getDescription())
+                            .append(" - ")
+                            .append(newRegexEntity.getRegex())
+                            .append("\n");
+                }
+            });
+            modelReg.fireTableDataChanged();
+
+            if (!(alreadyAddedMsg.toString().isBlank())) {
+                alreadyAddedMsg.insert(0, getLocaleString("options-list-open-alreadyPresentWarn")+'\n');
+                JDialog alreadyAddedDialog = new JDialog();
+                JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
+                alreadyAddedDialog.setVisible(true);
+            }
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
+        menu.add(itemFromCSV);
 
-        JButton btnDeleteRegex = new JButton(getLocaleString("options-list-delete"));
-        btnDeleteRegex.setEnabled(false);
-        buttonPanelRegex.add(btnDeleteRegex);
-        btnDeleteRegex.addActionListener(actionEvent -> {
-            int rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-            ctx.regexList.remove(realRow);
+        JMenuItem itemFromJSON = new JMenuItem(getLocaleString("common-fromJSON"));
+        itemFromJSON.addActionListener(actionEvent -> {
+            Gson gson = new Gson();
+            StringBuilder alreadyAddedMsg = new StringBuilder();
 
-            modelReg.fireTableRowsDeleted(realRow, realRow);
+            List<String> lines = Utils.linesFromFile("json");
+            if (Objects.isNull(lines)) return;
+
+            Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {}.getType();
+            Stream.of(String.join("", lines))
+                    .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .map(element -> new RegexEntity(
+                            element.getDescription(),
+                            element.getRegex(),
+                            true,
+                            newRegexesSections))
+                    .forEachOrdered(regexEntity -> {
+                        if (!ctx.getRegexEntities().contains(regexEntity)) {
+                            ctx.getRegexEntities().add(regexEntity);
+                        } else {
+                            alreadyAddedMsg
+                                    .append(regexEntity.getDescription())
+                                    .append(" - ")
+                                    .append(regexEntity.getRegex())
+                                    .append("\n");
+                        }
+                    });
+
+            modelReg.fireTableDataChanged();
+
+            if (!(alreadyAddedMsg.toString().isBlank())) {
+                alreadyAddedMsg.insert(0, getLocaleString("options-list-open-alreadyPresentWarn")+'\n');
+                JDialog alreadyAddedDialog = new JDialog();
+                JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
+                alreadyAddedDialog.setVisible(true);
+            }
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
-        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
-            int viewRow = optionsRegexTable.getSelectedRow();
-            btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        menu.add(itemFromJSON);
+
+        menuBar.add(menu);
+        return menuBar;
+    }
+
+    private JButton createOptions_Regex_btnListClear(RegexContext ctx,
+                                                            JPanel tabPaneOptions,
+                                                            OptionsRegexTableModelUI modelReg) {
+        JButton btnClearRegex = new JButton(getLocaleString("options-list-clear"));
+        btnClearRegex.addActionListener(actionEvent -> {
+            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
+            if (dialog != JOptionPane.YES_OPTION) return;
+
+            if (ctx.getRegexEntities().size() > 0) {
+                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
+                modelReg.fireTableDataChanged();
+
+                tabPaneOptions.validate();
+                tabPaneOptions.repaint();
+            }
         });
+        return btnClearRegex;
+    }
 
-        JButton btnEditRegex = new JButton(getLocaleString("options-list-edit"));
-        btnEditRegex.setEnabled(false);
-        buttonPanelRegex.add(btnEditRegex);
-        btnEditRegex.addActionListener(actionEvent -> {
-            boolean ret;
-            int rowIndex;
-            int realRow;
+    private JButton createOptions_Regex_btnListReset(RegexContext ctx,
+                                                            Supplier<List<RegexEntity>> resetRegexSeeder,
+                                                            JPanel tabPaneOptions,
+                                                            OptionsRegexTableModelUI modelReg) {
+        JButton btnResetRegex = new JButton(getLocaleString("options-list-reset"));
+        btnResetRegex.addActionListener(actionEvent -> {
+            // start from the end and iterate to the beginning to delete because when you delete,
+            // it is deleting elements from data, and you are skipping some rows when you iterate
+            // to the next element (via i++)
+            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
+            if (dialog != JOptionPane.YES_OPTION) return;
 
-            rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+            if (ctx.getRegexEntities().size() > 0) {
+                ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
+            }
 
-            RegexEntity previousEntity = ctx.regexList.get(realRow);
-            RegexModalDialog dialog = new RegexModalDialog(previousEntity);
-            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
-            if (!ret) return;
+            ctx.getRegexEntities().clear();
+            ctx.getRegexEntities().addAll(resetRegexSeeder.get());
+            modelReg.fireTableDataChanged();
 
-            String newRegex = dialog.getRegex();
-            String newDescription = dialog.getDescription();
-            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
-            if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription)) return;
-
-            ctx.regexList.set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
-
-            modelReg.fireTableRowsUpdated(realRow, realRow);
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
-        optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
-            int viewRow = optionsRegexTable.getSelectedRow();
-            btnEditRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
+        return btnResetRegex;
+    }
+
+    private JButton createOptions_Regex_btnSetEnabled(RegexContext ctx,
+                                                             String btnLabelKey,
+                                                             boolean isEnabled,
+                                                             JPanel tabPaneOptions,
+                                                             OptionsRegexTableModelUI modelReg) {
+        JButton btnSetAllEnabled = new JButton(getLocaleString(btnLabelKey));
+        btnSetAllEnabled.addActionListener(actionEvent -> {
+            ctx.getRegexEntities().forEach(regex -> regex.setActive(isEnabled));
+
+            modelReg.fireTableDataChanged();
+
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
         });
-
-        optionsRegexTable.setAutoCreateRowSorter(true);
-
-        JScrollPane scrollPaneRegOptions = new JScrollPane(optionsRegexTable);
-        optionsRegexTable.getColumnModel().getColumn(0).setMinWidth(80);
-        optionsRegexTable.getColumnModel().getColumn(0).setMaxWidth(80);
-        optionsRegexTable.getColumnModel().getColumn(0).setPreferredWidth(80);
-
-        callbacks.customizeUiComponent(optionsRegexTable);
-        callbacks.customizeUiComponent(scrollPaneRegOptions);
-
-        return Arrays.asList(optionsTitlePanel, buttonPanelRegex, scrollPaneRegOptions);
+        return btnSetAllEnabled;
     }
 
     private JPanel createOptions_Configurations() {
@@ -900,86 +1029,55 @@ public class MainUI implements ITab {
                 new Color(255, 102, 51)
         ));
 
-        panel.add(createOptions_numThreads());
-        panel.add(createOptions_maxSizeFilter());
+        panel.add(createOptions_Configuration_Scanner_numThreads());
+        panel.add(createOptions_Configuration_Scanner_maxSizeFilter());
 
         return panel;
     }
 
-    private JPanel createOptions_numThreads() {
-        JPanel mainGroup = new JPanel();
-        mainGroup.setLayout(new BoxLayout(mainGroup, BoxLayout.Y_AXIS));
-        mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel numThreads = new JPanel();
-        JLabel numThreadsDescription = new JLabel(getLocaleString("options-scanner-currentNumberOfThreads"));
-        JLabel numThreadsCurrent = new JLabel(String.valueOf(this.burpLeaksScanner.getNumThreads()));
-        numThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
-        numThreads.add(numThreadsDescription);
-        numThreads.add(numThreadsCurrent);
-
-        JPanel updateNumThreads = new JPanel();
-        JLabel updateNumThreadsDescription = new JLabel("%s (1-128): ".formatted(getLocaleString("options-scanner-updateNumberOfThreads")));
-        JTextField updateNumThreadsField = new JTextField(4);
-        JButton updateNumThreadsSet = new JButton(getLocaleString("common-set"));
-        updateNumThreadsSet.addActionListener(e -> {
-            try {
-                int newThreadNumber = Integer.parseInt(updateNumThreadsField.getText());
-                if (newThreadNumber < 1 || newThreadNumber > 128)
-                    throw new NumberFormatException(getLocaleString("exception-numberNotInTheExpectedRange"));
-
-                this.burpLeaksScanner.setNumThreads(newThreadNumber);
-                numThreadsCurrent.setText(String.valueOf(this.burpLeaksScanner.getNumThreads()));
-                updateNumThreadsField.setText("");
-            } catch (NumberFormatException ignored) {
-            }
-        });
-        updateNumThreads.setLayout(new FlowLayout(FlowLayout.LEFT));
-        updateNumThreads.add(updateNumThreadsDescription);
-        updateNumThreads.add(updateNumThreadsField);
-        updateNumThreads.add(updateNumThreadsSet);
-
-        mainGroup.add(numThreads);
-        mainGroup.add(updateNumThreads);
-        return mainGroup;
+    private JPanel createOptions_Configuration_Scanner_numThreads() {
+        return createOptions_Configuration_Scanner_newLimit(getLocaleString("options-scanner-currentNumberOfThreads"),
+                String.valueOf(this.getBurpLeaksScanner().getNumThreads()),
+                "%s (1-128): ".formatted(getLocaleString("options-scanner-updateNumberOfThreads")),
+                new OptionsScannerUpdateNumThreadsListener(this));
     }
 
-    //TODO enable/disable max size input box with MainUI.skipMaxSizeCheckbox
-    private JPanel createOptions_maxSizeFilter() {
+    private JPanel createOptions_Configuration_Scanner_maxSizeFilter() {
+        return createOptions_Configuration_Scanner_newLimit(getLocaleString("options-scanner-currentMaxResponseSize"),
+                String.valueOf(this.getMaxSizeValueOption()),
+                getLocaleString("options-scanner-updateMaxResponseSize"),
+                new OptionsScannerUpdateMaxSizeListener(this));
+    }
+
+    private JPanel createOptions_Configuration_Scanner_newLimit(String currentDescription,
+                                                                       String currentValue,
+                                                                       String updateDescription,
+                                                                       OptionsScannerUpdateListener updateActionListener) {
         JPanel mainGroup = new JPanel();
         mainGroup.setLayout(new BoxLayout(mainGroup, BoxLayout.Y_AXIS));
         mainGroup.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel maxSize = new JPanel();
-        JLabel maxSizeDescription = new JLabel(getLocaleString("options-scanner-currentMaxResponseSize"));
-        JLabel maxSizeCurrent = new JLabel(String.valueOf(MainUI.maxSizeValue));
-        maxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
-        maxSize.add(maxSizeDescription);
-        maxSize.add(maxSizeCurrent);
+        JPanel currentStatusPanel = new JPanel();
+        currentStatusPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        currentStatusPanel.add(new JLabel(currentDescription));
+        JLabel currentValueLabel = new JLabel(currentValue);
+        currentStatusPanel.add(currentValueLabel);
 
-        JPanel updateMaxSize = new JPanel();
-        JLabel updateMaxSizeDescription = new JLabel(getLocaleString("options-scanner-updateMaxResponseSize"));
-        JTextField updateMaxSizeField = new JTextField(4);
-        JButton updateMaxSizeSet = new JButton(getLocaleString("common-set"));
-        updateMaxSizeSet.addActionListener(e -> {
-            try {
-                int newMaxSizeValue = Integer.parseInt(updateMaxSizeField.getText());
-                if (newMaxSizeValue < 1)
-                    throw new NumberFormatException(getLocaleString("exception-sizeMustBeGreaterEqualThanOne"));
+        JPanel updatedStatusPanel = new JPanel();
+        JTextField updatedStatusField = new JTextField(4);
 
-                MainUI.maxSizeValue = newMaxSizeValue;
-                maxSizeCurrent.setText(String.valueOf(MainUI.getMaxSizeValueOption()));
-                updateMaxSizeField.setText("");
-            } catch (NumberFormatException ignored) {
-            }
-        });
-        updateMaxSize.setLayout(new FlowLayout(FlowLayout.LEFT));
-        updateMaxSize.add(updateMaxSizeDescription);
-        updateMaxSize.add(updateMaxSizeField);
-        updateMaxSize.add(updateMaxSizeSet);
+        JButton updatedStatusSetBtn = new JButton(getLocaleString("common-set"));
+        updateActionListener.setCurrentValueLabel(currentValueLabel);
+        updateActionListener.setUpdatedStatusField(updatedStatusField);
+        updatedStatusSetBtn.addActionListener(updateActionListener);
 
-        mainGroup.add(maxSize);
-        mainGroup.add(updateMaxSize);
+        updatedStatusPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        updatedStatusPanel.add(new JLabel(updateDescription));
+        updatedStatusPanel.add(updatedStatusField);
+        updatedStatusPanel.add(updatedStatusSetBtn);
+
+        mainGroup.add(currentStatusPanel);
+        mainGroup.add(updatedStatusPanel);
 
         return mainGroup;
     }

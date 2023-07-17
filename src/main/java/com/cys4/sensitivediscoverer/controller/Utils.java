@@ -9,6 +9,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,12 +62,37 @@ public class Utils {
         if (!exportFilePath.endsWith("."+extensionName)) {
             exportFilePath += "."+extensionName;
         }
+
         try {
             PrintWriter pwt = new PrintWriter(exportFilePath);
             lines.forEach(pwt::println);
             pwt.close();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Open JFileChooser to get lines from a file
+     * @param extensionName the extension to filter files
+     * @return The lines from the file, or null if there was an error
+     */
+    public static List<String> linesFromFile(String extensionName) {
+        JFrame parentFrame = new JFrame();
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("."+extensionName,extensionName);
+        fileChooser.setFileFilter(filter);
+        fileChooser.setDialogTitle(getLocaleString("utils-linesFromFile-importFile"));
+
+        int userSelection = fileChooser.showOpenDialog(parentFrame);
+        if (userSelection != JFileChooser.APPROVE_OPTION) return null;
+
+        File selectedFile = fileChooser.getSelectedFile();
+        try {
+            return Files.readAllLines(selectedFile.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

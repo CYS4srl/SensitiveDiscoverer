@@ -73,7 +73,7 @@ public class BurpLeaksScanner {
         // setup filter parameters for analysis
         boolean inScope = MainUI.isInScopeOptionSelected();
         boolean checkMimeType = MainUI.isSkipMediaTypeOptionSelected();
-        int maxRequestSize = MainUI.isSkipMaxSizeOptionSelected() ? MainUI.getMaxSizeValueOption() : -1;
+        int maxRequestSize = MainUI.isSkipMaxSizeOptionSelected() ? this.mainUI.getMaxSizeValueOption() : -1;
 
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         for (int i = 0; i < httpProxyItems.length; i++) {
