@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+
 /**
  * Enum to identify all the various section that a regex can match in an HttpProxyItem object.
  */
@@ -55,11 +57,11 @@ public enum ProxyItemSection {
     @Override
     public String toString() {
         return switch (this) {
-            case REQ_URL -> "RequestURL";
-            case REQ_BODY -> "RequestBody";
-            case REQ_HEADERS -> "RequestHeaders";
-            case RES_BODY -> "ResponseBody";
-            case RES_HEADERS -> "ResponseHeaders";
+            case REQ_URL -> getLocaleString("regex-section-reqURL");
+            case REQ_BODY -> getLocaleString("regex-section-reqBody");
+            case REQ_HEADERS -> getLocaleString("regex-section-reqHeaders");
+            case RES_BODY -> getLocaleString("regex-section-resBody");
+            case RES_HEADERS -> getLocaleString("regex-section-resHeaders");
             default -> this.name();
         };
     }

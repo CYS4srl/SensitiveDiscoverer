@@ -4,9 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>SensitiveDiscoverer</name>
+    <organization>
+        <name>CYS4</name>
+        <url>https://cys4.com/</url>
+    </organization>
+
     <groupId>com.cys4.sensitivediscoverer</groupId>
     <artifactId>sensitivediscoverer</artifactId>
-    <version>3.0.0</version>
+    <version>3.2.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -26,29 +32,35 @@
             <artifactId>gson</artifactId>
             <version>2.8.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.3.1</version>
+        </dependency>
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>config.properties</include>
-                    <include>mime_types.json</include>
-                    <include>logo.png</include>
-                </includes>
+                <directory>
+                    src/main/resources
+                </directory>
             </resource>
             <resource>
-                <directory>${basedir}/src/main/java/com/cys4/sensitivediscoverer/resources/regexes</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>*.json</include>
-                    <include>*.jsonc</include>
-                </includes>
+                <directory>
+                    src/main/resources/regexes
+                </directory>
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -77,6 +89,13 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
