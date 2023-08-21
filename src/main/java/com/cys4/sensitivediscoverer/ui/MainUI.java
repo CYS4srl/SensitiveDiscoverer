@@ -308,8 +308,8 @@ public class MainUI implements ITab {
 
         JButton clearLogsBtn = createLogger_ClearLogs(scrollPaneLogger);
         buttonPanelLog.add(clearLogsBtn, BorderLayout.NORTH);
-        JMenuBar exportLogsMenu = createLogger_ExportLogs();
-        buttonPanelLog.add(exportLogsMenu, BorderLayout.NORTH);
+        JToggleButton exportLogsBtn = createLogger_ExportLogs();
+        buttonPanelLog.add(exportLogsBtn, BorderLayout.NORTH);
 
         JPanel buttonsLoggerPanel = new JPanel();
         buttonsLoggerPanel.setLayout(new BoxLayout(buttonsLoggerPanel, BoxLayout.Y_AXIS));
@@ -415,12 +415,10 @@ public class MainUI implements ITab {
 
     /**
      * Export logs menu, to export the log entries to file
-     * @return JMenuBar for exporting logs
+     * @return JToggleButton for log export popup
      */
-    private JMenuBar createLogger_ExportLogs() {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu(getLocaleString("logger-exportLogs-label"));
-        menu.putClientProperty("analysisDependent", "1");
+    private JToggleButton createLogger_ExportLogs() {
+        JPopupMenu menu = new JPopupMenu();
 
         JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
         itemToCSV.addActionListener(actionEvent -> {
@@ -467,8 +465,10 @@ public class MainUI implements ITab {
         });
         menu.add(itemToJSON);
 
-        menuBar.add(menu);
-        return menuBar;
+        MenuButton btnExportLogs = new MenuButton(getLocaleString("logger-exportLogs-label"), menu);
+        btnExportLogs.putClientProperty("analysisDependent", "1");
+
+        return btnExportLogs;
     }
 
     /**
@@ -756,9 +756,8 @@ public class MainUI implements ITab {
     }
 
     //TODO loses info on sections used
-    private JMenuBar createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu(getLocaleString("options-list-save"));
+    private JToggleButton createOptions_Regex_btnListSave(OptionsRegexTableModelUI modelReg) {
+        JPopupMenu menu = new JPopupMenu();
 
         JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
         itemToCSV.addActionListener(actionEvent -> {
@@ -802,17 +801,15 @@ public class MainUI implements ITab {
         });
         menu.add(itemToJSON);
 
-        menuBar.add(menu);
-        return menuBar;
+        return new MenuButton(getLocaleString("options-list-save"), menu);
     }
 
     //TODO loses info on sections used
-    private JMenuBar createOptions_Regex_btnListOpen(RegexContext ctx,
+    private JToggleButton createOptions_Regex_btnListOpen(RegexContext ctx,
                                                     EnumSet<ProxyItemSection> newRegexesSections,
                                                     JPanel tabPaneOptions,
                                                     OptionsRegexTableModelUI modelReg) {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu(getLocaleString("options-list-open"));
+        JPopupMenu menu = new JPopupMenu();
 
         JMenuItem itemFromCSV = new JMenuItem(getLocaleString("common-fromCSV"));
         itemFromCSV.addActionListener(actionEvent -> {
@@ -904,8 +901,7 @@ public class MainUI implements ITab {
         });
         menu.add(itemFromJSON);
 
-        menuBar.add(menu);
-        return menuBar;
+        return new MenuButton(getLocaleString("options-list-open"), menu);
     }
 
     private JButton createOptions_Regex_btnListClear(RegexContext ctx,
