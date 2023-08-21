@@ -2,8 +2,6 @@ name: Build test
 
 on:
   push:
-    tags-ignore:
-      - "v*"
   pull_request:
     types:
       - opened
@@ -26,3 +24,8 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B clean package
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: extension-build
+        path: target/SensitiveDiscoverer-*.jar
