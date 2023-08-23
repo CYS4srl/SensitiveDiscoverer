@@ -1,9 +1,9 @@
 Uuid: 81e073a640964b2ea3af0da93d048dbd
 ExtensionType: 1
-Name: SensitiveDiscoverer
+Name: Sensitive Discoverer
 RepoName: sensitive-discoverer
 ScreenVersion: 3.2.0
-SerialVersion: 2
+SerialVersion: 4
 MinPlatformVersion: 0
 ProOnly: False
 Author: CYS4
