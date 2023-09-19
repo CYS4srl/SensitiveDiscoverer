@@ -183,7 +183,10 @@ public class MainUI implements ITab {
 
         tabbedPane.addTab(getLocaleString("tab-logger"), createLoggerPanel());
         tabbedPane.addTab(getLocaleString("tab-options"), createOptionsPanel());
-        tabbedPane.addTab(getLocaleString("tab-about"), createAboutPanel());
+
+        JPanel aboutTab = (new AboutTab()).getPanel();
+        callbacks.customizeUiComponent(aboutTab);
+        tabbedPane.addTab(getLocaleString("tab-about"), aboutTab);
 
         // main panel
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -192,82 +195,6 @@ public class MainUI implements ITab {
 
         // add the custom tab to Burp's UI
         callbacks.addSuiteTab(MainUI.this);
-    }
-
-    private JPanel createAboutPanel() {
-        JPanel tabAbout = new JPanel();
-        tabAbout.setBorder(new EmptyBorder(0,10,0,0));
-        tabAbout.setLayout(new BoxLayout(tabAbout, BoxLayout.Y_AXIS));
-
-        JLabel headerLabel = new JLabel(getLocaleString("about-header-label"));
-        headerLabel.setFont(new Font("Lucida Grande", Font.BOLD, 28)); // NOI18N
-
-        JLabel subheaderLabel = new JLabel(getLocaleString("about-subheader-label"));
-        subheaderLabel.setFont(new Font("Lucida Grande", Font.ITALIC, 20)); // NOI18N
-
-        tabAbout.add(new JLabel(" "));
-        tabAbout.add(headerLabel);
-        tabAbout.add(subheaderLabel);
-        tabAbout.add(new JLabel(" "));
-        tabAbout.add(new JLabel("—————————————————————————————————————————————————"));
-        tabAbout.add(new JLabel(" "));
-
-        Stream.of(
-                "%s %s".formatted(getLocaleString("about-version-label"), Utils.getExtensionVersion()),
-                "%s CYS4".formatted(getLocaleString("about-author-label")),
-                " ", " ",
-                getLocaleString("about-website-label"), " ")
-                    .map(JLabel::new)
-                    .forEachOrdered(label -> {
-                        label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-                        tabAbout.add(label);
-                    });
-
-        JButton websiteButton = new JButton(getLocaleString("about-website-button"));
-        websiteButton.setMaximumSize(new Dimension(400, 40));
-        websiteButton.addActionListener(actionEvent -> {
-            try {
-                Desktop.getDesktop().browse(new URI("https://cys4.com"));
-            } catch (Exception ignored) {}
-        });
-        tabAbout.add(websiteButton);
-        JButton blogButton = new JButton(getLocaleString("about-blog-button"));
-        blogButton.setMaximumSize(new Dimension(400, 40));
-        blogButton.addActionListener(actionEvent -> {
-            try {
-                Desktop.getDesktop().browse(new URI("https://blog.cys4.com"));
-            } catch (Exception ignored) {}
-        });
-        tabAbout.add(blogButton);
-
-        for (String s : Arrays.asList(" ", " ", getLocaleString("about-support-label"), " ")) {
-            JLabel label = new JLabel(s);
-            label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-            tabAbout.add(label);
-        }
-
-        JButton githubButton = new JButton(getLocaleString("about-github-button"));
-        githubButton.setMaximumSize(new Dimension(400, 40));
-        githubButton.addActionListener(actionEvent -> {
-            try {
-                Desktop.getDesktop().browse(new URI("https://github.com/CYS4srl/CYS4-SensitiveDiscoverer"));
-            } catch (Exception ignored) {}
-        });
-        tabAbout.add(githubButton);
-
-        tabAbout.add(new JLabel(" "));
-
-        // Logo
-        try {
-            BufferedImage logoImage = ImageIO.read(Objects.requireNonNull(MainUI.class.getClassLoader().getResource("logo.png")));
-            JLabel logoIcon = new JLabel(new ImageIcon(logoImage.getScaledInstance(400, -1, Image.SCALE_DEFAULT)));
-            tabAbout.add(logoIcon);
-            tabAbout.add(new JLabel(" "));
-        } catch (Exception ignored) {}
-
-        callbacks.customizeUiComponent(tabAbout);
-
-        return tabAbout;
     }
 
     private JPanel createLoggerPanel() {

@@ -42,14 +42,13 @@ buildNumber.properties
 
 # manually added
 out/
-Burp.iml
-CYS4-SensitiveDiscoverer.iml
-SensitiveDiscoverer.iml
+*.iml
 src/build/
 .idea
 *.jar
 *.lst
 .vscode
 todo
+src/main/java/com/cys4/sensitivediscoverer/ui/tests
 
 target/maven-status/maven-compiler-plugin/compile/default-compile/
