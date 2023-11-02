@@ -12,17 +12,17 @@ import java.util.regex.Pattern;
 import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class RegexEntity {
-    private boolean active;
     private final String regex;
     private final transient Pattern regexCompiled;
     private final String description;
     private final EnumSet<ProxyItemSection> sections;
+    private boolean active;
 
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true, ProxyItemSection.getDefault());
     }
 
-    public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
+    public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException {
         this(description, regex, active, ProxyItemSection.getDefault());
     }
 
@@ -59,6 +59,10 @@ public class RegexEntity {
         return this.active;
     }
 
+    public void setActive(boolean value) {
+        this.active = value;
+    }
+
     public String getRegex() {
         return this.regex;
     }
@@ -73,10 +77,6 @@ public class RegexEntity {
 
     public EnumSet<ProxyItemSection> getSections() {
         return sections;
-    }
-
-    public void setActive(boolean value) {
-        this.active = value;
     }
 
     @Override

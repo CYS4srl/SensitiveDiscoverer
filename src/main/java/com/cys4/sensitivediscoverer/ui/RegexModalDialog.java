@@ -32,10 +32,11 @@ public class RegexModalDialog {
 
     /**
      * Show the dialog on the Frame. This call is blocking until the dialog is closed.
-     * @return a boolean indicating if the user confirmed the dialog.
+     *
      * @param parentComponent the Frame in which the dialog is displayed.
-     * @param dialogTitle the title string for the dialog.
-     * @param regexSections The sections where the regex is applied.
+     * @param dialogTitle     the title string for the dialog.
+     * @param regexSections   The sections where the regex is applied.
+     * @return a boolean indicating if the user confirmed the dialog.
      */
     public boolean showDialog(Component parentComponent, String dialogTitle, EnumSet<ProxyItemSection> regexSections) {
         //Create and populate the panel.

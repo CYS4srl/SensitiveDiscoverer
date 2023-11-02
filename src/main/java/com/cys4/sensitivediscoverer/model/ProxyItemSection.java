@@ -38,20 +38,20 @@ public enum ProxyItemSection {
             return ProxyItemSection.getDefault();
 
         return sectionsToMatch
-            .stream()
-            .flatMap(section -> switch (section) {
-                case "req_url" -> Stream.of(ProxyItemSection.REQ_URL);
-                case "req_headers" -> Stream.of(ProxyItemSection.REQ_HEADERS);
-                case "req_body" -> Stream.of(ProxyItemSection.REQ_BODY);
-                case "res_headers" -> Stream.of(ProxyItemSection.RES_HEADERS);
-                case "res_body" -> Stream.of(ProxyItemSection.RES_BODY);
-                case "req" -> ProxyItemSection.REQ.stream();
-                case "res" -> ProxyItemSection.RES.stream();
-                case "all" -> ProxyItemSection.ALL.stream();
-                default -> null;
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)));
+                .stream()
+                .flatMap(section -> switch (section) {
+                    case "req_url" -> Stream.of(ProxyItemSection.REQ_URL);
+                    case "req_headers" -> Stream.of(ProxyItemSection.REQ_HEADERS);
+                    case "req_body" -> Stream.of(ProxyItemSection.REQ_BODY);
+                    case "res_headers" -> Stream.of(ProxyItemSection.RES_HEADERS);
+                    case "res_body" -> Stream.of(ProxyItemSection.RES_BODY);
+                    case "req" -> ProxyItemSection.REQ.stream();
+                    case "res" -> ProxyItemSection.RES.stream();
+                    case "all" -> ProxyItemSection.ALL.stream();
+                    default -> null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)));
     }
 
     @Override

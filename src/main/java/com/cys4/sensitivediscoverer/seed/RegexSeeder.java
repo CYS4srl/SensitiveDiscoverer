@@ -26,16 +26,16 @@ public class RegexSeeder {
         Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {}.getType();
 
         return Stream.of(regexFiles)
-            .map(Utils::readResourceFile)
-            .filter(Objects::nonNull)
-            .<List<JsonRegexEntity>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
-            .flatMap(Collection::stream)
-            .map(element -> new RegexEntity(
-                    element.getDescription(),
-                    element.getRegex(),
-                    element.isActive(),
-                    ProxyItemSection.parseSectionsToMatch(element.getSections())))
-            .collect(Collectors.toList());
+                .map(Utils::readResourceFile)
+                .filter(Objects::nonNull)
+                .<List<JsonRegexEntity>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
+                .flatMap(Collection::stream)
+                .map(element -> new RegexEntity(
+                        element.getDescription(),
+                        element.getRegex(),
+                        element.isActive(),
+                        ProxyItemSection.parseSectionsToMatch(element.getSections())))
+                .collect(Collectors.toList());
     }
 
     public static List<RegexEntity> getGeneralRegexes() {
