@@ -23,7 +23,6 @@ public class OptionsScannerUpdateNumThreadsListener extends OptionsScannerUpdate
             BurpLeaksScanner burpLeaksScanner = this.mainUI.getBurpLeaksScanner();
             burpLeaksScanner.setNumThreads(newThreadNumber);
             currentValueLabel.setText(String.valueOf(burpLeaksScanner.getNumThreads()));
-            updatedStatusField.setText("");
         } catch (NumberFormatException ignored) {
         }
     }

@@ -21,7 +21,6 @@ public class OptionsScannerUpdateMaxSizeListener extends OptionsScannerUpdateLis
 
             this.mainUI.setMaxSizeValueOption(newMaxSizeValue);
             currentValueLabel.setText(String.valueOf(this.mainUI.getMaxSizeValueOption()));
-            updatedStatusField.setText("");
         } catch (NumberFormatException ignored) {
         }
     }

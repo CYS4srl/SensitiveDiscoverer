@@ -11,13 +11,14 @@ import java.util.Objects;
 
 import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
-public class AboutTab {
+public class AboutTab implements ApplicationTab {
     private final JPanel panel;
 
     public AboutTab() {
         this.panel = this.createPanel();
     }
 
+    @Override
     public JPanel getPanel() {
         return this.panel;
     }
@@ -42,6 +43,7 @@ public class AboutTab {
         JPanel header;
         JPanel content;
         JPanel footer;
+        GridBagConstraints gbc;
 
         Font titleFont = new Font("Lucida Grande", Font.BOLD, 36);
         Font subtitleFont = new Font("Lucida Grande", Font.ITALIC, 24);
@@ -55,7 +57,6 @@ public class AboutTab {
         box.add(boxCenter, BorderLayout.CENTER);
         main = new JPanel();
         main.setLayout(new GridBagLayout());
-        GridBagConstraints gbc;
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
