@@ -1,6 +1,6 @@
 package com.cys4.sensitivediscoverer.ui;
 
-import burp.SpringUtilities;
+import com.cys4.sensitivediscoverer.utils.SpringUtilities;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 

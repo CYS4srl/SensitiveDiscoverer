@@ -4,7 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.seed;
 
-import com.cys4.sensitivediscoverer.controller.Utils;
+import com.cys4.sensitivediscoverer.utils.Utils;
 import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;

@@ -2,7 +2,7 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.controller;
+package com.cys4.sensitivediscoverer.utils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -142,9 +142,5 @@ public class Utils {
                 setEnabledRecursive(child, enabled);
             }
         }
-    }
-
-    public static String getExtensionVersion() {
-        return Utils.class.getPackage().getImplementationVersion();
     }
 }

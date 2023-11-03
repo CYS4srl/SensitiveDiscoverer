@@ -5,7 +5,7 @@ See the file 'LICENSE' for copying permission
 package com.cys4.sensitivediscoverer.ui;
 
 import burp.ITextEditor;
-import com.cys4.sensitivediscoverer.controller.Utils;
+import com.cys4.sensitivediscoverer.utils.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

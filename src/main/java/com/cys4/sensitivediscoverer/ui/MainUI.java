@@ -96,6 +96,10 @@ public class MainUI implements ITab {
         return skipMediaTypeCheckbox;
     }
 
+    public static String getExtensionVersion() {
+        return MainUI.class.getPackage().getImplementationVersion();
+    }
+
     private void loadConfigFile() {
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             assert (input != null);

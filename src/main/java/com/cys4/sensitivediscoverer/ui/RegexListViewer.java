@@ -1,6 +1,6 @@
 package com.cys4.sensitivediscoverer.ui;
 
-import com.cys4.sensitivediscoverer.controller.Utils;
+import com.cys4.sensitivediscoverer.utils.Utils;
 import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexContext;

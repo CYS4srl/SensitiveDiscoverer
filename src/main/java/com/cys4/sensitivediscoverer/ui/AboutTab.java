@@ -4,8 +4,6 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
 
-import com.cys4.sensitivediscoverer.controller.Utils;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -190,7 +188,7 @@ public class AboutTab implements ApplicationTab {
         content.add(versionLabel, gbc);
         JLabel versionValueLabel = new JLabel();
         versionValueLabel.setFont(bodyFont);
-        versionValueLabel.setText(Utils.getExtensionVersion());
+        versionValueLabel.setText(MainUI.getExtensionVersion());
         gbc = new GridBagConstraints();
         gbc.gridx = 3;
         gbc.gridy = 0;

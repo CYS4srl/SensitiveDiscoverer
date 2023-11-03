@@ -28,7 +28,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package burp;
+package com.cys4.sensitivediscoverer.utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +41,6 @@ import java.awt.*;
  */
 public class SpringUtilities {
 
-    /* Used by makeCompactGrid. */
     private static SpringLayout.Constraints getConstraintsForCell(
             int row, int col,
             Container parent,
