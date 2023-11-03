@@ -14,10 +14,10 @@ import java.util.EnumSet;
 import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class OptionsTab implements ApplicationTab {
+    private static final String TAB_NAME = getLocaleString("tab-options");
     //todo move these constants to a common place
     private final Font OPTIONS_BORDER_FONT = new Font("Lucida Grande", Font.BOLD, 14);
     private final Color ACCENT_COLOR = new Color(255, 102, 51);
-
     private final JPanel panel;
     private final MainUI mainUI;
 
@@ -29,6 +29,11 @@ public class OptionsTab implements ApplicationTab {
     @Override
     public JPanel getPanel() {
         return this.panel;
+    }
+
+    @Override
+    public String getTabName() {
+        return TAB_NAME;
     }
 
     /**
@@ -64,13 +69,13 @@ public class OptionsTab implements ApplicationTab {
         createConfigurationPanels(boxHeader, threadNumListener, responseSizeListener);
 
         boxCenter = new JPanel(new GridBagLayout());
-        boxCenter.putClientProperty("analysisDependent", "1");
         createListsPanels(boxCenter);
 
         box = new JPanel(new BorderLayout(0, 0));
         box.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         box.add(boxHeader, BorderLayout.NORTH);
         box.add(boxCenter, BorderLayout.CENTER);
+        box.putClientProperty("analysisDependent", "1");
 
         return box;
     }

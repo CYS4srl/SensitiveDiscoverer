@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2023 CYS4 Srl
+See the file 'LICENSE' for copying permission
+*/
 package com.cys4.sensitivediscoverer.ui;
 
 import com.cys4.sensitivediscoverer.controller.Utils;
@@ -12,7 +16,9 @@ import java.util.Objects;
 import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
 
 public class AboutTab implements ApplicationTab {
+    private static final String TAB_NAME = getLocaleString("tab-about");
     private final JPanel panel;
+
 
     public AboutTab() {
         this.panel = this.createPanel();
@@ -21,6 +27,11 @@ public class AboutTab implements ApplicationTab {
     @Override
     public JPanel getPanel() {
         return this.panel;
+    }
+
+    @Override
+    public String getTabName() {
+        return TAB_NAME;
     }
 
     /**

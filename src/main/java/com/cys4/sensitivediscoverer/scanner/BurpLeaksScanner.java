@@ -222,6 +222,7 @@ public class BurpLeaksScanner {
 
         if (!logEntries.contains(logEntry)) {
             logEntries.add(logEntry);
+            //TODO replace with an observer on logEntries, in LoggerTab
             mainUI.logTableEntriesUIAddNewRow(row);
         }
     }
