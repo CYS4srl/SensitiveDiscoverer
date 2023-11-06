@@ -2,20 +2,20 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.model;
 
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
-public class OptionsRegexTableModelUI extends AbstractTableModel {
+public class RegexListViewerTableModel extends AbstractTableModel {
 
     private final List<RegexEntity> regexList;
 
-    public OptionsRegexTableModelUI(List<RegexEntity> regexList) {
+    public RegexListViewerTableModel(List<RegexEntity> regexList) {
         this.regexList = regexList;
     }
 

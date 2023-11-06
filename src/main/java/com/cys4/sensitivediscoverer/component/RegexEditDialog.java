@@ -1,6 +1,6 @@
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.component;
 
-import com.cys4.sensitivediscoverer.utils.SpringUtilities;
+import com.cys4.sensitivediscoverer.SpringUtilities;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
@@ -8,25 +8,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.EnumSet;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 /**
  * RegexModalDialog - Dialog for creating and modifying a regex
  */
-public class RegexModalDialog {
+public class RegexEditDialog {
     private String regex;
     private String description;
 
-    public RegexModalDialog(String regex, String description) {
+    public RegexEditDialog(String regex, String description) {
         this.regex = regex;
         this.description = description;
     }
 
-    public RegexModalDialog() {
+    public RegexEditDialog() {
         this("", "");
     }
 
-    public RegexModalDialog(RegexEntity defaultRegex) {
+    public RegexEditDialog(RegexEntity defaultRegex) {
         this(defaultRegex.getRegex(), defaultRegex.getDescription());
     }
 

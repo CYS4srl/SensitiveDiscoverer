@@ -1,17 +1,17 @@
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.component;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-public class MenuButton extends JToggleButton {
+public class PopupMenuButton extends JToggleButton {
     private final JPopupMenu popup;
 
-    public MenuButton(String name, JPopupMenu menu) {
+    public PopupMenuButton(String name, JPopupMenu menu) {
         super(name);
         this.popup = menu;
         addActionListener(ev -> {
-            JToggleButton b = MenuButton.this;
+            JToggleButton b = PopupMenuButton.this;
             if (b.isSelected()) {
                 popup.show(b, 0, b.getBounds().height);
             } else {
@@ -25,7 +25,7 @@ public class MenuButton extends JToggleButton {
 
             @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                MenuButton.this.setSelected(false);
+                PopupMenuButton.this.setSelected(false);
             }
 
             @Override

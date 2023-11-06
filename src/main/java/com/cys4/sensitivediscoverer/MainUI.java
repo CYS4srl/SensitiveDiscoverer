@@ -2,14 +2,17 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer;
 
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
+import com.cys4.sensitivediscoverer.model.LogsTableModel;
+import com.cys4.sensitivediscoverer.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
-import com.cys4.sensitivediscoverer.seed.RegexSeeder;
+import com.cys4.sensitivediscoverer.tab.AboutTab;
+import com.cys4.sensitivediscoverer.tab.ApplicationTab;
+import com.cys4.sensitivediscoverer.tab.OptionsTab;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,27 +27,30 @@ import java.util.Properties;
 public class MainUI implements ITab {
     /**
      * Checkbox to skip responses not in scope
+     * TODO: not public, not here
      */
-    static boolean inScopeCheckbox = false;
+    public static boolean inScopeCheckbox = false;
     /**
      * Checkbox to skip responses over a set max size
+     * TODO: not public, not here
      */
-    static boolean skipMaxSizeCheckbox = true;
+    public static boolean skipMaxSizeCheckbox = true;
     /**
      * Checkbox to skip responses of a media MIME-type
+     * TODO: not public, not here
      */
-    static boolean skipMediaTypeCheckbox = true;
+    public static boolean skipMediaTypeCheckbox = true;
 
     private final IBurpExtenderCallbacks callbacks;
     private final List<LogEntity> logEntries;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
-    private final BurpLeaksScanner burpLeaksScanner;
+    private final RegexScanner regexScanner;
     private Properties configProperties;
 
     // ui components
     private JTabbedPane mainPanel;
-    private LogTableEntriesUI logTableEntriesUI;
+    private LogsTableModel logsTableModel;
 
     /**
      * Max response size in bytes
@@ -66,10 +72,9 @@ public class MainUI implements ITab {
 
         // Logger elements
         this.logEntries = new ArrayList<>();
-        this.burpLeaksScanner = new BurpLeaksScanner(
+        this.regexScanner = new RegexScanner(
                 Integer.parseInt(configProperties.getProperty("config.number_of_threads")),
                 this,
-                callbacks,
                 logEntries,
                 this.generalRegexList,
                 this.extensionsRegexList);
@@ -116,7 +121,7 @@ public class MainUI implements ITab {
      * notifies logTablesEntriesUI of a newly added row
      */
     public void logTableEntriesUIAddNewRow(int row) {
-        logTableEntriesUI.addNewRow(row);
+        logsTableModel.addNewRow(row);
     }
 
     /**
@@ -135,7 +140,7 @@ public class MainUI implements ITab {
         ApplicationTab aboutTab = new AboutTab();
         mainPanel.addTab(aboutTab.getTabName(), aboutTab.getPanel());
 
-        logTableEntriesUI = loggerTab.getLogTableEntriesUI();
+        logsTableModel = loggerTab.getLogTableEntriesUI();
 
         callbacks.customizeUiComponent(mainPanel);
         callbacks.addSuiteTab(MainUI.this);
@@ -165,10 +170,10 @@ public class MainUI implements ITab {
     }
 
     /**
-     * Returns the burpLeaksScanner instance used for scanning log entries
+     * Returns the regexScanner instance used for scanning log entries
      */
-    public BurpLeaksScanner getBurpLeaksScanner() {
-        return burpLeaksScanner;
+    public RegexScanner getRegexScanner() {
+        return regexScanner;
     }
 
     /**

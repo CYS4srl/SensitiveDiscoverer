@@ -2,13 +2,11 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.scanner;
+package com.cys4.sensitivediscoverer;
 
 import burp.*;
-import com.cys4.sensitivediscoverer.utils.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.ui.MainUI;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -22,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class BurpLeaksScanner {
+public class RegexScanner {
 
     private final MainUI mainUI;
     private final IExtensionHelpers helpers;
@@ -50,15 +48,14 @@ public class BurpLeaksScanner {
      */
     private int analyzedItems = 0;
 
-    public BurpLeaksScanner(int numThreads,
-                            MainUI mainUI,
-                            IBurpExtenderCallbacks callbacks,
-                            List<LogEntity> logEntries,
-                            List<RegexEntity> generalRegexList,
-                            List<RegexEntity> extensionsRegexList) {
+    public RegexScanner(int numThreads,
+                        MainUI mainUI,
+                        List<LogEntity> logEntries,
+                        List<RegexEntity> generalRegexList,
+                        List<RegexEntity> extensionsRegexList) {
         this.numThreads = numThreads;
         this.mainUI = mainUI;
-        this.callbacks = callbacks;
+        this.callbacks = mainUI.getCallbacks();
         this.helpers = callbacks.getHelpers();
         this.logEntries = logEntries;
         this.generalRegexList = generalRegexList;

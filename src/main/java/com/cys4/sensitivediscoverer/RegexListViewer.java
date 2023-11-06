@@ -1,10 +1,9 @@
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer;
 
-import com.cys4.sensitivediscoverer.utils.Utils;
-import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
-import com.cys4.sensitivediscoverer.model.RegexContext;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.component.PopupMenuButton;
+import com.cys4.sensitivediscoverer.component.RegexEditDialog;
+import com.cys4.sensitivediscoverer.component.RegexListViewerTable;
+import com.cys4.sensitivediscoverer.model.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -20,7 +19,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class RegexListViewer {
     //todo move these constants to a common place
@@ -131,8 +130,8 @@ public class RegexListViewer {
         JPanel containerCenter;
         GridBagConstraints gbc;
 
-        RegexContext ctx = new RegexContext(regexEntities);
-        OptionsRegexTableModelUI modelReg = new OptionsRegexTableModelUI(ctx.getRegexEntities());
+        RegexListContext ctx = new RegexListContext(regexEntities);
+        RegexListViewerTableModel modelReg = new RegexListViewerTableModel(ctx.getRegexEntities());
 
         container = new JPanel(new BorderLayout(0, 0));
         containerCenter = new JPanel(new GridBagLayout());
@@ -141,12 +140,7 @@ public class RegexListViewer {
         container.add(containerRight, BorderLayout.EAST);
 
         // table
-        JTable regexTable = new JTable(modelReg);
-        regexTable.setAutoCreateRowSorter(true);
-        regexTable.setFillsViewportHeight(true);
-        regexTable.getColumnModel().getColumn(0).setMinWidth(80);
-        regexTable.getColumnModel().getColumn(0).setMaxWidth(80);
-        regexTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+        JTable regexTable = new RegexListViewerTable(modelReg);
         final JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(regexTable);
         gbc = createGridConstraints(0, 0, 1.0, 1.0, GridBagConstraints.CENTER);
@@ -164,25 +158,25 @@ public class RegexListViewer {
         listMenu.add(createListResetMenuItem(ctx, resetRegexSeeder, containerCenter, modelReg));
         listMenu.add(createListOpenMenuItem(ctx, newRegexesSections, containerCenter, modelReg));
         listMenu.add(createListSaveMenuItem(modelReg));
-        JToggleButton listButton = new MenuButton(getLocaleString("options-list-listSubmenu"), listMenu);
+        JToggleButton listButton = new PopupMenuButton(getLocaleString("options-list-listSubmenu"), listMenu);
         containerRight.add(listButton, createButtonGridConstraints(0, 2));
 
         JPopupMenu regexMenu = new JPopupMenu();
         regexMenu.add(createNewRegexMenuItem(ctx, newRegexesSections, containerCenter, modelReg));
         regexMenu.add(createEditRegexMenuItem(ctx, newRegexesSections, regexTable, containerCenter, modelReg));
         regexMenu.add(createDeleteRegexMenuItem(ctx, regexTable, containerCenter, modelReg));
-        JToggleButton regexButton = new MenuButton(getLocaleString("options-list-regexSubmenu"), regexMenu);
+        JToggleButton regexButton = new PopupMenuButton(getLocaleString("options-list-regexSubmenu"), regexMenu);
         containerRight.add(regexButton, createButtonGridConstraints(0, 3));
 
         return container;
     }
 
 
-    private JMenuItem createEditRegexMenuItem(RegexContext ctx,
+    private JMenuItem createEditRegexMenuItem(RegexListContext ctx,
                                               EnumSet<ProxyItemSection> newRegexesSections,
                                               JTable optionsRegexTable,
                                               JPanel tabPaneOptions,
-                                              OptionsRegexTableModelUI modelReg) {
+                                              RegexListViewerTableModel modelReg) {
         JMenuItem btnEditRegex = new JMenuItem(getLocaleString("options-list-edit"));
         btnEditRegex.setEnabled(false);
         btnEditRegex.addActionListener(actionEvent -> {
@@ -195,7 +189,7 @@ public class RegexListViewer {
             realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
 
             RegexEntity previousEntity = ctx.getRegexEntities().get(realRow);
-            RegexModalDialog dialog = new RegexModalDialog(previousEntity);
+            RegexEditDialog dialog = new RegexEditDialog(previousEntity);
             ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
             if (!ret) return;
 
@@ -218,10 +212,10 @@ public class RegexListViewer {
         return btnEditRegex;
     }
 
-    private JMenuItem createDeleteRegexMenuItem(RegexContext ctx,
+    private JMenuItem createDeleteRegexMenuItem(RegexListContext ctx,
                                                 JTable optionsRegexTable,
                                                 JPanel tabPaneOptions,
-                                                OptionsRegexTableModelUI modelReg) {
+                                                RegexListViewerTableModel modelReg) {
         JMenuItem btnDeleteRegex = new JMenuItem(getLocaleString("options-list-delete"));
         btnDeleteRegex.setEnabled(false);
         btnDeleteRegex.addActionListener(actionEvent -> {
@@ -242,15 +236,15 @@ public class RegexListViewer {
         return btnDeleteRegex;
     }
 
-    private JMenuItem createNewRegexMenuItem(RegexContext ctx,
+    private JMenuItem createNewRegexMenuItem(RegexListContext ctx,
                                              EnumSet<ProxyItemSection> newRegexesSections,
                                              JPanel tabPaneOptions,
-                                             OptionsRegexTableModelUI modelReg) {
+                                             RegexListViewerTableModel modelReg) {
         JMenuItem btnNewRegex = new JMenuItem(getLocaleString("options-list-new"));
         btnNewRegex.addActionListener(actionEvent -> {
             boolean ret;
 
-            RegexModalDialog dialog = new RegexModalDialog();
+            RegexEditDialog dialog = new RegexEditDialog();
             ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"), newRegexesSections);
             if (!ret) return;
 
@@ -269,7 +263,7 @@ public class RegexListViewer {
     }
 
     //TODO loses info on sections used
-    private JMenuItem createListSaveMenuItem(OptionsRegexTableModelUI modelReg) {
+    private JMenuItem createListSaveMenuItem(RegexListViewerTableModel modelReg) {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-save"));
         menuItem.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showOptionDialog(
@@ -324,10 +318,10 @@ public class RegexListViewer {
     }
 
     //TODO loses info on sections used
-    private JMenuItem createListOpenMenuItem(RegexContext ctx,
+    private JMenuItem createListOpenMenuItem(RegexListContext ctx,
                                              EnumSet<ProxyItemSection> newRegexesSections,
                                              JPanel tabPaneOptions,
-                                             OptionsRegexTableModelUI modelReg) {
+                                             RegexListViewerTableModel modelReg) {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showOptionDialog(
@@ -432,9 +426,9 @@ public class RegexListViewer {
         return menuItem;
     }
 
-    private JMenuItem createListClearMenuItem(RegexContext ctx,
+    private JMenuItem createListClearMenuItem(RegexListContext ctx,
                                               JPanel tabPaneOptions,
-                                              OptionsRegexTableModelUI modelReg) {
+                                              RegexListViewerTableModel modelReg) {
         JMenuItem btnClearRegex = new JMenuItem(getLocaleString("options-list-clear"));
         btnClearRegex.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
@@ -451,10 +445,10 @@ public class RegexListViewer {
         return btnClearRegex;
     }
 
-    private JMenuItem createListResetMenuItem(RegexContext ctx,
+    private JMenuItem createListResetMenuItem(RegexListContext ctx,
                                               Supplier<List<RegexEntity>> resetRegexSeeder,
                                               JPanel tabPaneOptions,
-                                              OptionsRegexTableModelUI modelReg) {
+                                              RegexListViewerTableModel modelReg) {
         JMenuItem btnResetRegex = new JMenuItem(getLocaleString("options-list-reset"));
         btnResetRegex.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
@@ -474,10 +468,10 @@ public class RegexListViewer {
         return btnResetRegex;
     }
 
-    private JButton createSetEnabledButton(RegexContext ctx,
+    private JButton createSetEnabledButton(RegexListContext ctx,
                                            boolean isEnabled,
                                            JPanel tabPaneOptions,
-                                           OptionsRegexTableModelUI modelReg) {
+                                           RegexListViewerTableModel modelReg) {
         String label = getLocaleString(isEnabled ? "options-list-enableAll" : "options-list-disableAll");
         JButton btnSetAllEnabled = new JButton(label);
         btnSetAllEnabled.addActionListener(actionEvent -> {

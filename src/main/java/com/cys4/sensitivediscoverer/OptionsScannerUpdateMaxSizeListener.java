@@ -1,10 +1,8 @@
-package com.cys4.sensitivediscoverer.controller;
-
-import com.cys4.sensitivediscoverer.ui.MainUI;
+package com.cys4.sensitivediscoverer;
 
 import java.awt.event.ActionEvent;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class OptionsScannerUpdateMaxSizeListener extends OptionsScannerUpdateListener {
 

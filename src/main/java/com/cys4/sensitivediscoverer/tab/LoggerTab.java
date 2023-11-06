@@ -2,10 +2,15 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.tab;
 
 import burp.ITextEditor;
-import com.cys4.sensitivediscoverer.utils.Utils;
+import com.cys4.sensitivediscoverer.MainUI;
+import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
+import com.cys4.sensitivediscoverer.model.LogsTableModel;
+import com.cys4.sensitivediscoverer.component.LogsTable;
+import com.cys4.sensitivediscoverer.component.PopupMenuButton;
+import com.cys4.sensitivediscoverer.Utils;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class LoggerTab implements ApplicationTab {
     //TODO move these constants to a shared place
@@ -34,10 +39,10 @@ public class LoggerTab implements ApplicationTab {
     private final JPanel panel;
     private ITextEditor originalRequestViewer;
     private ITextEditor originalResponseViewer;
-    private LogTableEntryUI logTableEntryUI;
+    private LogsTable logsTable;
     private boolean isAnalysisRunning;
     private Thread analyzeProxyHistoryThread;
-    private LogTableEntriesUI logTableEntriesUI;
+    private LogsTableModel logsTableModel;
 
     public LoggerTab(MainUI mainUI) {
         this.mainUI = mainUI;
@@ -46,8 +51,8 @@ public class LoggerTab implements ApplicationTab {
         this.panel = this.createPanel();
     }
 
-    public LogTableEntriesUI getLogTableEntriesUI() {
-        return logTableEntriesUI;
+    public LogsTableModel getLogTableEntriesUI() {
+        return logsTableModel;
     }
 
     private JPanel createPanel() {
@@ -188,31 +193,31 @@ public class LoggerTab implements ApplicationTab {
                 analyzeProxyHistoryThread = new Thread(() -> {
                     String previousText = analysisButton.getText();
                     analysisButton.setText(textAnalysisStop);
-                    logTableEntryUI.setAutoCreateRowSorter(false);
+                    logsTable.setAutoCreateRowSorter(false);
 
-                    this.mainUI.getBurpLeaksScanner().analyzeProxyHistory(progressBar);
+                    this.mainUI.getRegexScanner().analyzeProxyHistory(progressBar);
 
                     analysisButton.setText(previousText);
-                    logTableEntryUI.setAutoCreateRowSorter(true);
+                    logsTable.setAutoCreateRowSorter(true);
                     analyzeProxyHistoryThread = null;
                     isAnalysisRunning = false;
                     this.postAnalysisOperations();
                 });
                 analyzeProxyHistoryThread.start();
 
-                logTableEntryUI.validate();
-                logTableEntryUI.repaint();
+                logsTable.validate();
+                logsTable.repaint();
             } else {
                 if (Objects.isNull(analyzeProxyHistoryThread)) return;
 
                 analysisButton.setEnabled(false);
                 analysisButton.setText(textAnalysisStopping);
-                this.mainUI.getBurpLeaksScanner().setInterruptScan(true);
+                this.mainUI.getRegexScanner().setInterruptScan(true);
 
                 new Thread(() -> {
                     try {
                         analyzeProxyHistoryThread.join();
-                        this.mainUI.getBurpLeaksScanner().setInterruptScan(false);
+                        this.mainUI.getRegexScanner().setInterruptScan(false);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -225,12 +230,12 @@ public class LoggerTab implements ApplicationTab {
     }
 
     private JScrollPane createLogEntriesTable() {
-        logTableEntriesUI = new LogTableEntriesUI(this.mainUI.getLogEntries());
+        logsTableModel = new LogsTableModel(this.mainUI.getLogEntries());
         this.originalRequestViewer = this.mainUI.getCallbacks().createTextEditor();
         this.originalResponseViewer = this.mainUI.getCallbacks().createTextEditor();
-        this.logTableEntryUI = new LogTableEntryUI(logTableEntriesUI, this.mainUI.getLogEntries(), this.originalRequestViewer, this.originalResponseViewer);
+        this.logsTable = new LogsTable(logsTableModel, this.mainUI.getLogEntries(), this.originalRequestViewer, this.originalResponseViewer);
         // disable sorting on columns while scanning. This helps to prevent Swing exceptions.
-        logTableEntryUI.getTableHeader().putClientProperty("analysisDependent", "1");
+        logsTable.getTableHeader().putClientProperty("analysisDependent", "1");
 
         // when you right-click on a logTable entry, it will appear a context menu defined here
         MouseAdapter contextMenu = new MouseAdapter() {
@@ -241,27 +246,27 @@ public class LoggerTab implements ApplicationTab {
 
             private void onMouseEvent(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
-                    int row = logTableEntryUI.getSelectedRow();
+                    int row = logsTable.getSelectedRow();
                     if (row == -1) return;
-                    logTableEntryUI.setRowSelectionInterval(row, row);
-                    if (logTableEntryUI.getSelectedRowCount() == 1) {
-                        int realRow = logTableEntryUI.convertRowIndexToModel(row);
+                    logsTable.setRowSelectionInterval(row, row);
+                    if (logsTable.getSelectedRowCount() == 1) {
+                        int realRow = logsTable.convertRowIndexToModel(row);
                         LogEntity logentry = mainUI.getLogEntries().get(realRow);
 
-                        if (e.getComponent() instanceof LogTableEntryUI) {
-                            new ContextMenuUI(logentry, mainUI.getLogEntries(), originalRequestViewer, originalResponseViewer, logTableEntriesUI, logTableEntryUI, mainUI.getCallbacks(), isAnalysisRunning)
+                        if (e.getComponent() instanceof LogsTable) {
+                            new LogsTableContextMenu(logentry, mainUI.getLogEntries(), originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getCallbacks(), isAnalysisRunning)
                                     .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
                 }
             }
         };
-        logTableEntryUI.addMouseListener(contextMenu);
+        logsTable.addMouseListener(contextMenu);
 
-        ListSelectionModel listSelectionModel = logTableEntryUI.getSelectionModel();
-        logTableEntryUI.setSelectionModel(listSelectionModel);
+        ListSelectionModel listSelectionModel = logsTable.getSelectionModel();
+        logsTable.setSelectionModel(listSelectionModel);
 
-        return new JScrollPane(logTableEntryUI);
+        return new JScrollPane(logsTable);
     }
 
     private JToggleButton createExportLogsButton() {
@@ -272,15 +277,15 @@ public class LoggerTab implements ApplicationTab {
             java.util.List<String> lines = new ArrayList<>();
 
             lines.add(String.format("\"%s\",\"%s\",\"%s\"",
-                    logTableEntriesUI.getColumnNameFormatted(0),
-                    logTableEntriesUI.getColumnNameFormatted(1),
-                    logTableEntriesUI.getColumnNameFormatted(3)));
+                    logsTableModel.getColumnNameFormatted(0),
+                    logsTableModel.getColumnNameFormatted(1),
+                    logsTableModel.getColumnNameFormatted(3)));
 
             // values
-            for (int i = 0; i < logTableEntriesUI.getRowCount(); i++) {
-                String request_id = logTableEntriesUI.getValueAt(i, 0).toString();
-                String url = logTableEntriesUI.getValueAt(i, 1).toString();
-                String matchEscaped = logTableEntriesUI.getValueAt(i, 3).toString().replaceAll("\"", "\"\"");
+            for (int i = 0; i < logsTableModel.getRowCount(); i++) {
+                String request_id = logsTableModel.getValueAt(i, 0).toString();
+                String url = logsTableModel.getValueAt(i, 1).toString();
+                String matchEscaped = logsTableModel.getValueAt(i, 3).toString().replaceAll("\"", "\"\"");
                 lines.add(String.format("\"%s\",\"%s\",\"%s\"", request_id, url, matchEscaped));
             }
 
@@ -292,16 +297,16 @@ public class LoggerTab implements ApplicationTab {
         itemToJSON.addActionListener(actionEvent -> {
             java.util.List<JsonObject> lines = new ArrayList<>();
 
-            String prop1 = logTableEntriesUI.getColumnNameFormatted(0);
-            String prop2 = logTableEntriesUI.getColumnNameFormatted(1);
-            String prop3 = logTableEntriesUI.getColumnNameFormatted(3);
+            String prop1 = logsTableModel.getColumnNameFormatted(0);
+            String prop2 = logsTableModel.getColumnNameFormatted(1);
+            String prop3 = logsTableModel.getColumnNameFormatted(3);
 
             // values
-            for (int i = 0; i < logTableEntriesUI.getRowCount(); i++) {
+            for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 JsonObject obj = new JsonObject();
-                obj.addProperty(prop1, logTableEntriesUI.getValueAt(i, 0).toString());
-                obj.addProperty(prop2, logTableEntriesUI.getValueAt(i, 1).toString());
-                obj.addProperty(prop3, logTableEntriesUI.getValueAt(i, 3).toString());
+                obj.addProperty(prop1, logsTableModel.getValueAt(i, 0).toString());
+                obj.addProperty(prop2, logsTableModel.getValueAt(i, 1).toString());
+                obj.addProperty(prop3, logsTableModel.getValueAt(i, 3).toString());
                 lines.add(obj);
             }
 
@@ -313,7 +318,7 @@ public class LoggerTab implements ApplicationTab {
         });
         menu.add(itemToJSON);
 
-        MenuButton btnExportLogs = new MenuButton(getLocaleString("logger-exportLogs-label"), menu);
+        PopupMenuButton btnExportLogs = new PopupMenuButton(getLocaleString("logger-exportLogs-label"), menu);
         btnExportLogs.putClientProperty("analysisDependent", "1");
 
         return btnExportLogs;
@@ -325,7 +330,7 @@ public class LoggerTab implements ApplicationTab {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("logger-clearLogs-confirm"));
             if (dialog == JOptionPane.YES_OPTION) {
                 mainUI.getLogEntries().clear();
-                logTableEntriesUI.clear();
+                logsTableModel.clear();
 
                 originalResponseViewer.setText(new byte[0]);
                 originalResponseViewer.setSearchExpression("");

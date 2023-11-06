@@ -1,6 +1,4 @@
-package com.cys4.sensitivediscoverer.controller;
-
-import com.cys4.sensitivediscoverer.ui.MainUI;
+package com.cys4.sensitivediscoverer;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;

@@ -1,17 +1,15 @@
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.tab;
 
-import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateListener;
-import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateMaxSizeListener;
-import com.cys4.sensitivediscoverer.controller.OptionsScannerUpdateNumThreadsListener;
+import com.cys4.sensitivediscoverer.*;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
-import com.cys4.sensitivediscoverer.seed.RegexSeeder;
+import com.cys4.sensitivediscoverer.RegexListViewer;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.EnumSet;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class OptionsTab implements ApplicationTab {
     private static final String TAB_NAME = getLocaleString("tab-options");
@@ -373,7 +371,7 @@ public class OptionsTab implements ApplicationTab {
 
 
         // setup values and listener
-        currentValueLabel.setText(String.valueOf(this.mainUI.getBurpLeaksScanner().getNumThreads()));
+        currentValueLabel.setText(String.valueOf(this.mainUI.getRegexScanner().getNumThreads()));
         updateListener.setCurrentValueLabel(currentValueLabel);
         updateListener.setUpdatedStatusField(updateValueField);
         updateValueButton.addActionListener(updateListener);

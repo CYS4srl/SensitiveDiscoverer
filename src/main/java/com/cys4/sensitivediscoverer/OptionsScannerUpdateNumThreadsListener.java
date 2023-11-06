@@ -1,11 +1,8 @@
-package com.cys4.sensitivediscoverer.controller;
-
-import com.cys4.sensitivediscoverer.scanner.BurpLeaksScanner;
-import com.cys4.sensitivediscoverer.ui.MainUI;
+package com.cys4.sensitivediscoverer;
 
 import java.awt.event.ActionEvent;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class OptionsScannerUpdateNumThreadsListener extends OptionsScannerUpdateListener {
 
@@ -20,9 +17,9 @@ public class OptionsScannerUpdateNumThreadsListener extends OptionsScannerUpdate
             if (newThreadNumber < 1 || newThreadNumber > 128)
                 throw new NumberFormatException(getLocaleString("exception-numberNotInTheExpectedRange"));
 
-            BurpLeaksScanner burpLeaksScanner = this.mainUI.getBurpLeaksScanner();
-            burpLeaksScanner.setNumThreads(newThreadNumber);
-            currentValueLabel.setText(String.valueOf(burpLeaksScanner.getNumThreads()));
+            RegexScanner regexScanner = this.mainUI.getRegexScanner();
+            regexScanner.setNumThreads(newThreadNumber);
+            currentValueLabel.setText(String.valueOf(regexScanner.getNumThreads()));
         } catch (NumberFormatException ignored) {
         }
     }

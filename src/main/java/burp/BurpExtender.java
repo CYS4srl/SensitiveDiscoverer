@@ -1,6 +1,6 @@
 package burp;
 
-import com.cys4.sensitivediscoverer.ui.MainUI;
+import com.cys4.sensitivediscoverer.MainUI;
 
 public class BurpExtender implements IBurpExtender {
 
