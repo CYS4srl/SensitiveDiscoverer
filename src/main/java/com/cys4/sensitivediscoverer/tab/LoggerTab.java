@@ -112,27 +112,29 @@ public class LoggerTab implements ApplicationTab {
     }
 
     private JPanel createCenterBox(JScrollPane scrollPane) {
+        JPanel boxCenter;
         JPanel responsePanel;
         JPanel requestPanelHeader;
         JPanel requestPanel;
-        JSplitPane requestResponseSplitPane;
-        JPanel boxCenter;
         JPanel responsePanelHeader;
-        JSplitPane verticalSplitPane;
+        GridBagConstraints gbc;
 
         boxCenter = new JPanel();
         boxCenter.setLayout(new GridBagLayout());
-        verticalSplitPane = new JSplitPane();
+
+        // split plane
+        JSplitPane verticalSplitPane = new JSplitPane();
         verticalSplitPane.setOrientation(0);
         verticalSplitPane.setResizeWeight(0.6);
-        GridBagConstraints gbc;
         gbc = createGridConstraints(0, 0, 1.0, 1.0, GridBagConstraints.BOTH);
         boxCenter.add(verticalSplitPane, gbc);
         verticalSplitPane.setLeftComponent(scrollPane);
-        requestResponseSplitPane = new JSplitPane();
+        JSplitPane requestResponseSplitPane = new JSplitPane();
         requestResponseSplitPane.setPreferredSize(new Dimension(233, 150));
         requestResponseSplitPane.setResizeWeight(0.5);
         verticalSplitPane.setRightComponent(requestResponseSplitPane);
+
+        // request panel
         requestPanel = new JPanel(new BorderLayout(0, 0));
         requestResponseSplitPane.setLeftComponent(requestPanel);
         requestPanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
@@ -144,6 +146,8 @@ public class LoggerTab implements ApplicationTab {
         requestPanel.add(this.originalRequestViewer.getComponent(), BorderLayout.CENTER);
         responsePanel = new JPanel(new BorderLayout(0, 0));
         requestResponseSplitPane.setRightComponent(responsePanel);
+
+        // response panel
         responsePanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         responsePanel.add(responsePanelHeader, BorderLayout.NORTH);
         final JLabel responseLabel = new JLabel(getLocaleString("common-response"));
@@ -151,23 +155,20 @@ public class LoggerTab implements ApplicationTab {
         responseLabel.setForeground(UIOptions.ACCENT_COLOR);
         responsePanelHeader.add(responseLabel, BorderLayout.NORTH);
         responsePanel.add(this.originalResponseViewer.getComponent(), BorderLayout.CENTER);
+
         return boxCenter;
     }
 
     private JPanel createHeaderBar(JScrollPane scrollPane) {
         JPanel rightSidePanel;
-        GridBagConstraints gbc;
         JPanel boxHeader;
-        JProgressBar progressBar;
-        JButton analysisButton;
-        JButton clearLogsButton;
         JPanel leftSidePanel;
-        JToggleButton exportLogsButton;
+        GridBagConstraints gbc;
 
         boxHeader = new JPanel();
         boxHeader.setLayout(new GridBagLayout());
 
-        progressBar = new JProgressBar(0, 1);
+        JProgressBar progressBar = new JProgressBar(0, 1);
         progressBar.setStringPainted(true);
         gbc = createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 10);
@@ -177,20 +178,20 @@ public class LoggerTab implements ApplicationTab {
         rightSidePanel.setLayout(new GridBagLayout());
         rightSidePanel.setPreferredSize(new Dimension(0, 40));
         boxHeader.add(rightSidePanel, createGridConstraints(2, 0, 1.0, 0.0, GridBagConstraints.BOTH));
-        clearLogsButton = createClearLogsButton(scrollPane);
+        JButton clearLogsButton = createClearLogsButton(scrollPane);
         gbc = createGridConstraints(0, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 0, 0, 5);
         rightSidePanel.add(clearLogsButton, gbc);
         final JPanel spacer1 = new JPanel();
         rightSidePanel.add(spacer1, createGridConstraints(2, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL));
-        exportLogsButton = createExportLogsButton();
+        JToggleButton exportLogsButton = createExportLogsButton();
         rightSidePanel.add(exportLogsButton, createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL));
 
         leftSidePanel = new JPanel();
         leftSidePanel.setLayout(new GridBagLayout());
         leftSidePanel.setPreferredSize(new Dimension(0, 40));
         boxHeader.add(leftSidePanel, createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.BOTH));
-        analysisButton = createAnalysisButton(progressBar);
+        JButton analysisButton = createAnalysisButton(progressBar);
         leftSidePanel.add(analysisButton, createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL));
         final JPanel spacer2 = new JPanel();
         leftSidePanel.add(spacer2, createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL));
@@ -198,68 +199,77 @@ public class LoggerTab implements ApplicationTab {
         return boxHeader;
     }
 
+    /**
+     * Creates a button that handles the analysis of the burp's http history
+     *
+     * @param progressBar the progress bar to update with the analysis status
+     * @return the analysis button
+     */
     private JButton createAnalysisButton(JProgressBar progressBar) {
-        JButton analysisButton;
-        final String textAnalysisStart = getLocaleString("logger-analysis-start");
-        final String textAnalysisStop = getLocaleString("logger-analysis-stop");
-        final String textAnalysisStopping = getLocaleString("logger-analysis-stopping");
-
-        analysisButton = new JButton();
-        analysisButton.setText(textAnalysisStart);
+        JButton analysisButton = new JButton();
+        analysisButton.setText(getLocaleString("logger-analysis-start"));
         analysisButton.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
-                this.preAnalysisOperations();
-                isAnalysisRunning = true;
-                analyzeProxyHistoryThread = new Thread(() -> {
-                    // pre scan
-                    String previousText = analysisButton.getText();
-                    analysisButton.setText(textAnalysisStop);
-                    logsTable.setAutoCreateRowSorter(false);
-                    // progress bar
-                    this.analyzedItems = 0;
-                    progressBar.setValue(this.analyzedItems);
-                    Consumer<Integer> singleItemCallback = (maxItems) -> {
-                        progressBar.setMaximum(maxItems);
-                        synchronized (analyzeLock) {
-                            this.analyzedItems++;
-                        }
-                        progressBar.setValue(this.analyzedItems);
-                    };
-
-                    // start scan
-                    regexScanner.analyzeProxyHistory(singleItemCallback, this::addLogEntry);
-
-                    // post scan
-                    analysisButton.setText(previousText);
-                    logsTable.setAutoCreateRowSorter(true);
-                    analyzeProxyHistoryThread = null;
-                    isAnalysisRunning = false;
-                    this.postAnalysisOperations();
-                });
-                analyzeProxyHistoryThread.start();
-
-                logsTable.validate();
-                logsTable.repaint();
+                startAnalysisAction(progressBar, analysisButton);
             } else {
-                if (Objects.isNull(analyzeProxyHistoryThread)) return;
-
-                analysisButton.setEnabled(false);
-                analysisButton.setText(textAnalysisStopping);
-                regexScanner.setInterruptScan(true);
-
-                new Thread(() -> {
-                    try {
-                        analyzeProxyHistoryThread.join();
-                        regexScanner.setInterruptScan(false);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    analysisButton.setEnabled(true);
-                    analysisButton.setText(textAnalysisStart);
-                }).start();
+                stopAnalysisAction(analysisButton);
             }
         });
         return analysisButton;
+    }
+
+    private void stopAnalysisAction(JButton analysisButton) {
+        if (Objects.isNull(analyzeProxyHistoryThread)) return;
+
+        analysisButton.setEnabled(false);
+        analysisButton.setText(getLocaleString("logger-analysis-stopping"));
+        regexScanner.setInterruptScan(true);
+
+        new Thread(() -> {
+            try {
+                analyzeProxyHistoryThread.join();
+                regexScanner.setInterruptScan(false);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            analysisButton.setEnabled(true);
+            analysisButton.setText(getLocaleString("logger-analysis-start"));
+        }).start();
+    }
+
+    private void startAnalysisAction(JProgressBar progressBar, JButton analysisButton) {
+        this.preAnalysisOperations();
+        isAnalysisRunning = true;
+        analyzeProxyHistoryThread = new Thread(() -> {
+            // pre scan
+            String previousText = analysisButton.getText();
+            analysisButton.setText(getLocaleString("logger-analysis-stop"));
+            logsTable.setAutoCreateRowSorter(false);
+            // progress bar
+            this.analyzedItems = 0;
+            progressBar.setValue(this.analyzedItems);
+            Consumer<Integer> singleItemCallback = (maxItems) -> {
+                progressBar.setMaximum(maxItems);
+                synchronized (analyzeLock) {
+                    this.analyzedItems++;
+                }
+                progressBar.setValue(this.analyzedItems);
+            };
+
+            // start scan
+            regexScanner.analyzeProxyHistory(singleItemCallback, this::addLogEntry);
+
+            // post scan
+            analysisButton.setText(previousText);
+            logsTable.setAutoCreateRowSorter(true);
+            analyzeProxyHistoryThread = null;
+            isAnalysisRunning = false;
+            this.postAnalysisOperations();
+        });
+        analyzeProxyHistoryThread.start();
+
+        logsTable.validate();
+        logsTable.repaint();
     }
 
     private JScrollPane createLogEntriesTable() {
