@@ -14,6 +14,7 @@ import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.UIOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -32,10 +33,6 @@ import java.util.function.Consumer;
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class LoggerTab implements ApplicationTab {
-    //TODO move these constants to a shared place
-    public static final Font TITLE_FONT = new Font("Lucida Grande", Font.BOLD, 14);
-    public static final Color ACCENT_COLOR = new Color(255, 102, 51);
-
     private static final String TAB_NAME = getLocaleString("tab-logger");
 
     private final MainUI mainUI;
@@ -141,8 +138,8 @@ public class LoggerTab implements ApplicationTab {
         requestPanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         requestPanel.add(requestPanelHeader, BorderLayout.NORTH);
         final JLabel requestLabel = new JLabel(getLocaleString("common-request"));
-        requestLabel.setFont(TITLE_FONT);
-        requestLabel.setForeground(ACCENT_COLOR);
+        requestLabel.setFont(UIOptions.H2_FONT);
+        requestLabel.setForeground(UIOptions.ACCENT_COLOR);
         requestPanelHeader.add(requestLabel, BorderLayout.NORTH);
         requestPanel.add(this.originalRequestViewer.getComponent(), BorderLayout.CENTER);
         responsePanel = new JPanel(new BorderLayout(0, 0));
@@ -150,8 +147,8 @@ public class LoggerTab implements ApplicationTab {
         responsePanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         responsePanel.add(responsePanelHeader, BorderLayout.NORTH);
         final JLabel responseLabel = new JLabel(getLocaleString("common-response"));
-        responseLabel.setFont(TITLE_FONT);
-        responseLabel.setForeground(ACCENT_COLOR);
+        responseLabel.setFont(UIOptions.H2_FONT);
+        responseLabel.setForeground(UIOptions.ACCENT_COLOR);
         responsePanelHeader.add(responseLabel, BorderLayout.NORTH);
         responsePanel.add(this.originalResponseViewer.getComponent(), BorderLayout.CENTER);
         return boxCenter;

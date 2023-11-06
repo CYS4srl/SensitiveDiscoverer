@@ -4,6 +4,7 @@ import com.cys4.sensitivediscoverer.*;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.RegexListViewer;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.UIOptions;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -14,9 +15,6 @@ import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class OptionsTab implements ApplicationTab {
     private static final String TAB_NAME = getLocaleString("tab-options");
-    //todo move these constants to a common place
-    private final Font OPTIONS_BORDER_FONT = new Font("Lucida Grande", Font.BOLD, 14);
-    private final Color ACCENT_COLOR = new Color(255, 102, 51);
     private final JPanel panel;
     private final MainUI mainUI;
     private final ScannerOptions scannerOptions;
@@ -169,8 +167,8 @@ public class OptionsTab implements ApplicationTab {
                 getLocaleString("options-scanner-title"),
                 TitledBorder.LEFT,
                 TitledBorder.DEFAULT_POSITION,
-                OPTIONS_BORDER_FONT,
-                ACCENT_COLOR
+                UIOptions.H2_FONT,
+                UIOptions.ACCENT_COLOR
         ));
 
         createOptionThreadsNumber(panel, threadNumListener);
@@ -189,8 +187,8 @@ public class OptionsTab implements ApplicationTab {
                 getLocaleString("options-filters-title"),
                 TitledBorder.LEFT,
                 TitledBorder.DEFAULT_POSITION,
-                OPTIONS_BORDER_FONT,
-                ACCENT_COLOR
+                UIOptions.H2_FONT,
+                UIOptions.ACCENT_COLOR
         ));
 
         JCheckBox inScopeCheckbox = new JCheckBox();

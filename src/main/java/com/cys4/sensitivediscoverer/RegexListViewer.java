@@ -22,10 +22,6 @@ import java.util.stream.Stream;
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class RegexListViewer {
-    //todo move these constants to a common place
-    private final Font LISTS_TITLE_FONT = new Font("Lucida Grande", Font.BOLD, 16);
-    private final Color ACCENT_COLOR = new Color(255, 102, 51);
-
     private final JPanel panel;
 
     /**
@@ -102,8 +98,8 @@ public class RegexListViewer {
         header.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
 
         JLabel titleLabel = new JLabel();
-        titleLabel.setFont(LISTS_TITLE_FONT);
-        titleLabel.setForeground(ACCENT_COLOR);
+        titleLabel.setFont(UIOptions.H1_FONT);
+        titleLabel.setForeground(UIOptions.ACCENT_COLOR);
         titleLabel.setText(title);
         gbc = createGridConstraints(0, 0, 0.0, 1.0, GridBagConstraints.WEST);
         gbc.insets = new Insets(0, 0, 1, 0);
