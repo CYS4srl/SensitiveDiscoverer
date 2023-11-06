@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RegexScanner {
-
     private final IExtensionHelpers helpers;
     private final IBurpExtenderCallbacks callbacks;
     private final ScannerOptions scannerOptions;
@@ -38,6 +37,7 @@ public class RegexScanner {
      * Used to interrupt scan before completion.
      */
     private boolean interruptScan;
+
     public RegexScanner(MainUI mainUI,
                         ScannerOptions scannerOptions,
                         List<RegexEntity> generalRegexList,
@@ -67,22 +67,15 @@ public class RegexScanner {
                 .map(RegexEntity::new)
                 .toList();
 
-        // setup filter parameters for analysis
-        boolean inScope = scannerOptions.isFilterInScopeCheckbox();
-        boolean checkMimeType = scannerOptions.isFilterSkipMediaTypeCheckbox();
-        int maxRequestSize = scannerOptions.isFilterSkipMaxSizeCheckbox() ? scannerOptions.getConfigMaxResponseSize() : -1;
-
         ExecutorService executor = Executors.newFixedThreadPool(scannerOptions.getConfigNumberOfThreads());
         for (int i = 0; i < httpProxyItems.length; i++) {
             IHttpRequestResponse httpProxyItem = httpProxyItems[i];
             int reqNumber = i + 1;
             executor.execute(() -> {
-                //todo pass options as single object
-                analyzeSingleMessage(httpProxyItem, reqNumber, allRegexListCopy, logEntriesCallback, inScope, checkMimeType, maxRequestSize);
+                analyzeSingleMessage(reqNumber, allRegexListCopy, scannerOptions, httpProxyItem, logEntriesCallback);
 
                 if (interruptScan) return;
 
-                //todo send maxLength only first time
                 itemAnalyzedCallback.accept(httpProxyItems.length);
             });
 
@@ -104,34 +97,32 @@ public class RegexScanner {
     /**
      * The main method that scan for regex in the single request body
      *
-     * @param httpProxyItem
-     * @param requestNumber
-     * @param regexList
-     * @param logEntriesCallback
-     * @param inScopeSelected
-     * @param checkMimeType
-     * @param maxRequestSize
+     * @param requestNumber      The request id in burp's proxy
+     * @param regexList          list of regexes to try and match
+     * @param scannerOptions     options for the scanner
+     * @param httpProxyItem      the item (request/response) from burp's http proxy
+     * @param logEntriesCallback A callback function where to report findings
      */
-    private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem,
-                                      int requestNumber,
+    private void analyzeSingleMessage(int requestNumber,
                                       List<RegexEntity> regexList,
-                                      Consumer<LogEntity> logEntriesCallback, boolean inScopeSelected,
-                                      boolean checkMimeType,
-                                      int maxRequestSize) {
+                                      ScannerOptions scannerOptions,
+                                      IHttpRequestResponse httpProxyItem,
+                                      Consumer<LogEntity> logEntriesCallback) {
         // check if URL is in scope
         byte[] request = httpProxyItem.getRequest();
         IRequestInfo requestInfo = helpers.analyzeRequest(httpProxyItem);
-        if (inScopeSelected && (!callbacks.isInScope(requestInfo.getUrl()))) return;
+        if (scannerOptions.isFilterInScopeCheckbox() && (!callbacks.isInScope(requestInfo.getUrl()))) return;
 
         // skip empty responses
         byte[] response = httpProxyItem.getResponse();
         if (Objects.isNull(response)) return;
         // check for max request size
-        if (maxRequestSize > 0 && response.length > maxRequestSize) return;
+        if (scannerOptions.isFilterSkipMaxSizeCheckbox() && response.length > scannerOptions.getConfigMaxResponseSize())
+            return;
 
         // check for blacklisted MIME types
         IResponseInfo responseInfo = helpers.analyzeResponse(response);
-        if (checkMimeType && isMimeTypeBlacklisted(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType()))
+        if (scannerOptions.isFilterSkipMediaTypeCheckbox() && isMimeTypeBlacklisted(responseInfo.getStatedMimeType(), responseInfo.getInferredMimeType()))
             return;
 
         int requestBodyOffset = requestInfo.getBodyOffset();
@@ -213,6 +204,10 @@ public class RegexScanner {
         return blacklistedMimeTypes.contains(mimeType.toUpperCase());
     }
 
+    /**
+     * Change the interrupt flag that dictates whether to stop the current scan
+     * @param interruptScan flag value. If true, scan gets interrupted as soon as possible.
+     */
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
     }
