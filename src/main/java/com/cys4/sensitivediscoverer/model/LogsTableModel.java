@@ -4,8 +4,6 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
 
-import com.cys4.sensitivediscoverer.model.LogEntity;
-
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -67,7 +65,7 @@ public class LogsTableModel extends AbstractTableModel {
         return switch (columnIndex) {
             case 0 -> logEntity.getIdRequest();
             case 1 -> logEntity.getURL().toString();
-            case 2 -> logEntity.getDescription() + " - " + logEntity.getRegex();
+            case 2 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
             case 3 -> logEntity.getMatch();
             default -> "";
         };

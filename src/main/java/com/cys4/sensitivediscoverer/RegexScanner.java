@@ -10,11 +10,11 @@ import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import javax.swing.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,7 +25,6 @@ public class RegexScanner {
     private final MainUI mainUI;
     private final IExtensionHelpers helpers;
     private final IBurpExtenderCallbacks callbacks;
-    private final List<LogEntity> logEntries;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
     /**
@@ -33,7 +32,6 @@ public class RegexScanner {
      */
     private final List<String> blacklistedMimeTypes;
     private final Gson gson;
-    private final Object analyzeLock = new Object();
     /**
      * Flag that indicates if the scan must be interrupted.
      * Used to interrupt scan before completion.
@@ -43,21 +41,15 @@ public class RegexScanner {
      * Number of threads to use during the scan
      */
     private int numThreads;
-    /**
-     * Counter of analyzed items. Used mainly for the progress bar
-     */
-    private int analyzedItems = 0;
 
     public RegexScanner(int numThreads,
                         MainUI mainUI,
-                        List<LogEntity> logEntries,
                         List<RegexEntity> generalRegexList,
                         List<RegexEntity> extensionsRegexList) {
         this.numThreads = numThreads;
         this.mainUI = mainUI;
         this.callbacks = mainUI.getCallbacks();
         this.helpers = callbacks.getHelpers();
-        this.logEntries = logEntries;
         this.generalRegexList = generalRegexList;
         this.extensionsRegexList = extensionsRegexList;
         this.blacklistedMimeTypes = new ArrayList<>();
@@ -67,14 +59,11 @@ public class RegexScanner {
 
     /**
      * Method for analyzing the elements in Burp > Proxy > HTTP history
+     * @param itemAnalyzedCallback A callback that's called after analysing each item with the maxItemsCount as the argument
+     * @param logEntriesCallback A callback that's called for every new finding, with the LogEntity as an argument
      */
-    public void analyzeProxyHistory(JProgressBar progressBar) {
+    public void analyzeProxyHistory(Consumer<Integer> itemAnalyzedCallback, Consumer<LogEntity> logEntriesCallback) {
         IHttpRequestResponse[] httpProxyItems = callbacks.getProxyHistory();
-        this.analyzedItems = 0;
-
-        progressBar.setMaximum(httpProxyItems.length);
-        progressBar.setValue(this.analyzedItems);
-        progressBar.setStringPainted(true);
 
         // create copy of regex list to protect from changes while scanning
         List<RegexEntity> allRegexListCopy = Stream
@@ -92,14 +81,13 @@ public class RegexScanner {
             IHttpRequestResponse httpProxyItem = httpProxyItems[i];
             int reqNumber = i + 1;
             executor.execute(() -> {
-                analyzeSingleMessage(httpProxyItem, reqNumber, allRegexListCopy, inScope, checkMimeType, maxRequestSize);
+                //todo pass options as single object
+                analyzeSingleMessage(httpProxyItem, reqNumber, allRegexListCopy, logEntriesCallback, inScope, checkMimeType, maxRequestSize);
 
                 if (interruptScan) return;
 
-                synchronized (analyzeLock) {
-                    ++this.analyzedItems;
-                }
-                progressBar.setValue(this.analyzedItems);
+                //todo send maxLength only first time
+                itemAnalyzedCallback.accept(httpProxyItems.length);
             });
 
         }
@@ -123,6 +111,7 @@ public class RegexScanner {
      * @param httpProxyItem
      * @param requestNumber
      * @param regexList
+     * @param logEntriesCallback
      * @param inScopeSelected
      * @param checkMimeType
      * @param maxRequestSize
@@ -130,7 +119,7 @@ public class RegexScanner {
     private void analyzeSingleMessage(IHttpRequestResponse httpProxyItem,
                                       int requestNumber,
                                       List<RegexEntity> regexList,
-                                      boolean inScopeSelected,
+                                      Consumer<LogEntity> logEntriesCallback, boolean inScopeSelected,
                                       boolean checkMimeType,
                                       int maxRequestSize) {
         // check if URL is in scope
@@ -169,12 +158,12 @@ public class RegexScanner {
                     .parallelStream()
                     .forEach(matcher -> {
                         while (matcher.find()) {
-                            addLogEntry(
+                            logEntriesCallback.accept(new LogEntity(
                                     httpProxyItem,
                                     requestNumber,
-                                    entry.getDescription(),
-                                    entry.getRegex(),
-                                    matcher.group());
+                                    helpers.analyzeRequest(httpProxyItem).getUrl(),
+                                    entry,
+                                    matcher.group()));
                         }
                     });
         }
@@ -200,28 +189,6 @@ public class RegexScanner {
                 .filter(Objects::nonNull)
                 .map(regexCompiled::matcher)
                 .collect(Collectors.toList());
-    }
-
-    private void addLogEntry(IHttpRequestResponse httpProxyItem,
-                             int requestNumber,
-                             String description,
-                             String regex,
-                             String match) {
-        int row = logEntries.size();
-
-        LogEntity logEntry = new LogEntity(
-                httpProxyItem,
-                requestNumber,
-                helpers.analyzeRequest(httpProxyItem).getUrl(),
-                description,
-                regex,
-                match);
-
-        if (!logEntries.contains(logEntry)) {
-            logEntries.add(logEntry);
-            //TODO replace with an observer on logEntries, in LoggerTab
-            mainUI.logTableEntriesUIAddNewRow(row);
-        }
     }
 
     /**

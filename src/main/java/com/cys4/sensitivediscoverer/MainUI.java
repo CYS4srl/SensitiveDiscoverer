@@ -7,11 +7,10 @@ package com.cys4.sensitivediscoverer;
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
-import com.cys4.sensitivediscoverer.tab.LoggerTab;
-import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.tab.AboutTab;
 import com.cys4.sensitivediscoverer.tab.ApplicationTab;
+import com.cys4.sensitivediscoverer.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.tab.OptionsTab;
 
 import javax.swing.*;
@@ -20,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,7 +40,6 @@ public class MainUI implements ITab {
     public static boolean skipMediaTypeCheckbox = true;
 
     private final IBurpExtenderCallbacks callbacks;
-    private final List<LogEntity> logEntries;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
     private final RegexScanner regexScanner;
@@ -71,11 +68,9 @@ public class MainUI implements ITab {
         this.extensionsRegexList = RegexSeeder.getExtensionRegexes();
 
         // Logger elements
-        this.logEntries = new ArrayList<>();
         this.regexScanner = new RegexScanner(
                 Integer.parseInt(configProperties.getProperty("config.number_of_threads")),
                 this,
-                logEntries,
                 this.generalRegexList,
                 this.extensionsRegexList);
     }
@@ -155,10 +150,6 @@ public class MainUI implements ITab {
 
     public IBurpExtenderCallbacks getCallbacks() {
         return callbacks;
-    }
-
-    public List<LogEntity> getLogEntries() {
-        return logEntries;
     }
 
     public List<RegexEntity> getGeneralRegexList() {

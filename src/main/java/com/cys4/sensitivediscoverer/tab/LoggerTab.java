@@ -6,12 +6,12 @@ package com.cys4.sensitivediscoverer.tab;
 
 import burp.ITextEditor;
 import com.cys4.sensitivediscoverer.MainUI;
-import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
-import com.cys4.sensitivediscoverer.model.LogsTableModel;
-import com.cys4.sensitivediscoverer.component.LogsTable;
-import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.Utils;
+import com.cys4.sensitivediscoverer.component.LogsTable;
+import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
+import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.LogsTableModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -37,17 +38,34 @@ public class LoggerTab implements ApplicationTab {
 
     private final MainUI mainUI;
     private final JPanel panel;
+    /**
+     * List containing the findings history (log entries).
+     * <br><br>
+     * When running multiple analysis on the same RegexScanner instance,
+     * this list remains the same unless manually cleared.
+     * This is required for not logging the same finding twice.
+     */
+    private final List<LogEntity> logEntries;
+    private final Object analyzeLock = new Object();
     private ITextEditor originalRequestViewer;
     private ITextEditor originalResponseViewer;
     private LogsTable logsTable;
     private boolean isAnalysisRunning;
     private Thread analyzeProxyHistoryThread;
     private LogsTableModel logsTableModel;
+    /**
+     * Counter of analyzed items. Used mainly for the progress bar
+     */
+    private int analyzedItems = 0;
+
 
     public LoggerTab(MainUI mainUI) {
         this.mainUI = mainUI;
         this.isAnalysisRunning = false;
         this.analyzeProxyHistoryThread = null;
+        this.logEntries = new ArrayList<>();
+
+        // keep as last call
         this.panel = this.createPanel();
     }
 
@@ -191,12 +209,25 @@ public class LoggerTab implements ApplicationTab {
                 this.preAnalysisOperations();
                 isAnalysisRunning = true;
                 analyzeProxyHistoryThread = new Thread(() -> {
+                    // pre scan
                     String previousText = analysisButton.getText();
                     analysisButton.setText(textAnalysisStop);
                     logsTable.setAutoCreateRowSorter(false);
+                    // progress bar
+                    this.analyzedItems = 0;
+                    progressBar.setValue(this.analyzedItems);
+                    Consumer<Integer> singleItemCallback = (maxItems) -> {
+                        progressBar.setMaximum(maxItems);
+                        synchronized (analyzeLock) {
+                            this.analyzedItems++;
+                        }
+                        progressBar.setValue(this.analyzedItems);
+                    };
 
-                    this.mainUI.getRegexScanner().analyzeProxyHistory(progressBar);
+                    // start scan
+                    this.mainUI.getRegexScanner().analyzeProxyHistory(singleItemCallback, this::addLogEntry);
 
+                    // post scan
                     analysisButton.setText(previousText);
                     logsTable.setAutoCreateRowSorter(true);
                     analyzeProxyHistoryThread = null;
@@ -230,10 +261,10 @@ public class LoggerTab implements ApplicationTab {
     }
 
     private JScrollPane createLogEntriesTable() {
-        logsTableModel = new LogsTableModel(this.mainUI.getLogEntries());
+        logsTableModel = new LogsTableModel(logEntries);
         this.originalRequestViewer = this.mainUI.getCallbacks().createTextEditor();
         this.originalResponseViewer = this.mainUI.getCallbacks().createTextEditor();
-        this.logsTable = new LogsTable(logsTableModel, this.mainUI.getLogEntries(), this.originalRequestViewer, this.originalResponseViewer);
+        this.logsTable = new LogsTable(logsTableModel, logEntries, this.originalRequestViewer, this.originalResponseViewer);
         // disable sorting on columns while scanning. This helps to prevent Swing exceptions.
         logsTable.getTableHeader().putClientProperty("analysisDependent", "1");
 
@@ -251,10 +282,10 @@ public class LoggerTab implements ApplicationTab {
                     logsTable.setRowSelectionInterval(row, row);
                     if (logsTable.getSelectedRowCount() == 1) {
                         int realRow = logsTable.convertRowIndexToModel(row);
-                        LogEntity logentry = mainUI.getLogEntries().get(realRow);
+                        LogEntity logentry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogsTable) {
-                            new LogsTableContextMenu(logentry, mainUI.getLogEntries(), originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getCallbacks(), isAnalysisRunning)
+                            new LogsTableContextMenu(logentry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getCallbacks(), isAnalysisRunning)
                                     .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
@@ -329,7 +360,7 @@ public class LoggerTab implements ApplicationTab {
         btnClearLogs.addActionListener(e -> {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("logger-clearLogs-confirm"));
             if (dialog == JOptionPane.YES_OPTION) {
-                mainUI.getLogEntries().clear();
+                logEntries.clear();
                 logsTableModel.clear();
 
                 originalResponseViewer.setText(new byte[0]);
@@ -353,6 +384,16 @@ public class LoggerTab implements ApplicationTab {
         gbc.weighty = weighty;
         gbc.fill = fill;
         return gbc;
+    }
+
+    public void addLogEntry(LogEntity logEntry) {
+        int row = logEntries.size();
+
+        if (!logEntries.contains(logEntry)) {
+            logEntries.add(logEntry);
+            //TODO replace with an observer on logEntries, in LoggerTab
+            mainUI.logTableEntriesUIAddNewRow(row);
+        }
     }
 
     @Override

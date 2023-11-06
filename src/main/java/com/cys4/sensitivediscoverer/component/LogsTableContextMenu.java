@@ -98,7 +98,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyDescription")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection stsel = new StringSelection(le.getDescription());
+                StringSelection stsel = new StringSelection(le.getRegexEntity().getDescription());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(stsel, stsel);
             }
@@ -107,7 +107,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyRegex")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection stsel = new StringSelection(le.getRegex());
+                StringSelection stsel = new StringSelection(le.getRegexEntity().getRegex());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(stsel, stsel);
             }

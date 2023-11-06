@@ -12,7 +12,7 @@ public class LogEntity {
     private final int idRequest;
     private final IHttpRequestResponse requestResponse;
     private final URL url;
-    private final String regex;
+    private final RegexEntity regexEntity;
     /**
      * string from the body that matches
      */
@@ -20,14 +20,12 @@ public class LogEntity {
     private final String host;
     private final int port;
     private final boolean isSSL;
-    private final String description;
 
-    public LogEntity(IHttpRequestResponse requestResponse, int requestNumber, URL url, String description, String regex, String match) {
+    public LogEntity(IHttpRequestResponse requestResponse, int requestNumber, URL url, RegexEntity regexEntity, String match) {
         this.idRequest = requestNumber;
         this.requestResponse = requestResponse;
         this.url = url;
-        this.description = description;
-        this.regex = regex;
+        this.regexEntity = regexEntity;
         this.match = match;
         this.host = requestResponse.getHttpService().getHost();
         String protocol = requestResponse.getHttpService().getProtocol();
@@ -47,8 +45,8 @@ public class LogEntity {
         return requestResponse;
     }
 
-    public String getRegex() {
-        return regex;
+    public RegexEntity getRegexEntity() {
+        return regexEntity;
     }
 
     public String getMatch() {
@@ -91,12 +89,8 @@ public class LogEntity {
             secondUrl = ((LogEntity) o).url.toString();
         }
 
-        return (((LogEntity) o).regex.equals(this.regex)) &&
+        return (((LogEntity) o).regexEntity.getRegex().equals(this.regexEntity.getRegex())) &&
                 firstUrl.equals(secondUrl) &&
                 ((LogEntity) o).match.equals(this.match);
-    }
-
-    public String getDescription() {
-        return this.description;
     }
 }
