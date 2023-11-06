@@ -1,13 +1,15 @@
 package com.cys4.sensitivediscoverer;
 
+import com.cys4.sensitivediscoverer.model.ScannerOptions;
+
 import java.awt.event.ActionEvent;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class OptionsScannerUpdateMaxSizeListener extends OptionsScannerUpdateListener {
 
-    public OptionsScannerUpdateMaxSizeListener(MainUI mainUI) {
-        super(mainUI);
+    public OptionsScannerUpdateMaxSizeListener(ScannerOptions scannerOptions) {
+        super(scannerOptions);
     }
 
     @Override
@@ -17,8 +19,8 @@ public class OptionsScannerUpdateMaxSizeListener extends OptionsScannerUpdateLis
             if (newMaxSizeValue < 1)
                 throw new NumberFormatException(getLocaleString("exception-sizeMustBeGreaterEqualThanOne"));
 
-            this.mainUI.setMaxSizeValueOption(newMaxSizeValue);
-            currentValueLabel.setText(String.valueOf(this.mainUI.getMaxSizeValueOption()));
+            scannerOptions.setConfigMaxResponseSize(newMaxSizeValue);
+            currentValueLabel.setText(String.valueOf(scannerOptions.getConfigMaxResponseSize()));
         } catch (NumberFormatException ignored) {
         }
     }

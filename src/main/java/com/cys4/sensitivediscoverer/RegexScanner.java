@@ -7,6 +7,7 @@ package com.cys4.sensitivediscoverer;
 import burp.*;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -22,9 +23,9 @@ import java.util.stream.Stream;
 
 public class RegexScanner {
 
-    private final MainUI mainUI;
     private final IExtensionHelpers helpers;
     private final IBurpExtenderCallbacks callbacks;
+    private final ScannerOptions scannerOptions;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
     /**
@@ -37,18 +38,12 @@ public class RegexScanner {
      * Used to interrupt scan before completion.
      */
     private boolean interruptScan;
-    /**
-     * Number of threads to use during the scan
-     */
-    private int numThreads;
-
-    public RegexScanner(int numThreads,
-                        MainUI mainUI,
+    public RegexScanner(MainUI mainUI,
+                        ScannerOptions scannerOptions,
                         List<RegexEntity> generalRegexList,
                         List<RegexEntity> extensionsRegexList) {
-        this.numThreads = numThreads;
-        this.mainUI = mainUI;
         this.callbacks = mainUI.getCallbacks();
+        this.scannerOptions = scannerOptions;
         this.helpers = callbacks.getHelpers();
         this.generalRegexList = generalRegexList;
         this.extensionsRegexList = extensionsRegexList;
@@ -59,8 +54,9 @@ public class RegexScanner {
 
     /**
      * Method for analyzing the elements in Burp > Proxy > HTTP history
+     *
      * @param itemAnalyzedCallback A callback that's called after analysing each item with the maxItemsCount as the argument
-     * @param logEntriesCallback A callback that's called for every new finding, with the LogEntity as an argument
+     * @param logEntriesCallback   A callback that's called for every new finding, with the LogEntity as an argument
      */
     public void analyzeProxyHistory(Consumer<Integer> itemAnalyzedCallback, Consumer<LogEntity> logEntriesCallback) {
         IHttpRequestResponse[] httpProxyItems = callbacks.getProxyHistory();
@@ -72,11 +68,11 @@ public class RegexScanner {
                 .toList();
 
         // setup filter parameters for analysis
-        boolean inScope = MainUI.isInScopeOptionSelected();
-        boolean checkMimeType = MainUI.isSkipMediaTypeOptionSelected();
-        int maxRequestSize = MainUI.isSkipMaxSizeOptionSelected() ? this.mainUI.getMaxSizeValueOption() : -1;
+        boolean inScope = scannerOptions.isFilterInScopeCheckbox();
+        boolean checkMimeType = scannerOptions.isFilterSkipMediaTypeCheckbox();
+        int maxRequestSize = scannerOptions.isFilterSkipMaxSizeCheckbox() ? scannerOptions.getConfigMaxResponseSize() : -1;
 
-        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        ExecutorService executor = Executors.newFixedThreadPool(scannerOptions.getConfigNumberOfThreads());
         for (int i = 0; i < httpProxyItems.length; i++) {
             IHttpRequestResponse httpProxyItem = httpProxyItems[i];
             int reqNumber = i + 1;
@@ -219,13 +215,5 @@ public class RegexScanner {
 
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
-    }
-
-    public int getNumThreads() {
-        return numThreads;
-    }
-
-    public void setNumThreads(int numThreads) {
-        this.numThreads = numThreads;
     }
 }

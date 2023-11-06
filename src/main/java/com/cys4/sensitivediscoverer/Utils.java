@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
@@ -142,5 +143,18 @@ public class Utils {
                 setEnabledRecursive(child, enabled);
             }
         }
+    }
+
+    public static Properties loadConfigFile() throws Exception {
+        Properties properties;
+
+        InputStream input = Utils.class.getClassLoader().getResourceAsStream("config.properties");
+        properties = new Properties();
+        properties.load(input);
+        return properties;
+    }
+
+    public static String getExtensionVersion() {
+        return Utils.class.getPackage().getImplementationVersion();
     }
 }

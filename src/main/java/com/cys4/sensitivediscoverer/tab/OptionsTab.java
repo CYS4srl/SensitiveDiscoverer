@@ -3,6 +3,7 @@ package com.cys4.sensitivediscoverer.tab;
 import com.cys4.sensitivediscoverer.*;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.RegexListViewer;
+import com.cys4.sensitivediscoverer.model.ScannerOptions;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -18,9 +19,11 @@ public class OptionsTab implements ApplicationTab {
     private final Color ACCENT_COLOR = new Color(255, 102, 51);
     private final JPanel panel;
     private final MainUI mainUI;
+    private final ScannerOptions scannerOptions;
 
-    public OptionsTab(MainUI mainUI) {
+    public OptionsTab(MainUI mainUI, ScannerOptions scannerOptions) {
         this.mainUI = mainUI;
+        this.scannerOptions = scannerOptions;
         this.panel = this.createPanel();
     }
 
@@ -60,8 +63,8 @@ public class OptionsTab implements ApplicationTab {
         JPanel boxHeader;
         JPanel boxCenter;
 
-        OptionsScannerUpdateListener threadNumListener = new OptionsScannerUpdateNumThreadsListener(mainUI);
-        OptionsScannerUpdateListener responseSizeListener = new OptionsScannerUpdateMaxSizeListener(mainUI);
+        OptionsScannerUpdateListener threadNumListener = new OptionsScannerUpdateNumThreadsListener(scannerOptions);
+        OptionsScannerUpdateListener responseSizeListener = new OptionsScannerUpdateMaxSizeListener(scannerOptions);
 
         boxHeader = new JPanel(new GridBagLayout());
         createConfigurationPanels(boxHeader, threadNumListener, responseSizeListener);
@@ -190,8 +193,8 @@ public class OptionsTab implements ApplicationTab {
 
         JCheckBox inScopeCheckbox = new JCheckBox();
         inScopeCheckbox.setText(getLocaleString("options-filters-showOnlyInScopeItems"));
-        inScopeCheckbox.getModel().setSelected(MainUI.inScopeCheckbox);
-        inScopeCheckbox.addActionListener(e -> MainUI.inScopeCheckbox = inScopeCheckbox.getModel().isSelected());
+        inScopeCheckbox.getModel().setSelected(scannerOptions.isFilterInScopeCheckbox());
+        inScopeCheckbox.addActionListener(e -> scannerOptions.setFilterInScopeCheckbox(inScopeCheckbox.getModel().isSelected()));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -200,8 +203,8 @@ public class OptionsTab implements ApplicationTab {
 
         JCheckBox skipMaxSizeCheckbox = new JCheckBox();
         skipMaxSizeCheckbox.setText(getLocaleString("options-filters-skipResponsesOverSetSize"));
-        skipMaxSizeCheckbox.getModel().setSelected(MainUI.skipMaxSizeCheckbox);
-        skipMaxSizeCheckbox.addActionListener(e -> MainUI.skipMaxSizeCheckbox = skipMaxSizeCheckbox.getModel().isSelected());
+        skipMaxSizeCheckbox.getModel().setSelected(scannerOptions.isFilterSkipMaxSizeCheckbox());
+        skipMaxSizeCheckbox.addActionListener(e -> scannerOptions.setFilterSkipMaxSizeCheckbox(skipMaxSizeCheckbox.getModel().isSelected()));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -210,8 +213,8 @@ public class OptionsTab implements ApplicationTab {
 
         JCheckBox skipMediaTypeCheckbox = new JCheckBox();
         skipMediaTypeCheckbox.setText(getLocaleString("options-filters-skipMediaTypeResponses"));
-        skipMediaTypeCheckbox.getModel().setSelected(MainUI.skipMediaTypeCheckbox);
-        skipMediaTypeCheckbox.addActionListener(e -> MainUI.skipMediaTypeCheckbox = skipMediaTypeCheckbox.getModel().isSelected());
+        skipMediaTypeCheckbox.getModel().setSelected(scannerOptions.isFilterSkipMediaTypeCheckbox());
+        skipMediaTypeCheckbox.addActionListener(e -> scannerOptions.setFilterSkipMediaTypeCheckbox(skipMediaTypeCheckbox.getModel().isSelected()));
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -293,7 +296,7 @@ public class OptionsTab implements ApplicationTab {
 
 
         // setup values and listener
-        currentValueLabel.setText(String.valueOf(this.mainUI.getMaxSizeValueOption()));
+        currentValueLabel.setText(String.valueOf(scannerOptions.getConfigMaxResponseSize()));
         updateListener.setCurrentValueLabel(currentValueLabel);
         updateListener.setUpdatedStatusField(updateValueField);
         updateValueButton.addActionListener(updateListener);
@@ -371,7 +374,7 @@ public class OptionsTab implements ApplicationTab {
 
 
         // setup values and listener
-        currentValueLabel.setText(String.valueOf(this.mainUI.getRegexScanner().getNumThreads()));
+        currentValueLabel.setText(String.valueOf(scannerOptions.getConfigNumberOfThreads()));
         updateListener.setCurrentValueLabel(currentValueLabel);
         updateListener.setUpdatedStatusField(updateValueField);
         updateValueButton.addActionListener(updateListener);

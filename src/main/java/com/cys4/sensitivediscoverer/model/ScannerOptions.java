@@ -1,0 +1,66 @@
+package com.cys4.sensitivediscoverer.model;
+
+public class ScannerOptions {
+
+    /**
+     * Checkbox to skip responses not in scope
+     */
+    private boolean filterInScopeCheckbox = false;
+    /**
+     * Checkbox to skip responses over a set max size
+     */
+    private boolean filterSkipMaxSizeCheckbox = true;
+    /**
+     * Checkbox to skip responses of a media MIME-type
+     */
+    private boolean filterSkipMediaTypeCheckbox = true;
+
+    /**
+     * Max response size in bytes
+     */
+    private int configMaxResponseSize;
+    /**
+     * Number of threads to use to scan items
+     */
+    private int configNumberOfThreads;
+
+    public boolean isFilterInScopeCheckbox() {
+        return filterInScopeCheckbox;
+    }
+
+    public void setFilterInScopeCheckbox(boolean filterInScopeCheckbox) {
+        this.filterInScopeCheckbox = filterInScopeCheckbox;
+    }
+
+    public boolean isFilterSkipMaxSizeCheckbox() {
+        return filterSkipMaxSizeCheckbox;
+    }
+
+    public void setFilterSkipMaxSizeCheckbox(boolean filterSkipMaxSizeCheckbox) {
+        this.filterSkipMaxSizeCheckbox = filterSkipMaxSizeCheckbox;
+    }
+
+    public boolean isFilterSkipMediaTypeCheckbox() {
+        return filterSkipMediaTypeCheckbox;
+    }
+
+    public void setFilterSkipMediaTypeCheckbox(boolean filterSkipMediaTypeCheckbox) {
+        this.filterSkipMediaTypeCheckbox = filterSkipMediaTypeCheckbox;
+    }
+
+    public int getConfigMaxResponseSize() {
+        return configMaxResponseSize;
+    }
+
+    public void setConfigMaxResponseSize(int configMaxResponseSize) {
+        this.configMaxResponseSize = configMaxResponseSize;
+    }
+
+    public int getConfigNumberOfThreads() {
+        return configNumberOfThreads;
+    }
+
+    public void setConfigNumberOfThreads(int configNumberOfThreads) {
+        this.configNumberOfThreads = configNumberOfThreads;
+    }
+}
