@@ -24,6 +24,8 @@ public class OptionsTab implements ApplicationTab {
     public OptionsTab(MainUI mainUI, ScannerOptions scannerOptions) {
         this.mainUI = mainUI;
         this.scannerOptions = scannerOptions;
+
+        // leave as last call
         this.panel = this.createPanel();
     }
 

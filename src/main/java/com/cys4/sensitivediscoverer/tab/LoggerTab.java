@@ -6,12 +6,14 @@ package com.cys4.sensitivediscoverer.tab;
 
 import burp.ITextEditor;
 import com.cys4.sensitivediscoverer.MainUI;
+import com.cys4.sensitivediscoverer.RegexScanner;
 import com.cys4.sensitivediscoverer.Utils;
 import com.cys4.sensitivediscoverer.component.LogsTable;
 import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
 import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
+import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -48,6 +50,7 @@ public class LoggerTab implements ApplicationTab {
     private final List<LogEntity> logEntries;
     private final Object analyzeLock = new Object();
     private final Object loggerLock = new Object();
+    private final RegexScanner regexScanner;
     private ITextEditor originalRequestViewer;
     private ITextEditor originalResponseViewer;
     private LogsTable logsTable;
@@ -60,11 +63,16 @@ public class LoggerTab implements ApplicationTab {
     private int analyzedItems = 0;
 
 
-    public LoggerTab(MainUI mainUI) {
+    public LoggerTab(MainUI mainUI, ScannerOptions scannerOptions) {
         this.mainUI = mainUI;
         this.isAnalysisRunning = false;
         this.analyzeProxyHistoryThread = null;
         this.logEntries = new ArrayList<>();
+        this.regexScanner = new RegexScanner(
+                mainUI,
+                scannerOptions,
+                mainUI.getGeneralRegexList(),
+                mainUI.getExtensionsRegexList());
 
         // keep as last call
         this.panel = this.createPanel();
@@ -222,7 +230,7 @@ public class LoggerTab implements ApplicationTab {
                     };
 
                     // start scan
-                    this.mainUI.getRegexScanner().analyzeProxyHistory(singleItemCallback, this::addLogEntry);
+                    regexScanner.analyzeProxyHistory(singleItemCallback, this::addLogEntry);
 
                     // post scan
                     analysisButton.setText(previousText);
@@ -240,12 +248,12 @@ public class LoggerTab implements ApplicationTab {
 
                 analysisButton.setEnabled(false);
                 analysisButton.setText(textAnalysisStopping);
-                this.mainUI.getRegexScanner().setInterruptScan(true);
+                regexScanner.setInterruptScan(true);
 
                 new Thread(() -> {
                     try {
                         analyzeProxyHistoryThread.join();
-                        this.mainUI.getRegexScanner().setInterruptScan(false);
+                        regexScanner.setInterruptScan(false);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

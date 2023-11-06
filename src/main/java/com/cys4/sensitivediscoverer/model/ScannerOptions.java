@@ -5,15 +5,15 @@ public class ScannerOptions {
     /**
      * Checkbox to skip responses not in scope
      */
-    private boolean filterInScopeCheckbox = false;
+    private boolean filterInScopeCheckbox;
     /**
      * Checkbox to skip responses over a set max size
      */
-    private boolean filterSkipMaxSizeCheckbox = true;
+    private boolean filterSkipMaxSizeCheckbox;
     /**
      * Checkbox to skip responses of a media MIME-type
      */
-    private boolean filterSkipMediaTypeCheckbox = true;
+    private boolean filterSkipMediaTypeCheckbox;
 
     /**
      * Max response size in bytes
