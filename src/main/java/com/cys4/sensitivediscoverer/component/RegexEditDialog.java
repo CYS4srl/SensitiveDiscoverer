@@ -1,6 +1,5 @@
 package com.cys4.sensitivediscoverer.component;
 
-import com.cys4.sensitivediscoverer.SpringUtilities;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
@@ -39,46 +38,65 @@ public class RegexEditDialog {
      * @return a boolean indicating if the user confirmed the dialog.
      */
     public boolean showDialog(Component parentComponent, String dialogTitle, EnumSet<ProxyItemSection> regexSections) {
-        //Create and populate the panel.
-        String[] labels = {
-                "%s: ".formatted(getLocaleString("common-regex")),
-                "%s: ".formatted(getLocaleString("common-description"))
-        };
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        JPanel mainPanel;
+        JPanel contentPanel;
+        GridBagConstraints gbc;
+
+        mainPanel = new JPanel(new BorderLayout(0, 12));
+        contentPanel = new JPanel(new GridBagLayout());
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+
+        // header
         JLabel labelSummary = new JLabel("%s: %s".formatted(
                 getLocaleString("options-list-regexModal-matchedSections"),
                 regexSections.toString()
-        ), JLabel.TRAILING);
-        mainPanel.add(labelSummary);
+        ));
+        mainPanel.add(labelSummary, BorderLayout.NORTH);
 
-        JPanel inputPanel = new JPanel(new SpringLayout());
-        mainPanel.add(inputPanel);
+        // regex
+        JLabel regexLabel = new JLabel("%s: ".formatted(getLocaleString("common-regex")));
+        regexLabel.setVerticalTextPosition(SwingConstants.CENTER);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 6, 0);
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        contentPanel.add(regexLabel, gbc);
+        JTextField regexTextField = new JTextField(10);
+        regexTextField.setText(this.regex);
+        regexLabel.setLabelFor(regexTextField);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 6, 0);
+        gbc.fill = GridBagConstraints.BOTH;
+        contentPanel.add(regexTextField, gbc);
 
-        JLabel labelExpression = new JLabel(labels[0], JLabel.TRAILING);
-        inputPanel.add(labelExpression);
-        JTextField textFieldRegex = new JTextField(10);
-        textFieldRegex.setText(this.regex);
-        labelExpression.setLabelFor(textFieldRegex);
-        inputPanel.add(textFieldRegex);
-
-        JLabel labelDescription = new JLabel(labels[1], JLabel.TRAILING);
-        inputPanel.add(labelDescription);
-        JTextField textFieldDescription = new JTextField(10);
-        textFieldDescription.setText(this.description);
-        labelDescription.setLabelFor(textFieldDescription);
-        inputPanel.add(textFieldDescription);
-
-        //Lay out the panel.
-        SpringUtilities.makeCompactGrid(inputPanel,
-                labels.length, 2, //rows, cols
-                6, 6,        //initX, initY
-                6, 6);       //xPad, yPad
+        // description
+        JLabel descriptionLabel = new JLabel("%s: ".formatted(getLocaleString("common-description")));
+        descriptionLabel.setVerticalTextPosition(SwingConstants.CENTER);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        contentPanel.add(descriptionLabel, gbc);
+        JTextField descriptionTextField = new JTextField(10);
+        descriptionTextField.setText(this.description);
+        descriptionLabel.setLabelFor(descriptionTextField);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        contentPanel.add(descriptionTextField, gbc);
 
         int returnValue = JOptionPane.showConfirmDialog(parentComponent, mainPanel, dialogTitle, JOptionPane.YES_NO_OPTION);
         if (returnValue != JOptionPane.YES_OPTION) return false;
-        this.regex = textFieldRegex.getText();
-        this.description = textFieldDescription.getText();
+        this.regex = regexTextField.getText();
+        this.description = descriptionTextField.getText();
         return true;
     }
 
