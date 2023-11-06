@@ -6,7 +6,6 @@ package com.cys4.sensitivediscoverer;
 
 import burp.IBurpExtenderCallbacks;
 import burp.ITab;
-import com.cys4.sensitivediscoverer.model.LogsTableModel;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import com.cys4.sensitivediscoverer.tab.AboutTab;
@@ -33,7 +32,6 @@ public class MainUI implements ITab {
 
     // ui components
     private JTabbedPane mainPanel;
-    private LogsTableModel logsTableModel;
 
     public MainUI(IBurpExtenderCallbacks callbacks) throws Exception {
 
@@ -60,14 +58,6 @@ public class MainUI implements ITab {
     }
 
     /**
-     * TODO: replace
-     * notifies logTablesEntriesUI of a newly added row
-     */
-    public void logTableEntriesUIAddNewRow(int row) {
-        logsTableModel.addNewRow(row);
-    }
-
-    /**
      * Main function that initializes the extension and creates the UI, asynchronously
      */
     public void initialize() {
@@ -82,8 +72,6 @@ public class MainUI implements ITab {
         mainPanel.addTab(optionsTab.getTabName(), optionsTab.getPanel());
         ApplicationTab aboutTab = new AboutTab();
         mainPanel.addTab(aboutTab.getTabName(), aboutTab.getPanel());
-
-        logsTableModel = loggerTab.getLogTableEntriesUI();
 
         callbacks.customizeUiComponent(mainPanel);
         callbacks.addSuiteTab(MainUI.this);

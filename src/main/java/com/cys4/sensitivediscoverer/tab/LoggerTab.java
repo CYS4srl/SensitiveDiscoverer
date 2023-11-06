@@ -47,6 +47,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private final List<LogEntity> logEntries;
     private final Object analyzeLock = new Object();
+    private final Object loggerLock = new Object();
     private ITextEditor originalRequestViewer;
     private ITextEditor originalResponseViewer;
     private LogsTable logsTable;
@@ -67,10 +68,6 @@ public class LoggerTab implements ApplicationTab {
 
         // keep as last call
         this.panel = this.createPanel();
-    }
-
-    public LogsTableModel getLogTableEntriesUI() {
-        return logsTableModel;
     }
 
     private JPanel createPanel() {
@@ -387,12 +384,13 @@ public class LoggerTab implements ApplicationTab {
     }
 
     public void addLogEntry(LogEntity logEntry) {
-        int row = logEntries.size();
+        synchronized (loggerLock) {
+            int row = logEntries.size();
 
-        if (!logEntries.contains(logEntry)) {
-            logEntries.add(logEntry);
-            //TODO replace with an observer on logEntries, in LoggerTab
-            mainUI.logTableEntriesUIAddNewRow(row);
+            if (!logEntries.contains(logEntry)) {
+                logEntries.add(logEntry);
+                logsTableModel.addNewRow(row);
+            }
         }
     }
 
