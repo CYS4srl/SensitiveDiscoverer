@@ -38,11 +38,11 @@ public class RegexScanner {
      */
     private boolean interruptScan;
 
-    public RegexScanner(MainUI mainUI,
+    public RegexScanner(IBurpExtenderCallbacks burpExtenderCallbacks,
                         ScannerOptions scannerOptions,
                         List<RegexEntity> generalRegexList,
                         List<RegexEntity> extensionsRegexList) {
-        this.callbacks = mainUI.getCallbacks();
+        this.callbacks = burpExtenderCallbacks;
         this.scannerOptions = scannerOptions;
         this.helpers = callbacks.getHelpers();
         this.generalRegexList = generalRegexList;

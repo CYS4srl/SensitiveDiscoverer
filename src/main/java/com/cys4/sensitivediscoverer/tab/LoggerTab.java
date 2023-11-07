@@ -66,7 +66,7 @@ public class LoggerTab implements ApplicationTab {
         this.analyzeProxyHistoryThread = null;
         this.logEntries = new ArrayList<>();
         this.regexScanner = new RegexScanner(
-                mainUI,
+                this.mainUI.getCallbacks(),
                 scannerOptions,
                 mainUI.getGeneralRegexList(),
                 mainUI.getExtensionsRegexList());

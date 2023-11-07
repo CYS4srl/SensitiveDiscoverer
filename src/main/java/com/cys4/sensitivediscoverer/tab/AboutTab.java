@@ -4,7 +4,6 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.tab;
 
-import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.Utils;
 
 import javax.imageio.ImageIO;
@@ -281,7 +280,7 @@ public class AboutTab implements ApplicationTab {
         main.add(footer, gbc);
         JLabel footerIcon = new JLabel();
         try {
-            BufferedImage logoImage = ImageIO.read(Objects.requireNonNull(MainUI.class.getClassLoader().getResource("logo.png")));
+            BufferedImage logoImage = ImageIO.read(Objects.requireNonNull(Utils.getResourceAsStream("logo.png")));
             footerIcon.setIcon(new ImageIcon(logoImage.getScaledInstance(400, -1, Image.SCALE_DEFAULT)));
             footerIcon.setText("");
         } catch (Exception ignored) {
