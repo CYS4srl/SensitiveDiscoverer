@@ -4,8 +4,6 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.model;
 
-import com.cys4.sensitivediscoverer.model.RegexEntity;
-
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -26,7 +24,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -35,15 +33,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
             case 0 -> getLocaleString("common-active");
             case 1 -> getLocaleString("common-regex");
             case 2 -> getLocaleString("common-description");
-            default -> "";
-        };
-    }
-
-    public String getColumnNameFormatted(int columnIndex) {
-        return switch (columnIndex) {
-            case 0 -> "active";
-            case 1 -> "regex";
-            case 2 -> "description";
+            case 3 -> getLocaleString("common-sections");
             default -> "";
         };
     }
@@ -69,6 +59,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
             case 0 -> regexEntry.isActive();
             case 1 -> regexEntry.getRegex();
             case 2 -> regexEntry.getDescription();
+            case 3 -> regexEntry.getSectionsHumanReadable();
             default -> "";
         };
     }

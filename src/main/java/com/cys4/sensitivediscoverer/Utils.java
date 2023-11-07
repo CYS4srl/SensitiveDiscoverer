@@ -4,16 +4,25 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer;
 
+import com.cys4.sensitivediscoverer.model.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -160,10 +169,146 @@ public class Utils {
 
     /**
      * Returns an input stream for reading the specified resource.
+     *
      * @param name The resource name
      * @return An input stream for reading the resource; null if the resource could not be found or there was an error.
      */
     public static InputStream getResourceAsStream(String name) {
         return Utils.class.getClassLoader().getResourceAsStream(name);
+    }
+
+    public static void saveListToCSV(List<RegexEntity> regexEntities) {
+        List<String> lines = new ArrayList<>();
+
+        lines.add("\"description\",\"regex\",\"sections\"");
+        regexEntities.forEach(regexEntity -> {
+            String description = regexEntity.getDescription().replaceAll("\"", "\"\"");
+            String regex = regexEntity.getRegex().replaceAll("\"", "\"\"");
+            String sections = String
+                    .join("|", ProxyItemSection.serializeSections(regexEntity.getSections()))
+                    .replaceAll("\"", "\"\"");
+            lines.add(String.format("\"%s\",\"%s\",\"%s\"", description, regex, sections));
+        });
+
+        Utils.saveToFile("csv", lines);
+    }
+
+    public static void saveListToJSON(List<RegexEntity> regexEntities) {
+        List<JsonObject> lines = new ArrayList<>();
+
+        regexEntities.forEach(regexEntity -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("description", regexEntity.getDescription());
+            obj.addProperty("regex", regexEntity.getRegex());
+            JsonArray sections = new JsonArray();
+            ProxyItemSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
+            obj.add("sections", sections);
+            lines.add(obj);
+        });
+
+        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
+        Gson gson = builder.create();
+        Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
+        }).getType();
+        Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+    }
+
+    public static void openListFromCSV(RegexListContext ctx) {
+        StringBuilder alreadyAddedMsg = new StringBuilder();
+
+        List<String> lines = Utils.linesFromFile("csv");
+        if (Objects.isNull(lines)) return;
+
+        // for each line after the first (Headers Line)
+        lines.subList(1, lines.size()).forEach(line -> {
+            Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
+            if (!matcher.find()) return;
+
+            String description = matcher.group(1).replaceAll("\"\"", "\"");
+            String regex = matcher.group(2).replaceAll("\"\"", "\"");
+            List<String> sections = List.of(matcher.group(3).replaceAll("\"\"", "\"").split("\\|"));
+
+            RegexEntity newRegexEntity = new RegexEntity(
+                    description,
+                    regex,
+                    true,
+                    ProxyItemSection.deserializeSections(sections)
+            );
+
+            if (!ctx.getRegexEntities().contains(newRegexEntity)) {
+                ctx.getRegexEntities().add(newRegexEntity);
+            } else {
+                alreadyAddedMsg.append(String.format("%s - %s\n", newRegexEntity.getDescription(), newRegexEntity.getRegex()));
+            }
+        });
+
+        showMessageDialog(
+                getLocaleString("options-list-open-alreadyPresentTitle"),
+                getLocaleString("options-list-open-alreadyPresentWarn"),
+                alreadyAddedMsg.toString());
+    }
+
+    public static void openListFromJSON(RegexListContext ctx) {
+        Gson gson = new Gson();
+        StringBuilder alreadyAddedMsg = new StringBuilder();
+
+        List<String> lines = Utils.linesFromFile("json");
+        if (Objects.isNull(lines)) return;
+
+        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
+        }.getType();
+        Stream.of(String.join("", lines))
+                .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .map(element -> new RegexEntity(
+                        element.getDescription(),
+                        element.getRegex(),
+                        true,
+                        ProxyItemSection.deserializeSections(element.getSections())))
+                .forEachOrdered(regexEntity -> {
+                    if (!ctx.getRegexEntities().contains(regexEntity)) {
+                        ctx.getRegexEntities().add(regexEntity);
+                    } else {
+                        alreadyAddedMsg
+                                .append(regexEntity.getDescription())
+                                .append(" - ")
+                                .append(regexEntity.getRegex())
+                                .append("\n");
+                    }
+                });
+
+        showMessageDialog(
+                getLocaleString("options-list-open-alreadyPresentTitle"),
+                getLocaleString("options-list-open-alreadyPresentWarn"),
+                alreadyAddedMsg.toString());
+    }
+
+    /**
+     * Shows an information dialog containing a header paragraph, and a message below.
+     * If the message is empty, the dialog is not shown.
+     *
+     * @param title         The dialog window title
+     * @param headerMessage The Message to show in the header at the top
+     * @param message       The message to show under the headerMessage
+     */
+    private static void showMessageDialog(String title, String headerMessage, String message) {
+        if (message.isBlank()) return;
+
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 6));
+        JLabel headerLabel = new JLabel(headerMessage + ":");
+        headerLabel.setFont(UIOptions.H1_FONT);
+        mainPanel.add(headerLabel, BorderLayout.NORTH);
+        JTextArea messageTextArea = new JTextArea(message);
+        messageTextArea.setEditable(false);
+        mainPanel.add(messageTextArea, BorderLayout.CENTER);
+
+        JDialog alreadyAddedDialog = new JDialog();
+        JOptionPane.showMessageDialog(
+                alreadyAddedDialog,
+                mainPanel,
+                title,
+                JOptionPane.INFORMATION_MESSAGE);
+        alreadyAddedDialog.setVisible(true);
     }
 }

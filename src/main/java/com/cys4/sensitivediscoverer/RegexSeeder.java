@@ -22,7 +22,8 @@ public class RegexSeeder {
     private static final Gson gson = new Gson();
 
     private static List<RegexEntity> fill(String[] regexFiles) {
-        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {}.getType();
+        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
+        }.getType();
 
         return Stream.of(regexFiles)
                 .map(Utils::readResourceFile)
@@ -33,7 +34,7 @@ public class RegexSeeder {
                         element.getDescription(),
                         element.getRegex(),
                         element.isActive(),
-                        ProxyItemSection.parseSectionsToMatch(element.getSections())))
+                        ProxyItemSection.deserializeSections(element.getSections())))
                 .collect(Collectors.toList());
     }
 

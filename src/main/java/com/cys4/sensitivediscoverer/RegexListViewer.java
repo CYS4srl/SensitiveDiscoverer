@@ -3,21 +3,16 @@ package com.cys4.sensitivediscoverer;
 import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.component.RegexEditDialog;
 import com.cys4.sensitivediscoverer.component.RegexListViewerTable;
-import com.cys4.sensitivediscoverer.model.*;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
+import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.RegexListContext;
+import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
+import com.cys4.sensitivediscoverer.model.UIOptions;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.*;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -30,15 +25,14 @@ public class RegexListViewer {
      * The components are mainly a table to display the regexes and some buttons to do operations on the list.
      * The input regexEntities is modified accordingly each time an action is performed.
      *
-     * @param regexEntities      The list of regexes that the list keeps track of.
-     * @param resetRegexSeeder   default set of regexes when the list is cleared.
-     * @param newRegexesSections BurpSuite's Request/Response sections where the regex is applied.
+     * @param regexEntities    The list of regexes that the list keeps track of.
+     * @param resetRegexSeeder default set of regexes when the list is cleared.
      */
     public RegexListViewer(String title,
                            String description,
                            List<RegexEntity> regexEntities,
-                           Supplier<List<RegexEntity>> resetRegexSeeder, EnumSet<ProxyItemSection> newRegexesSections) {
-        this.panel = createRegexListViewer(title, description, regexEntities, resetRegexSeeder, newRegexesSections);
+                           Supplier<List<RegexEntity>> resetRegexSeeder) {
+        this.panel = createRegexListViewer(title, description, regexEntities, resetRegexSeeder);
     }
 
     public JPanel getPanel() {
@@ -48,7 +42,7 @@ public class RegexListViewer {
     private JPanel createRegexListViewer(String title,
                                          String description,
                                          List<RegexEntity> regexEntities,
-                                         Supplier<List<RegexEntity>> resetRegexSeeder, EnumSet<ProxyItemSection> newRegexesSections) {
+                                         Supplier<List<RegexEntity>> resetRegexSeeder) {
         JPanel container;
         JPanel header;
         JPanel body;
@@ -60,7 +54,7 @@ public class RegexListViewer {
         header = createRegexListViewerHeader(title, description);
         container.add(header, BorderLayout.NORTH);
 
-        body = createRegexListViewerBody(regexEntities, resetRegexSeeder, newRegexesSections);
+        body = createRegexListViewerBody(regexEntities, resetRegexSeeder);
         container.add(body, BorderLayout.CENTER);
 
         return container;
@@ -119,15 +113,14 @@ public class RegexListViewer {
         return header;
     }
 
-    private JPanel createRegexListViewerBody(List<RegexEntity> regexEntities,
-                                             Supplier<List<RegexEntity>> resetRegexSeeder, EnumSet<ProxyItemSection> newRegexesSections) {
+    private JPanel createRegexListViewerBody(List<RegexEntity> regexEntities, Supplier<List<RegexEntity>> resetRegexSeeder) {
         JPanel container;
         JPanel containerRight;
         JPanel containerCenter;
         GridBagConstraints gbc;
 
         RegexListContext ctx = new RegexListContext(regexEntities);
-        RegexListViewerTableModel modelReg = new RegexListViewerTableModel(ctx.getRegexEntities());
+        RegexListViewerTableModel tableModel = new RegexListViewerTableModel(ctx.getRegexEntities());
 
         container = new JPanel(new BorderLayout(0, 0));
         containerCenter = new JPanel(new GridBagLayout());
@@ -136,7 +129,7 @@ public class RegexListViewer {
         container.add(containerRight, BorderLayout.EAST);
 
         // table
-        JTable regexTable = new RegexListViewerTable(modelReg);
+        JTable regexTable = new RegexListViewerTable(tableModel);
         final JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(regexTable);
         gbc = createGridConstraints(0, 0, 1.0, 1.0, GridBagConstraints.CENTER);
@@ -144,35 +137,33 @@ public class RegexListViewer {
         containerCenter.add(scrollPane, gbc);
 
         // buttons
-        JButton enableAllButton = createSetEnabledButton(ctx, true, containerCenter, modelReg);
+        JButton enableAllButton = createSetEnabledButton(ctx, true, containerCenter, tableModel);
         containerRight.add(enableAllButton, createButtonGridConstraints(0, 0));
-        JButton disableAllButton = createSetEnabledButton(ctx, false, containerCenter, modelReg);
+        JButton disableAllButton = createSetEnabledButton(ctx, false, containerCenter, tableModel);
         containerRight.add(disableAllButton, createButtonGridConstraints(0, 1));
 
         JPopupMenu listMenu = new JPopupMenu();
-        listMenu.add(createListClearMenuItem(ctx, containerCenter, modelReg));
-        listMenu.add(createListResetMenuItem(ctx, resetRegexSeeder, containerCenter, modelReg));
-        listMenu.add(createListOpenMenuItem(ctx, newRegexesSections, containerCenter, modelReg));
-        listMenu.add(createListSaveMenuItem(modelReg));
+        listMenu.add(createListClearMenuItem(ctx, containerCenter, tableModel));
+        listMenu.add(createListResetMenuItem(ctx, resetRegexSeeder, containerCenter, tableModel));
+        listMenu.add(createListOpenMenuItem(ctx, containerCenter, tableModel));
+        listMenu.add(createListSaveMenuItem(ctx.getRegexEntities()));
         JToggleButton listButton = new PopupMenuButton(getLocaleString("options-list-listSubmenu"), listMenu);
         containerRight.add(listButton, createButtonGridConstraints(0, 2));
 
         JPopupMenu regexMenu = new JPopupMenu();
-        regexMenu.add(createNewRegexMenuItem(ctx, newRegexesSections, containerCenter, modelReg));
-        regexMenu.add(createEditRegexMenuItem(ctx, newRegexesSections, regexTable, containerCenter, modelReg));
-        regexMenu.add(createDeleteRegexMenuItem(ctx, regexTable, containerCenter, modelReg));
+        regexMenu.add(createNewRegexMenuItem(ctx, containerCenter, tableModel));
+        regexMenu.add(createEditRegexMenuItem(ctx, regexTable, containerCenter, tableModel));
+        regexMenu.add(createDeleteRegexMenuItem(ctx, regexTable, containerCenter, tableModel));
         JToggleButton regexButton = new PopupMenuButton(getLocaleString("options-list-regexSubmenu"), regexMenu);
         containerRight.add(regexButton, createButtonGridConstraints(0, 3));
 
         return container;
     }
 
-
     private JMenuItem createEditRegexMenuItem(RegexListContext ctx,
-                                              EnumSet<ProxyItemSection> newRegexesSections,
                                               JTable optionsRegexTable,
                                               JPanel tabPaneOptions,
-                                              RegexListViewerTableModel modelReg) {
+                                              RegexListViewerTableModel tableModel) {
         JMenuItem btnEditRegex = new JMenuItem(getLocaleString("options-list-edit"));
         btnEditRegex.setEnabled(false);
         btnEditRegex.addActionListener(actionEvent -> {
@@ -184,20 +175,18 @@ public class RegexListViewer {
             if (rowIndex == -1) return;
             realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
 
-            RegexEntity previousEntity = ctx.getRegexEntities().get(realRow);
-            RegexEditDialog dialog = new RegexEditDialog(previousEntity);
-            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"), newRegexesSections);
+            RegexEntity previousRegex = ctx.getRegexEntities().get(realRow);
+            RegexEditDialog dialog = new RegexEditDialog(previousRegex);
+            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"));
             if (!ret) return;
 
-            String newRegex = dialog.getRegex();
-            String newDescription = dialog.getDescription();
-            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
-            if (previousEntity.getRegex().equals(newRegex) && previousEntity.getDescription().equals(newDescription))
-                return;
+            RegexEntity newRegex = dialog.getRegexEntity();
+            if (newRegex.getRegex().isEmpty() && newRegex.getDescription().isEmpty()) return;
+            if (previousRegex.equals(newRegex)) return;
 
-            ctx.getRegexEntities().set(realRow, new RegexEntity(newDescription, newRegex, true, newRegexesSections));
+            ctx.getRegexEntities().set(realRow, newRegex);
 
-            modelReg.fireTableRowsUpdated(realRow, realRow);
+            tableModel.fireTableRowsUpdated(realRow, realRow);
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
@@ -211,7 +200,7 @@ public class RegexListViewer {
     private JMenuItem createDeleteRegexMenuItem(RegexListContext ctx,
                                                 JTable optionsRegexTable,
                                                 JPanel tabPaneOptions,
-                                                RegexListViewerTableModel modelReg) {
+                                                RegexListViewerTableModel tableModel) {
         JMenuItem btnDeleteRegex = new JMenuItem(getLocaleString("options-list-delete"));
         btnDeleteRegex.setEnabled(false);
         btnDeleteRegex.addActionListener(actionEvent -> {
@@ -220,7 +209,7 @@ public class RegexListViewer {
             int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
             ctx.getRegexEntities().remove(realRow);
 
-            modelReg.fireTableRowsDeleted(realRow, realRow);
+            tableModel.fireTableRowsDeleted(realRow, realRow);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -233,24 +222,22 @@ public class RegexListViewer {
     }
 
     private JMenuItem createNewRegexMenuItem(RegexListContext ctx,
-                                             EnumSet<ProxyItemSection> newRegexesSections,
                                              JPanel tabPaneOptions,
-                                             RegexListViewerTableModel modelReg) {
+                                             RegexListViewerTableModel tableModel) {
         JMenuItem btnNewRegex = new JMenuItem(getLocaleString("options-list-new"));
         btnNewRegex.addActionListener(actionEvent -> {
             boolean ret;
 
             RegexEditDialog dialog = new RegexEditDialog();
-            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"), newRegexesSections);
+            ret = dialog.showDialog(tabPaneOptions, getLocaleString("options-list-new-dialogTitle"));
             if (!ret) return;
 
-            String newRegex = dialog.getRegex();
-            String newDescription = dialog.getDescription();
-            if (newRegex.isEmpty() && newDescription.isEmpty()) return;
+            RegexEntity newRegex = dialog.getRegexEntity();
+            if (newRegex.getRegex().isEmpty() && newRegex.getDescription().isEmpty()) return;
 
             int row = ctx.getRegexEntities().size();
-            ctx.getRegexEntities().add(new RegexEntity(newDescription, newRegex, true, newRegexesSections));
-            modelReg.fireTableRowsInserted(row, row);
+            ctx.getRegexEntities().add(newRegex);
+            tableModel.fireTableRowsInserted(row, row);
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -258,9 +245,9 @@ public class RegexListViewer {
         return btnNewRegex;
     }
 
-    //TODO loses info on sections used
-    private JMenuItem createListSaveMenuItem(RegexListViewerTableModel modelReg) {
+    private JMenuItem createListSaveMenuItem(List<RegexEntity> regexEntities) {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-save"));
+        String[] options = {"JSON", "CSV"};
         menuItem.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showOptionDialog(
                     null,
@@ -269,55 +256,23 @@ public class RegexListViewer {
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
-                    new String[]{"JSON", "CSV"},
+                    options,
                     null
             );
-            if (dialog == 0) {
-                List<JsonObject> lines = new ArrayList<>();
-
-                String prop1 = modelReg.getColumnNameFormatted(2);
-                String prop2 = modelReg.getColumnNameFormatted(1);
-
-                // values
-                for (int i = 0; i < modelReg.getRowCount(); i++) {
-                    JsonObject obj = new JsonObject();
-                    obj.addProperty(prop1, modelReg.getValueAt(i, 2).toString());
-                    obj.addProperty(prop2, modelReg.getValueAt(i, 1).toString());
-                    lines.add(obj);
-                }
-
-                GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
-                Gson gson = builder.create();
-                Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {
-                }.getType();
-                Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
-            } else if (dialog == 1) {
-                List<String> lines = new ArrayList<>();
-
-                // header
-                lines.add(String.format("\"%s\",\"%s\"",
-                        modelReg.getColumnNameFormatted(2),
-                        modelReg.getColumnNameFormatted(1)));
-
-                // values
-                int rowCount = modelReg.getRowCount();
-                for (int i = 0; i < rowCount; i++) {
-                    String description = modelReg.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
-                    String regex = modelReg.getValueAt(i, 1).toString().replaceAll("\"", "\"\"");
-                    lines.add(String.format("\"%s\",\"%s\"", description, regex));
-                }
-                Utils.saveToFile("csv", lines);
+            if ("JSON".equals(options[dialog])) {
+                Utils.saveListToJSON(regexEntities);
+            } else if ("CSV".equals(options[dialog])) {
+                Utils.saveListToCSV(regexEntities);
             }
         });
 
         return menuItem;
     }
 
-    //TODO loses info on sections used
     private JMenuItem createListOpenMenuItem(RegexListContext ctx,
-                                             EnumSet<ProxyItemSection> newRegexesSections,
                                              JPanel tabPaneOptions,
-                                             RegexListViewerTableModel modelReg) {
+                                             RegexListViewerTableModel tableModel) {
+        String[] options = {"JSON", "CSV"};
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
             int dialog = JOptionPane.showOptionDialog(
@@ -327,96 +282,17 @@ public class RegexListViewer {
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
-                    new String[]{"JSON", "CSV"},
+                    options,
                     null
             );
-            if (dialog == 0) {
-                Gson gson = new Gson();
-                StringBuilder alreadyAddedMsg = new StringBuilder();
-
-                List<String> lines = Utils.linesFromFile("json");
-                if (Objects.isNull(lines)) return;
-
-                Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
-                }.getType();
-                Stream.of(String.join("", lines))
-                        .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
-                        .filter(Objects::nonNull)
-                        .flatMap(Collection::stream)
-                        .map(element -> new RegexEntity(
-                                element.getDescription(),
-                                element.getRegex(),
-                                true,
-                                newRegexesSections))
-                        .forEachOrdered(regexEntity -> {
-                            if (!ctx.getRegexEntities().contains(regexEntity)) {
-                                ctx.getRegexEntities().add(regexEntity);
-                            } else {
-                                alreadyAddedMsg
-                                        .append(regexEntity.getDescription())
-                                        .append(" - ")
-                                        .append(regexEntity.getRegex())
-                                        .append("\n");
-                            }
-                        });
-
-                modelReg.fireTableDataChanged();
-
-                if (!(alreadyAddedMsg.toString().isBlank())) {
-                    alreadyAddedMsg.insert(0, getLocaleString("options-list-open-alreadyPresentWarn") + '\n');
-                    JDialog alreadyAddedDialog = new JDialog();
-                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
-                    alreadyAddedDialog.setVisible(true);
-                }
-
-                tabPaneOptions.validate();
-                tabPaneOptions.repaint();
-
-            } else if (dialog == 1) {
-                StringBuilder alreadyAddedMsg = new StringBuilder();
-
-                List<String> lines = Utils.linesFromFile("csv");
-                if (Objects.isNull(lines)) return;
-
-                lines.forEach(line -> {
-                    Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
-                    if (!matcher.find()) return;
-
-                    String description = matcher.group(1).replaceAll("\"\"", "\"");
-                    String regex = matcher.group(2).replaceAll("\"\"", "\"");
-                    if (description.equals(modelReg.getColumnNameFormatted(2)) && regex.equals(modelReg.getColumnNameFormatted(1)))
-                        return;
-
-                    RegexEntity newRegexEntity = new RegexEntity(
-                            description,
-                            regex,
-                            true,
-                            newRegexesSections
-                    );
-
-                    if (!ctx.getRegexEntities().contains(newRegexEntity)) {
-                        ctx.getRegexEntities().add(newRegexEntity);
-                    } else {
-                        alreadyAddedMsg
-                                .append(newRegexEntity.getDescription())
-                                .append(" - ")
-                                .append(newRegexEntity.getRegex())
-                                .append("\n");
-                    }
-                });
-                modelReg.fireTableDataChanged();
-
-                if (!(alreadyAddedMsg.toString().isBlank())) {
-                    alreadyAddedMsg.insert(0, getLocaleString("options-list-open-alreadyPresentWarn") + '\n');
-                    JDialog alreadyAddedDialog = new JDialog();
-                    JOptionPane.showMessageDialog(alreadyAddedDialog, alreadyAddedMsg.toString(), getLocaleString("options-list-open-alreadyPresentTitle"), JOptionPane.INFORMATION_MESSAGE);
-                    alreadyAddedDialog.setVisible(true);
-                }
-
-                tabPaneOptions.validate();
-                tabPaneOptions.repaint();
-
+            if ("JSON".equals(options[dialog])) {
+                Utils.openListFromJSON(ctx);
+            } else if ("CSV".equals(options[dialog])) {
+                Utils.openListFromCSV(ctx);
             }
+            tableModel.fireTableDataChanged();
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
         });
 
         return menuItem;
@@ -424,15 +300,19 @@ public class RegexListViewer {
 
     private JMenuItem createListClearMenuItem(RegexListContext ctx,
                                               JPanel tabPaneOptions,
-                                              RegexListViewerTableModel modelReg) {
+                                              RegexListViewerTableModel tableModel) {
         JMenuItem btnClearRegex = new JMenuItem(getLocaleString("options-list-clear"));
         btnClearRegex.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-clear-confirm"));
-            if (dialog != JOptionPane.YES_OPTION) return;
+            int dialogRes = JOptionPane.showConfirmDialog(
+                    null,
+                    getLocaleString("options-list-clear-message"),
+                    getLocaleString("options-list-clear-title"),
+                    JOptionPane.OK_CANCEL_OPTION);
+            if (dialogRes != JOptionPane.OK_OPTION) return;
 
             if (!ctx.getRegexEntities().isEmpty()) {
                 ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
-                modelReg.fireTableDataChanged();
+                tableModel.fireTableDataChanged();
 
                 tabPaneOptions.validate();
                 tabPaneOptions.repaint();
@@ -444,11 +324,15 @@ public class RegexListViewer {
     private JMenuItem createListResetMenuItem(RegexListContext ctx,
                                               Supplier<List<RegexEntity>> resetRegexSeeder,
                                               JPanel tabPaneOptions,
-                                              RegexListViewerTableModel modelReg) {
+                                              RegexListViewerTableModel tableModel) {
         JMenuItem btnResetRegex = new JMenuItem(getLocaleString("options-list-reset"));
         btnResetRegex.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("options-list-reset-confirm"));
-            if (dialog != JOptionPane.YES_OPTION) return;
+            int dialogRes = JOptionPane.showConfirmDialog(
+                    null,
+                    getLocaleString("options-list-reset-message"),
+                    getLocaleString("options-list-reset-title"),
+                    JOptionPane.OK_CANCEL_OPTION);
+            if (dialogRes != JOptionPane.OK_OPTION) return;
 
             if (!ctx.getRegexEntities().isEmpty()) {
                 ctx.getRegexEntities().subList(0, ctx.getRegexEntities().size()).clear();
@@ -456,7 +340,7 @@ public class RegexListViewer {
 
             ctx.getRegexEntities().clear();
             ctx.getRegexEntities().addAll(resetRegexSeeder.get());
-            modelReg.fireTableDataChanged();
+            tableModel.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
@@ -467,13 +351,13 @@ public class RegexListViewer {
     private JButton createSetEnabledButton(RegexListContext ctx,
                                            boolean isEnabled,
                                            JPanel tabPaneOptions,
-                                           RegexListViewerTableModel modelReg) {
+                                           RegexListViewerTableModel tableModel) {
         String label = getLocaleString(isEnabled ? "options-list-enableAll" : "options-list-disableAll");
         JButton btnSetAllEnabled = new JButton(label);
         btnSetAllEnabled.addActionListener(actionEvent -> {
             ctx.getRegexEntities().forEach(regex -> regex.setActive(isEnabled));
 
-            modelReg.fireTableDataChanged();
+            tableModel.fireTableDataChanged();
 
             tabPaneOptions.validate();
             tabPaneOptions.repaint();

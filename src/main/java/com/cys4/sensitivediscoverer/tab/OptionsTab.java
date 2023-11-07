@@ -1,15 +1,12 @@
 package com.cys4.sensitivediscoverer.tab;
 
 import com.cys4.sensitivediscoverer.*;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
-import com.cys4.sensitivediscoverer.RegexListViewer;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import com.cys4.sensitivediscoverer.model.UIOptions;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.util.EnumSet;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -84,33 +81,31 @@ public class OptionsTab implements ApplicationTab {
     private void createListsPanels(JPanel boxCenter) {
         GridBagConstraints gbc;
 
-        JPanel general = (new RegexListViewer(
+        RegexListViewer generalList = new RegexListViewer(
                 getLocaleString("options-generalList-title"),
                 getLocaleString("options-generalList-description"),
                 this.mainUI.getGeneralRegexList(),
-                RegexSeeder::getGeneralRegexes,
-                ProxyItemSection.getDefault())).getPanel();
+                RegexSeeder::getGeneralRegexes);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-        boxCenter.add(general, gbc);
+        boxCenter.add(generalList.getPanel(), gbc);
 
-        JPanel extensions = (new RegexListViewer(
+        RegexListViewer extensionsList = new RegexListViewer(
                 getLocaleString("options-extensionsList-title"),
                 getLocaleString("options-extensionsList-description"),
                 this.mainUI.getExtensionsRegexList(),
-                RegexSeeder::getExtensionRegexes,
-                EnumSet.of(ProxyItemSection.REQ_URL))).getPanel();
+                RegexSeeder::getExtensionRegexes);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-        boxCenter.add(extensions, gbc);
+        boxCenter.add(extensionsList.getPanel(), gbc);
     }
 
     private void createConfigurationPanels(JPanel boxHeader, OptionsScannerUpdateListener threadNumListener, OptionsScannerUpdateListener responseSizeListener) {

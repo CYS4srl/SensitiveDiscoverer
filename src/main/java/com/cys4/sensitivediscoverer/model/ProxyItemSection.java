@@ -33,11 +33,17 @@ public enum ProxyItemSection {
         return ProxyItemSection.RES;
     }
 
-    public static EnumSet<ProxyItemSection> parseSectionsToMatch(List<String> sectionsToMatch) {
-        if (Objects.isNull(sectionsToMatch))
+    /**
+     * Converts a list of serialized sections to an EnumSet of sections
+     *
+     * @param sections List of the serialized sections
+     * @return An EnumSet with all the sections in the given list
+     */
+    public static EnumSet<ProxyItemSection> deserializeSections(List<String> sections) {
+        if (Objects.isNull(sections))
             return ProxyItemSection.getDefault();
 
-        return sectionsToMatch
+        return sections
                 .stream()
                 .flatMap(section -> switch (section) {
                     case "req_url" -> Stream.of(ProxyItemSection.REQ_URL);
@@ -52,6 +58,26 @@ public enum ProxyItemSection {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)));
+    }
+
+    /**
+     * Convert an EnumSet of sections into a list of serialized sections
+     * @param sections EnumSet of sections
+     * @return A list of the sections in the EnumSet as serialized strings
+     */
+    public static List<String> serializeSections(EnumSet<ProxyItemSection> sections) {
+        return sections
+                .stream()
+                .flatMap(section -> switch (section) {
+                    case REQ_URL -> Stream.of("req_url");
+                    case REQ_BODY -> Stream.of("req_headers");
+                    case REQ_HEADERS -> Stream.of("req_body");
+                    case RES_BODY -> Stream.of("res_headers");
+                    case RES_HEADERS -> Stream.of("res_body");
+                    default -> null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.<String>toList());
     }
 
     @Override
