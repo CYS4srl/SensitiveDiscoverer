@@ -254,12 +254,14 @@
   {
     "active": true,
     "description": "Potential PGP public keyring",
-    "regex": "\\.pkr$"
+    "regex": "\\.pkr$",
+    "sections": ["req_url"]
   },
   {
     "active": true,
     "description": "Potential PGP secret keyring",
-    "regex": "\\.skr$"
+    "regex": "\\.skr$",
+    "sections": ["req_url"]
   },
   {
     "active": true,
