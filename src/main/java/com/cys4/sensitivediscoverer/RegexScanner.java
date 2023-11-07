@@ -206,6 +206,7 @@ public class RegexScanner {
 
     /**
      * Change the interrupt flag that dictates whether to stop the current scan
+     *
      * @param interruptScan flag value. If true, scan gets interrupted as soon as possible.
      */
     public void setInterruptScan(boolean interruptScan) {

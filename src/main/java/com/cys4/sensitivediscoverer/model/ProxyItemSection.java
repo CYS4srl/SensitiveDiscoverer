@@ -62,6 +62,7 @@ public enum ProxyItemSection {
 
     /**
      * Convert an EnumSet of sections into a list of serialized sections
+     *
      * @param sections EnumSet of sections
      * @return A list of the sections in the EnumSet as serialized strings
      */
