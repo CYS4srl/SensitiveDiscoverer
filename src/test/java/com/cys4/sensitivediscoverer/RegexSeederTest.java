@@ -2,6 +2,7 @@ package com.cys4.sensitivediscoverer;
 
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -31,13 +32,13 @@ class RegexSeederTest {
                 });
     }
 
-    @org.junit.jupiter.api.Test
-    void getGeneralRegexes() {
+    @Test
+    public void testGeneralRegexes() {
         testRegexList(RegexSeeder.getGeneralRegexes());
     }
 
-    @org.junit.jupiter.api.Test
-    void getExtensionRegexes() {
+    @Test
+    public void testExtensionRegexes() {
         testRegexList(RegexSeeder.getExtensionRegexes());
     }
 }

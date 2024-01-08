@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,10 +17,10 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Build with Maven
+    - name: Test with Maven
       run: mvn -B -Dmaven.test.failure.ignore=true test
 
-    - name: Report
+    - name: Surefire Report
       uses: dorny/test-reporter@v1
       if: always()
       with:
