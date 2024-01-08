@@ -34,7 +34,8 @@ public class RegexSeeder {
                         element.getDescription(),
                         element.getRegex(),
                         element.isActive(),
-                        ProxyItemSection.deserializeSections(element.getSections())))
+                        ProxyItemSection.deserializeSections(element.getSections()),
+                        element.getTests()))
                 .collect(Collectors.toList());
     }
 
