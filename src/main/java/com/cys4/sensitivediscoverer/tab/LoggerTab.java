@@ -13,7 +13,6 @@ import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
 import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import com.cys4.sensitivediscoverer.model.UIOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -60,14 +59,14 @@ public class LoggerTab implements ApplicationTab {
     private int analyzedItems = 0;
 
 
-    public LoggerTab(MainUI mainUI, ScannerOptions scannerOptions) {
+    public LoggerTab(MainUI mainUI) {
         this.mainUI = mainUI;
         this.isAnalysisRunning = false;
         this.analyzeProxyHistoryThread = null;
         this.logEntries = new ArrayList<>();
         this.regexScanner = new RegexScanner(
                 this.mainUI.getCallbacks(),
-                scannerOptions,
+                this.mainUI.getScannerOptions(),
                 mainUI.getGeneralRegexList(),
                 mainUI.getExtensionsRegexList());
 

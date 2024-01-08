@@ -28,8 +28,6 @@ public class MainUI implements ITab {
     private final List<RegexEntity> extensionsRegexList;
     private final Properties configProperties;
     private final ScannerOptions scannerOptions;
-
-    // ui components
     private JTabbedPane mainPanel;
 
     public MainUI(IBurpExtenderCallbacks callbacks) throws Exception {
@@ -52,6 +50,10 @@ public class MainUI implements ITab {
         this.extensionsRegexList = RegexSeeder.getExtensionRegexes();
     }
 
+    public ScannerOptions getScannerOptions() {
+        return scannerOptions;
+    }
+
     /**
      * Main function that initializes the extension and creates the UI, asynchronously
      */
@@ -61,9 +63,9 @@ public class MainUI implements ITab {
 
     private void _initialize() {
         mainPanel = new JTabbedPane();
-        LoggerTab loggerTab = new LoggerTab(this, scannerOptions);
+        LoggerTab loggerTab = new LoggerTab(this);
         mainPanel.addTab(loggerTab.getTabName(), loggerTab.getPanel());
-        ApplicationTab optionsTab = new OptionsTab(this, scannerOptions);
+        ApplicationTab optionsTab = new OptionsTab(this);
         mainPanel.addTab(optionsTab.getTabName(), optionsTab.getPanel());
         ApplicationTab aboutTab = new AboutTab();
         mainPanel.addTab(aboutTab.getTabName(), aboutTab.getPanel());
