@@ -89,36 +89,36 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyURL")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection stsel = new StringSelection(le.getURL().toString());
+                StringSelection selection = new StringSelection(le.getURL().toString());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
-                system.setContents(stsel, stsel);
+                system.setContents(selection, selection);
             }
         }));
 
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyDescription")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection stsel = new StringSelection(le.getRegexEntity().getDescription());
+                StringSelection selection = new StringSelection(le.getRegexEntity().getDescription());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
-                system.setContents(stsel, stsel);
+                system.setContents(selection, selection);
             }
         }));
 
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyRegex")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection stsel = new StringSelection(le.getRegexEntity().getRegex());
+                StringSelection selection = new StringSelection(le.getRegexEntity().getRegex());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
-                system.setContents(stsel, stsel);
+                system.setContents(selection, selection);
             }
         }));
 
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyMatch")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection stsel = new StringSelection(le.getMatch());
+                StringSelection selection = new StringSelection(le.getMatch());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
-                system.setContents(stsel, stsel);
+                system.setContents(selection, selection);
             }
         }));
     }
