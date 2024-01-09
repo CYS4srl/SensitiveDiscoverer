@@ -1,17 +1,25 @@
+/*
+Copyright (C) 2023 CYS4 Srl
+See the file 'LICENSE' for copying permission
+*/
 package burp;
 
-import com.cys4.sensitivediscoverer.controller.Utils;
-import com.cys4.sensitivediscoverer.ui.MainUI;
+import com.cys4.sensitivediscoverer.MainUI;
+import com.cys4.sensitivediscoverer.Utils;
 
 public class BurpExtender implements IBurpExtender {
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
-        MainUI mainUI = new MainUI(callbacks);
-        mainUI.initialize();
+        try {
+            MainUI mainUI = new MainUI(callbacks);
+            mainUI.initialize();
 
-        callbacks.setExtensionName(mainUI.getNameExtension());
+            callbacks.setExtensionName(mainUI.getNameExtension());
 
-        callbacks.printOutput("Extension loaded successfully!%nVersion loaded: %s".formatted(Utils.getExtensionVersion()));
+            callbacks.printOutput("Extension loaded successfully!%nVersion loaded: %s".formatted(Utils.getExtensionVersion()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

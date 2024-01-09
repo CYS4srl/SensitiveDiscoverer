@@ -1,20 +1,24 @@
-package com.cys4.sensitivediscoverer.controller;
+/*
+Copyright (C) 2023 CYS4 Srl
+See the file 'LICENSE' for copying permission
+*/
+package com.cys4.sensitivediscoverer;
 
-import com.cys4.sensitivediscoverer.ui.MainUI;
+import com.cys4.sensitivediscoverer.model.ScannerOptions;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
 public abstract class OptionsScannerUpdateListener implements ActionListener {
 
+    protected final ScannerOptions scannerOptions;
     protected JLabel currentValueLabel;
     protected JTextField updatedStatusField;
-    protected MainUI mainUI;
 
-    public OptionsScannerUpdateListener(MainUI mainUI) {
+    public OptionsScannerUpdateListener(ScannerOptions scannerOptions) {
+        this.scannerOptions = scannerOptions;
         this.currentValueLabel = null;
         this.updatedStatusField = null;
-        this.mainUI = mainUI;
     }
 
     public void setCurrentValueLabel(JLabel currentValueLabel) {

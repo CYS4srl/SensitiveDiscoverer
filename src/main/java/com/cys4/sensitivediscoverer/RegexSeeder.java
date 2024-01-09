@@ -2,9 +2,8 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.seed;
+package com.cys4.sensitivediscoverer;
 
-import com.cys4.sensitivediscoverer.controller.Utils;
 import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
@@ -23,19 +22,20 @@ public class RegexSeeder {
     private static final Gson gson = new Gson();
 
     private static List<RegexEntity> fill(String[] regexFiles) {
-        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {}.getType();
+        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
+        }.getType();
 
         return Stream.of(regexFiles)
-            .map(Utils::readResourceFile)
-            .filter(Objects::nonNull)
-            .<List<JsonRegexEntity>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
-            .flatMap(Collection::stream)
-            .map(element -> new RegexEntity(
-                    element.getDescription(),
-                    element.getRegex(),
-                    element.isActive(),
-                    ProxyItemSection.parseSectionsToMatch(element.getSections())))
-            .collect(Collectors.toList());
+                .map(Utils::readResourceFile)
+                .filter(Objects::nonNull)
+                .<List<JsonRegexEntity>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
+                .flatMap(Collection::stream)
+                .map(element -> new RegexEntity(
+                        element.getDescription(),
+                        element.getRegex(),
+                        element.isActive(),
+                        ProxyItemSection.deserializeSections(element.getSections())))
+                .collect(Collectors.toList());
     }
 
     public static List<RegexEntity> getGeneralRegexes() {

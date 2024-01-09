@@ -9,20 +9,24 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
+/**
+ * An entity for a regex that can be used in scans.
+ * Once create this entity is immutable, and can only be activated/deactivated;
+ */
 public class RegexEntity {
-    private boolean active;
     private final String regex;
     private final transient Pattern regexCompiled;
     private final String description;
     private final EnumSet<ProxyItemSection> sections;
+    private boolean active;
 
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true, ProxyItemSection.getDefault());
     }
 
-    public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException{
+    public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException {
         this(description, regex, active, ProxyItemSection.getDefault());
     }
 
@@ -44,19 +48,23 @@ public class RegexEntity {
     }
 
     /**
-     * Checks if the input is in the format: `"Description", "Regex"`
+     * Checks if the input is in the format: `"Description","Regex","Sections"`
      *
      * @param input Text string to check against the format
-     * @return If the input was in the correct format, a Matcher object where group(1) = description, and group(2) = regex
+     * @return If the input was in the correct format, a Matcher object where group(1) = description, group(2) = regex, group(3) = sections
      */
     public static Matcher checkRegexEntityFromCSV(String input) {
         return Pattern
-                .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
+                .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
                 .matcher(input);
     }
 
     public boolean isActive() {
         return this.active;
+    }
+
+    public void setActive(boolean value) {
+        this.active = value;
     }
 
     public String getRegex() {
@@ -75,8 +83,19 @@ public class RegexEntity {
         return sections;
     }
 
-    public void setActive(boolean value) {
-        this.active = value;
+    public String getSectionsHumanReadable() {
+        String reqSections = sections.toString()
+                .replaceAll("Request", "")
+                .replaceAll("Response\\w+(, )?", "")
+                .replaceAll("(\\[]|, (?=]))", "");
+        if (!reqSections.isBlank()) reqSections = "REQ" + reqSections;
+        String resSections = sections.toString()
+                .replaceAll("Response", "")
+                .replaceAll("Request\\w+(, )?", "")
+                .replaceAll("(\\[]|, (?=]))", "");
+        if (!resSections.isBlank()) resSections = "RES" + resSections;
+        String separator = (reqSections.isBlank() || resSections.isBlank()) ? "" : ", ";
+        return String.format("%s%s%s", reqSections, separator, resSections);
     }
 
     @Override

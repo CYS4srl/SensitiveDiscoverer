@@ -2,12 +2,12 @@ Uuid: 81e073a640964b2ea3af0da93d048dbd
 ExtensionType: 1
 Name: Sensitive Discoverer
 RepoName: sensitive-discoverer
-ScreenVersion: 3.2.1
+ScreenVersion: 4.0.0
 SerialVersion: 5
 MinPlatformVersion: 0
 ProOnly: False
 Author: CYS4
 ShortDescription: Burp Suite extension to scan for sensitive strings in HTTP messages.
-EntryPoint: target/SensitiveDiscoverer-3.2.1-jar-with-dependencies.jar
+EntryPoint: target/SensitiveDiscoverer-4.0.0-jar-with-dependencies.jar
 BuildCommand: mvn package
 SupportedProducts: Pro, Community

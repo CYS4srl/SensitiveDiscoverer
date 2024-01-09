@@ -2,21 +2,19 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.ui;
-
-import com.cys4.sensitivediscoverer.model.LogEntity;
+package com.cys4.sensitivediscoverer.model;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-import static com.cys4.sensitivediscoverer.controller.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
-public class LogTableEntriesUI extends AbstractTableModel {
+public class LogsTableModel extends AbstractTableModel {
 
     // get the reference of the array of entries
     private final List<LogEntity> logEntries;
 
-    public LogTableEntriesUI(List<LogEntity> logEntries) {
+    public LogsTableModel(List<LogEntity> logEntries) {
         this.logEntries = logEntries;
     }
 
@@ -67,7 +65,7 @@ public class LogTableEntriesUI extends AbstractTableModel {
         return switch (columnIndex) {
             case 0 -> logEntity.getIdRequest();
             case 1 -> logEntity.getURL().toString();
-            case 2 -> logEntity.getDescription() + " - "  + logEntity.getRegex();
+            case 2 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
             case 3 -> logEntity.getMatch();
             default -> "";
         };
