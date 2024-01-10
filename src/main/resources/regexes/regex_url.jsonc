@@ -10,9 +10,14 @@
     */
     "active": true,
     "description": "Slack Webhook",
-    "regex": "hooks\\.slack\\.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}",
+    "regex": "hooks\\.slack\\.com/services/T[a-zA-Z0-9_]{8,10}/B[a-zA-Z0-9_]{8,10}/[a-zA-Z0-9_]{24}",
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/slack_webhook_url"
+    ],
     "tests": [
-      "https://hooks.slack.com/services/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"
+      "https://hooks.slack.com/services/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",
+      "hooks.slack.com/services/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",
+      "https://hooks.slack.com/services/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"
     ]
   },
   {
