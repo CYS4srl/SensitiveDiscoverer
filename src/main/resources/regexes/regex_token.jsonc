@@ -63,6 +63,7 @@
       "https://amazonpaylegacyintegrationguide.s3.amazonaws.com/docs/eu/amazon-pay-automatic/add-address-and-wallet-widgets.html"
     ]
   },
+  //todo
   //  {
   //    // Do not match "https://facebook.com" or fa-facebook
   //    "active": true,
@@ -73,6 +74,7 @@
   //      "!https://facebook.com"
   //    ]
   //  },
+  //todo
   //  {
   //    "active": true,
   //    "description": "Facebook Page Access Token",
@@ -134,36 +136,65 @@
       "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/google_oauth2_keys"
     ]
   },
+  //todo
   //  {
   //    "active": true,
   //    "description": "LinkedIn Secret Key",
   //    "regex": "(?i)linkedin([^;]{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
   //  },
+  //todo
   //  {
   //    "active": true,
   //    "description": "LinkedIn Client ID (API Key)",
   //    "regex": "(?i)linkedin([^;]{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
   //  },
-  //  {
-  //    "active": true,
-  //    "description": "MailChimp API Key",
-  //    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)"
-  //  },
-  //  {
-  //    "active": true,
-  //    "description": "MailGun API Key",
-  //    "regex": "key-[0-9a-zA-Z]{32}(?!\\w)"
-  //  },
-  //  {
-  //    "active": true,
-  //    "description": "NuGet API Key",
-  //    "regex": "oy2[a-z0-9]{43}(?![a-z0-9])"
-  //  },
-  //  {
-  //    "active": true,
-  //    "description": "Braintree SDK Token",
-  //    "regex": "(production|sandbox)_[a-z0-9]{8}_[a-z0-9]{16}"
-  //  },
+  {
+    "active": true,
+    "description": "MailChimp API Key",
+    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)",
+    "tests": [
+      "ae54fcc23ade65fa404a65e78c56f898-us1"
+    ],
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/mailchimp_api_key"
+    ]
+  },
+  {
+    "active": true,
+    "description": "MailGun API Key",
+    "regex": "key-[0-9a-f]{32}(?!\\w)",
+    "urls": [
+      "https://documentation.mailgun.com/en/latest/api_reference.html",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/mailgun_primary_key"
+    ],
+    "tests": [
+      "key-ae54fcc23ade65fa404a65e78c56f898"
+    ]
+  },
+  {
+    "active": true,
+    "description": "NuGet API Key",
+    "regex": "oy2[a-z0-9]{43}(?![a-z0-9])",
+    "tests": [
+      "oy2fvc3nqk4amkc54ocexxpsedpqt7ie8apjfepbegwffc",
+      "oy2rek2ae45zphcftpdav7d0ko0tttsuxg6yfpcvex9fsc"
+    ],
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/nuget_api_key"
+    ]
+  },
+  //todo
+//  {
+//    "active": true,
+//    "description": "Braintree SDK Token",
+//    "regex": "(production|sandbox)_[a-z0-9]{8}_[a-z0-9]{16}",
+//    "tests": [
+//      "production_696htvk3y5xcfnsn_42cde001d7a240d98ded578b4c1321c9"
+//    ],
+//    "urls": [
+//      ""
+//    ]
+//  },
   {
     /*
     SG.ID.VALUE
@@ -254,11 +285,11 @@
       "EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg"
     ]
   },
-//    {
-//      "active": true,
-//      "description": "StackHawk API Key",
-//      "regex": "hawk(\\.[\\w\\-]{20})+"
-//    },
+  //    {
+  //      "active": true,
+  //      "description": "StackHawk API Key",
+  //      "regex": "hawk(\\.[\\w\\-]{20})+"
+  //    },
   {
     "active": true,
     "description": "Stripe API Secret Key",
@@ -269,10 +300,10 @@
     "tests": [
       "sk_test_9W1R4v0cz6AtC9PVwHFzywti",
       "!pk_test_XUIpXpyaGuuw0Dc9Ng80xFWs",
-      //TODO      "rk_test_",
+      "rk_test_5TcWfjKmJgpql9hjpRnwRXbT",
       "sk_live_9W1R4v0cz6AtC9PVwHFzywti",
-      "!pk_live_XUIpXpyaGuuw0Dc9Ng80xFWs"
-      //TODO      "rk_live_"
+      "!pk_live_XUIpXpyaGuuw0Dc9Ng80xFWs",
+      "rk_live_5TcWfjKmJgpql9hjpRnwRXbT"
     ]
   },
   {
@@ -300,24 +331,26 @@
       "SKa3aiydsctvbbgam9tpp75jsduidvwi9t"
     ]
   },
-//  {
-//    "active": true,
-//    "description": "Twitter Access Token",
-//    "regex": "(?i)twitter([^;,]{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]",
-//    // oauth_token=
-//    "urls": [
-//      "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens"
-//    ]
-//  },
-//  {
-//    "active": true,
-//    "description": "Twitter Secret Key",
-//    "regex": "(?i)twitter([^;,]{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]",
-//    // oauth_token_secret=
-//    "urls": [
-//      "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens"
-//    ]
-//  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "Twitter Access Token",
+  //    "regex": "(?i)twitter([^;,]{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]",
+  //    // oauth_token=
+  //    "urls": [
+  //      "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens"
+  //    ]
+  //  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "Twitter Secret Key",
+  //    "regex": "(?i)twitter([^;,]{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]",
+  //    // oauth_token_secret=
+  //    "urls": [
+  //      "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens"
+  //    ]
+  //  },
   {
     /*
     Token type                                                      | Prefix
