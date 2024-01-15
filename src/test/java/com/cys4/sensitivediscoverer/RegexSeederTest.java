@@ -33,12 +33,12 @@ class RegexSeederTest {
     }
 
     @Test
-    public void testGeneralRegexes() {
+    public void generalRegexesMatching() {
         testRegexList(RegexSeeder.getGeneralRegexes());
     }
 
     @Test
-    public void testExtensionRegexes() {
+    public void extensionRegexesMatching() {
         testRegexList(RegexSeeder.getExtensionRegexes());
     }
 }
