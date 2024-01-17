@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class BurpExtenderCallbacksMock implements IBurpExtenderCallbacks {
@@ -44,17 +45,31 @@ public class BurpExtenderCallbacksMock implements IBurpExtenderCallbacks {
     }
 
     @Override
-    public void setExtensionName(String s) {
-        throw new NotImplementedException();
+    public void addSuiteTab(ITab tab) {
+        if (Objects.isNull(tab)) throw new IllegalArgumentException("Tab is null");
+    }
+
+    @Override
+    public void customizeUiComponent(Component component) {
     }
 
     @Override
     public OutputStream getStdout() {
-        throw new NotImplementedException();
+        return System.out;
     }
 
     @Override
     public OutputStream getStderr() {
+        return System.err;
+    }
+
+    @Override
+    public ITextEditor createTextEditor() {
+        return new TextEditorMock();
+    }
+
+    @Override
+    public void setExtensionName(String s) {
         throw new NotImplementedException();
     }
 
@@ -254,17 +269,7 @@ public class BurpExtenderCallbacksMock implements IBurpExtenderCallbacks {
     }
 
     @Override
-    public void addSuiteTab(ITab iTab) {
-        throw new NotImplementedException();
-    }
-
-    @Override
     public void removeSuiteTab(ITab iTab) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void customizeUiComponent(Component component) {
         throw new NotImplementedException();
     }
 
@@ -285,11 +290,6 @@ public class BurpExtenderCallbacksMock implements IBurpExtenderCallbacks {
 
     @Override
     public String loadExtensionSetting(String s) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public ITextEditor createTextEditor() {
         throw new NotImplementedException();
     }
 
