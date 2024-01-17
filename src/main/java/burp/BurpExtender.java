@@ -13,7 +13,7 @@ public class BurpExtender implements IBurpExtender {
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
         try {
             MainUI mainUI = new MainUI(callbacks);
-            mainUI.initialize();
+            mainUI.initializeUI();
 
             callbacks.setExtensionName(mainUI.getNameExtension());
 
