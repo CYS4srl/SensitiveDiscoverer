@@ -277,12 +277,13 @@
   {
     "active": true,
     "description": "Square Auth Token",
-    "regex": "EAAA[a-zA-Z0-9\\-_]{60}",
+    "regex": "(?<![a-zA-Z0-9])EAAA[a-zA-Z0-9\\-_]{60}",
     "urls": [
       "https://developer.squareup.com/docs/build-basics/access-tokens"
     ],
     "tests": [
-      "EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg"
+      "EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
+      "!RandomEAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg"
     ]
   },
   //    {
