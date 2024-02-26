@@ -2,27 +2,51 @@
   {
     "active": true,
     "description": "Encapsulation boundary for data such as keys and certificates",
-    "regex": "-----BEGIN"
+    "regex": "-----BEGIN",
+    "tests": [
+      "-----BEGIN CERTIFICATE-----",
+      "-----BEGIN RSA PRIVATE KEY-----",
+      "-----BEGIN PRIVATE KEY-----"
+    ]
   },
   {
     "active": true,
     "description": "Generic API Key",
-    "regex": "(?i)api.{0,5}key[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]"
+    "regex": "(?i)api.{0,5}key[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]",
+    "tests":[
+      "{backend_api_key:\"ABCDEFGH/12\"}",
+      "{\"apikey_mail\" : 'ABCDEFGH=12'}",
+      "{\"mail_apikey\" : \"ABCDEFGH-12\"}"
+    ]
   },
   {
     "active": true,
     "description": "Generic Secret",
-    "regex": "(?i)secret[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]"
+    "regex": "(?i)secret[^&|;?,]{0,32}?['\\\"][a-zA-Z0-9_\\-+=\\/\\\\]{10,}['\\\"]",
+    "tests":[
+      "{\"my_secret_key\":\"ABCDEFGH12\"}",
+      "{'my_super_secret' : 'ABCDEFGH-12'}"
+    ]
   },
   {
     // Try to match only IPs and not section numbers of js libraries
     "active": true,
     "description": "IP Address",
-    "regex": "(?<![\\.\\da-zA-Z%\\-])(?<!\\/\\s{0,8})((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\da-zA-Z\\-])"
+    "regex": "(?<![\\.\\da-zA-Z%\\-])(?<!\\/\\s{0,8})((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\da-zA-Z\\-])",
+    "tests":[
+      "0.0.0.0",
+      "10.255.255.255",
+      "127.0.0.1",
+      "192.168.0.254/24"
+    ]
   },
   {
     "active": true,
     "description": "Environment configuration file",
-    "regex": "\\.env"
+    "regex": "\\.env",
+    "tests":[
+      "{\"env_file\":\"../.env\"}",
+      "production.env"
+    ]
   }
 ]

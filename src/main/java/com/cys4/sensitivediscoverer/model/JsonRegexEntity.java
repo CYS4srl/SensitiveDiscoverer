@@ -14,6 +14,7 @@ public class JsonRegexEntity {
     private String regex;
     private String description;
     private List<String> sections;
+    private List<String> tests;
 
     public JsonRegexEntity() {
     }
@@ -32,5 +33,9 @@ public class JsonRegexEntity {
 
     public List<String> getSections() {
         return sections;
+    }
+
+    public List<String> getTests() {
+        return tests;
     }
 }

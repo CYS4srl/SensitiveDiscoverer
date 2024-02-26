@@ -1,141 +1,394 @@
 [
   {
+    /*
+    Prefix	| Resource type
+    ========|==================================
+    ABIA    | AWS STS service bearer token
+    ACCA    | Context-specific credential
+    AGPA    | User group
+    AIDA    | IAM user
+    AIPA    | Amazon EC2 instance profile
+    AKIA    | Access key | Aws ses keys | long-term access keys for an IAM user or an AWS account root user
+    ANPA    | Managed policy
+    ANVA    | Version in a managed policy
+    APKA    | Public key
+    AROA    | Role
+    ASCA    | Certificate
+    ASIA    | Temporary (AWS STS) access key IDs use this prefix, but are unique only in combination with the secret access key and the session token.
+    */
     "active": true,
     "description": "AWS Access Key ID",
-    "regex": "(?i)(?<![a-zA-Z0-9])(A3T[A-Z0-9]|AKIA|AGPA|AROA|AIPA|ANPA|ANVA|ASIA)[a-zA-Z0-9]{16}(?![a-zA-Z0-9])"
+    //TODO length should be {16}, but some examples have {17}
+    //TODO what is A3T. ?
+    "regex": "(?i)(?<![a-zA-Z0-9])(A3T[A-Z0-9]|ABIA|ACCA|AGPA|AIDA|AIPA|AKIA|ANPA|ANVA|APKA|AROA|ASCA|ASIA)[a-zA-Z0-9]{14,20}(?![a-zA-Z0-9])",
+    "tests": [
+      "AKIAIOSFODNN7EXAMPLE",
+      "ASIAIOSFODNN7EXAMPLE",
+      "AIDACKCEVSQ6C2EXAMPLE",
+      "AROADBQP57FF2AEXAMPLE",
+      "AIDAJQABLZS4A3QDU576Q",
+      "AKIAIU5C4FEZYEXAMPLE",
+      "AKIA2EKLCMMJCE6KTO42"
+    ],
+    "urls": [
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html",
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/security-creds.html",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/aws_ses_keys"
+    ]
   },
   {
     "active": true,
     "description": "AWS Secret Access Key",
-    "regex": "(?i)aws([^;]{0,32}?)['\"][0-9a-z/+=]{40}['\"]"
+    "regex": "(?i)aws([^;]{0,32}?)['\"][0-9a-zA-Z/+=]{40}['\"]",
+    "tests": [
+      "aws_secret: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'",
+      "aws: 'kOqmb4VZie3cilEqYPgROZzVl5qiQOV+WJH86zwR'",
+      "\"aws_secret\":\"hjohnk4ex5l33565d4634HNKGxhz545e89cjyjad\""
+    ],
+    "urls": [
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/aws_iam"
+    ]
   },
   {
     "active": true,
     "description": "Amazon MWS Auth Token",
-    "regex": "(?i)amzn\\.mws\\.[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+    "regex": "(?i)amzn\\.mws\\.[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}",
+    "tests": [
+      "amzn.mws.1fa0e1f9-15ad-4c53-b1f0-dda9bee0b271",
+      "amzn.mws.4ea38b7b-f563-7709-4bae-87aea0000000"
+    ],
+    "urls": [
+      "https://images-na.ssl-images-amazon.com/images/G/02/mwsportal/doc/en_US/offamazonpayments/MWSOffAmazonPaymentsApiReference.pdf",
+      "https://amazonpaylegacyintegrationguide.s3.amazonaws.com/docs/eu/amazon-pay-automatic/add-address-and-wallet-widgets.html"
+    ]
   },
-  {
-    // Do not match "https://facebook.com" or fa-facebook
-    "active": true,
-    "description": "Facebook Secret",
-    "regex": "(?i)(?<!https://)(?<!fa-)(facebook)([^;,]{0,32}?)['\\\"][\\w\\d]{10,}?['\\\"]"
-  },
-  {
-    "active": true,
-    "description": "Facebook Page Access Token",
-    "url": "https://developers.facebook.com/docs/facebook-login/guides/access-tokens",
-    "regex": "EAACEdE\\w+"
-  },
+  //todo
+  //  {
+  //    // Do not match "https://facebook.com" or fa-facebook
+  //    "active": true,
+  //    "description": "Facebook Secret",
+  //    "regex": "(?i)(?<!https://)(?<!fa-)(facebook)([^;,]{0,32}?)['\\\"][\\w\\d]{10,}?['\\\"]",
+  //    "tests": [
+  //      "!fa-facebook",
+  //      "!https://facebook.com"
+  //    ]
+  //  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "Facebook Page Access Token",
+  //    "urls": ["https://developers.facebook.com/docs/facebook-login/guides/access-tokens"],
+  //    "regex": "(EAACEdE\\w+|EAA\\w+)"
+  //  },
   {
     "active": true,
     "description": "Google API Key",
-    "regex": "AIza[0-9A-Za-z\\-_]{35}"
+    "regex": "AIza[0-9A-Za-z\\-_]{35}",
+    "tests": [
+      "AIzavQfR9UnaMN_nRteb7DdENmKEnzVb-JmPbXa",
+      "AIzakJfcuTZcK9Zfym7wcVgE4XaTmoWUiwwLDim",
+      "AIzaSy0c3965368a6b10f7640dbda46abfdca98"
+    ],
+    "urls": [
+      "https://learn.microsoft.com/en-us/purview/sit-defn-google-api-key",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/google_api_key"
+    ]
   },
   {
     "active": true,
     "description": "Google OAuth Access Token",
-    "regex": "ya29\\.[0-9A-Za-z\\-_]+"
+    "regex": "ya29\\.[0-9A-Za-z\\-_]{32,48}",
+    "tests": [
+      "ya29.ZStBkRnGyZ2mUYOLgls7QVBxOg82XhBCFo8UIT5gM",
+      "ya29.AHES3ZQ_MbZCwac9TBWIbjW5ilJkXvLTeSl530Na2",
+      "ya29.vF9dft4qmTc2Nvb3RlckBhdHRhdmlzdGEuY29tCg"
+    ],
+    "urls": [
+      "https://developers.google.com/android-publisher/authorization",
+      "https://developers.google.com/gmail/imap/xoauth2-protocol"
+    ]
   },
   {
     "active": true,
     "description": "Google OAuth Client ID",
-    "regex": "\\d+-\\w{32}\\.apps\\.googleusercontent\\.com"
+    "regex": "\\d{1,20}-\\w{32}\\.apps\\.googleusercontent\\.com",
+    "tests": [
+      "462858740426-tkpv8n03opijg7erd3s9ccued2pfllsd.apps.googleusercontent.com",
+      "332292536747-zbepioq1127w4lv5r6dbbddd0jdbdchl.apps.googleusercontent.com",
+      "332292536747-qbemiti5130k6gv5t4cddddd2omaeans.apps.googleusercontent.com"
+    ],
+    "urls": [
+      "https://developers.google.com/identity/sign-in/web/sign-in",
+      "https://codelabs.developers.google.com/secure-serverless-application-with-identity-aware-proxy#4",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/google_oauth2_keys"
+    ]
   },
   {
     "active": true,
     "description": "Google OAuth Client Secret",
-    "regex": "GOCSPX-\\w{28}"
+    "regex": "GOCSPX-[0-9a-zA-Z\\-_]{28}",
+    "tests": [
+      "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",
+      "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"
+    ],
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/google_oauth2_keys"
+    ]
   },
-  {
-    "active": true,
-    "description": "LinkedIn Secret Key",
-    "regex": "(?i)linkedin([^;]{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
-  },
-  {
-    "active": true,
-    "description": "LinkedIn Client ID (API Key)",
-    "regex": "(?i)linkedin([^;]{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
-  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "LinkedIn Secret Key",
+  //    "regex": "(?i)linkedin([^;]{0,32}?)['\"][0-9a-zA-Z]{16}['\"]"
+  //  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "LinkedIn Client ID (API Key)",
+  //    "regex": "(?i)linkedin([^;]{0,32}?)(?-i)['\"][0-9a-z]{14}['\"]"
+  //  },
   {
     "active": true,
     "description": "MailChimp API Key",
-    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)"
+    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)",
+    "tests": [
+      "ae54fcc23ade65fa404a65e78c56f898-us1"
+    ],
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/mailchimp_api_key"
+    ]
   },
   {
     "active": true,
     "description": "MailGun API Key",
-    "regex": "key-[0-9a-zA-Z]{32}(?!\\w)"
+    "regex": "key-[0-9a-f]{32}(?!\\w)",
+    "urls": [
+      "https://documentation.mailgun.com/en/latest/api_reference.html",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/mailgun_primary_key"
+    ],
+    "tests": [
+      "key-ae54fcc23ade65fa404a65e78c56f898"
+    ]
   },
   {
     "active": true,
     "description": "NuGet API Key",
-    "regex": "oy2[a-z0-9]{43}(?![a-z0-9])"
+    "regex": "oy2[a-z0-9]{43}(?![a-z0-9])",
+    "tests": [
+      "oy2fvc3nqk4amkc54ocexxpsedpqt7ie8apjfepbegwffc",
+      "oy2rek2ae45zphcftpdav7d0ko0tttsuxg6yfpcvex9fsc"
+    ],
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/nuget_api_key"
+    ]
   },
+  //todo
+//  {
+//    "active": true,
+//    "description": "Braintree SDK Token",
+//    "regex": "(production|sandbox)_[a-z0-9]{8}_[a-z0-9]{16}",
+//    "tests": [
+//      "production_696htvk3y5xcfnsn_42cde001d7a240d98ded578b4c1321c9"
+//    ],
+//    "urls": [
+//      ""
+//    ]
+//  },
   {
-    "active": true,
-    "description": "Braintree SDK Token",
-    "regex": "(production|sandbox)_[a-z0-9]{8}_[a-z0-9]{16}"
-  },
-  {
+    /*
+    SG.ID.VALUE
+    SG: A fixed value appended at the start of every SG API key, I am assuming SG stands for "SendGrid".
+    ID: This is the key ID used to reference the key when editing and deleting it through the API, It is not the actual key. so if this was your API key: SG.aaaa.bbbb , the api_key_id would be aaaa.
+    VALUE: This is the key value which you're allowed to read once only.
+    */
     "active": true,
     "description": "SendGrid API Key",
-    "regex": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}"
+    "regex": "SG\\.[0-9A-Za-z\\-_]{22}\\.[0-9A-Za-z\\-_]{43}",
+    "urls": [
+      "https://stackoverflow.com/questions/42030912/how-to-get-the-full-sendgrid-api-key"
+    ],
+    "tests": [
+      "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"
+    ]
   },
   {
     /*
-    xoxb = bot tokens
     xoxp = user tokens
-    xapp = app-level tokens
+    xoxs = old user token format
+    xoxb = bot tokens
+    xoxo = old bot token format (called originally "gossip girl token")
     xoxa = Workspace access token
     xoxr = Workspace refresh token
-    xoxo = ?
+    xoxe = Rotator refresh token
+    xapp = app-level tokens
     */
     "active": true,
     "description": "Slack Token",
-    "url": "https://api.slack.com/authentication/token-types",
-    "regex": "(xox[pboar]|xapp)(-[a-zA-Z0-9]+)+"
-  },
-  {
-    "active": true,
-    "url": "https://squareup.com/us/en",
-    "description": "Square Token",
-    "regex": "sq0[a-z]{3}-[0-9A-Za-z\\-_]{20,50}"
-  },
-  {
-    "active": true,
-    "description": "StackHawk API Key",
-    "regex": "hawk(\\.[\\w\\-]{20})+"
-  },
-  {
-    "active": true,
-    "description": "Stripe Secret API Key",
-    "regex": "[sr]k_(live|test)_[0-9a-zA-Z]+"
-  },
-  {
-    "active": true,
-    "description": "Twilio API Key",
-    "regex": "(?<![a-zA-Z0-9])SK[0-9a-f]{32}(?![a-f0-9])"
-  },
-  {
-    "active": true,
-    "description": "Twitter Access Token",
-    "regex": "(?i)twitter([^;,]{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]"
-  },
-  {
-    "active": true,
-    "description": "Twitter Secret Key",
-    "regex": "(?i)twitter([^;,]{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]"
+    "regex": "(xoxe\\.)?(xox[psboare]|xapp)(-[a-zA-Z0-9]{1,64}){1,5}",
+    "urls": [
+      "https://api.slack.com/authentication/token-types",
+      "https://learn.microsoft.com/en-us/purview/sit-defn-slack-access-token",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/slack_app_token",
+      // xoxe
+      "https://api.slack.com/authentication/rotation",
+      // xoxo, xoxs
+      "https://api.slack.com/changelog/2016-05-19-authorship-changing-for-older-tokens",
+      "https://web.archive.org/web/20180812091749/https://api.slack.com/docs/token-types#verification",
+      // xoxr
+      "https://github.com/MicrosoftDocs/azure-docs/blob/14df019c4e373f6d65ca4554ec7e4561f55f84fb/articles/defender-for-cloud/concept-credential-scanner-rules.md"
+    ],
+    "tests": [
+      "xoxp-41684372915-1320496754-45609968301-e708ba56e1517a99f6b5fb07349476ef",
+      "xoxs-416843729158-132049654-5609968301-e708ba56e1",
+      "xoxb-263594206564-2343594206574-FGqddMF8t08v8N7Oq4i57vs1MBS",
+      "xoxb-263594206564-FGqddMF8t08v8N7Oq4i57vs1",
+      "xoxo-89234987234987234798098",
+      "xoxo-523423-234243-234233-e039d02840a0b9379c",
+      "xoxa-2-511111111-31111111111-3111111111111-e039d02840a0b9379c",
+      "xoxr-abcdef-abcdef-abcdef-abcdef",
+      "xoxe.xoxp-EXAMPLE",
+      "xoxe.xoxp-1-EXAMPLE",
+      "xoxe-1-abcdefg",
+      "xapp-1-IEMF8IMY1OQ-4037076220459-85c370b433e366de369c4ef5abdf41253519266982439a75af74a3d68d543fb6",
+      "xapp-1-BM3V7LC51DA-1441525068281-86641a2582cd0903402ab523e5bcc53b8253098c31591e529b55b41974d2e82f"
+    ]
   },
   {
     /*
-    ghp = GitHub Personal Access Token
-    gho = GitHub OAuth Access Token
-    ghu = GitHub App user-to-server token
-    ghs = GitHub App server-to-server token
-    ghr = GitHub App refresh token
+    idp = client_id
+    csp = client_secret
+    atp = application token?
     */
     "active": true,
-    "description": "Github token",
-    "regex": "gh[pousr]_[A-Za-z0-9_]{35,255}"
+    "description": "Square Token",
+    "regex": "sq0(atp|csp|idp)-[0-9A-Za-z\\-_]{22,43}",
+    "urls": [
+      "https://squareup.com/us/en",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/square_token"
+    ],
+    "tests": [
+      "sq0atp-galzvO-5aJ37J_yV-KO1oQ",
+      "sq0atp-NgXnwnDdVQr2du0O2MAieg",
+      "sq0csp-WnMisBjD0DtEoYeM0ZK7Bi1_cXb0X0oRCN0djXcXXX0",
+      "sq0idp-Y7WFLOjXXp00XXXp00_0_A"
+    ]
+  },
+  {
+    "active": true,
+    "description": "Square Auth Token",
+    "regex": "(?<![a-zA-Z0-9])EAAA[a-zA-Z0-9\\-_]{60}",
+    "urls": [
+      "https://developer.squareup.com/docs/build-basics/access-tokens"
+    ],
+    "tests": [
+      "EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
+      "!RandomEAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg"
+    ]
+  },
+  //    {
+  //      "active": true,
+  //      "description": "StackHawk API Key",
+  //      "regex": "hawk(\\.[\\w\\-]{20})+"
+  //    },
+  {
+    "active": true,
+    "description": "Stripe API Secret Key",
+    "regex": "[sr]k_(live|test)_[0-9a-zA-Z]{24}",
+    "urls": [
+      "https://stripe.com/docs/keys"
+    ],
+    "tests": [
+      "sk_test_9W1R4v0cz6AtC9PVwHFzywti",
+      "!pk_test_XUIpXpyaGuuw0Dc9Ng80xFWs",
+      "rk_test_5TcWfjKmJgpql9hjpRnwRXbT",
+      "sk_live_9W1R4v0cz6AtC9PVwHFzywti",
+      "!pk_live_XUIpXpyaGuuw0Dc9Ng80xFWs",
+      "rk_live_5TcWfjKmJgpql9hjpRnwRXbT"
+    ]
+  },
+  {
+    "active": true,
+    "description": "Stripe API Secret Key",
+    "regex": "whsec_[0-9a-zA-Z]{32}",
+    "urls": [
+      "https://stripe.com/docs/keys"
+    ],
+    "tests": [
+      "whsec_9sVCdJUyQd0D7C1YqFD3lRYxQiUUQZG5",
+      "whsec_1DB0MPmnGM4tQmifedN0lrWzZANcjmMj",
+      "whsec_aaAaAAAloaaaaAaAa1A99aaa0AYtAaWw"
+    ]
+  },
+  {
+    "active": true,
+    "description": "Twilio Account SID",
+    "regex": "(?<![a-zA-Z0-9])SK[0-9a-zA-Z]{32}(?![a-zA-Z0-9])",
+    "urls": [
+      "https://www.twilio.com/docs/iam/api-keys/api-key",
+      "https://www.twilio.com/docs/glossary/what-is-a-sid"
+    ],
+    "tests": [
+      "SKa3aiydsctvbbgam9tpp75jsduidvwi9t"
+    ]
+  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "Twitter Access Token",
+  //    "regex": "(?i)twitter([^;,]{0,32}?)['\"]\\d+\\-[0-9a-zA-Z]{40}['\"]",
+  //    // oauth_token=
+  //    "urls": [
+  //      "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens"
+  //    ]
+  //  },
+  //todo
+  //  {
+  //    "active": true,
+  //    "description": "Twitter Secret Key",
+  //    "regex": "(?i)twitter([^;,]{0,32}?)['\"][0-9a-zA-Z]{35,44}['\"]",
+  //    // oauth_token_secret=
+  //    "urls": [
+  //      "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens"
+  //    ]
+  //  },
+  {
+    /*
+    Token type                                                      | Prefix
+    ================================================================|==============
+    Personal access token (classic)                                 | ghp_
+    Fine-grained personal access token                              | github_pat_
+    OAuth access token                                              | gho_
+    User access token (user-to-server) for a GitHub App             | ghu_
+    Installation access token (server-to-server) for a GitHub App   | ghs_
+    Refresh token for a GitHub App                                  | ghr_
+    */
+    "active": true,
+    "description": "Github Token",
+    "regex": "gh[pousr]_[A-Za-z0-9]{36}",
+    "urls": [
+      "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github",
+      "https://learn.microsoft.com/en-us/purview/sit-defn-github-personal-access-token",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/github_access_token"
+    ],
+    "tests": [
+      "ghp_abcdefghijklmnopqrstuvwxyzABCD012345",
+      "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",
+      "ghs_uTzsHn7ntsbrT3RUE7dsGx3Qq4689V2Jzoq0",
+      "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",
+      "ghu_uTzsHn7ntsbrT3RUE7dsGx3Qq4689V2Jzoq0"
+    ]
+  },
+  {
+    "active": true,
+    "description": "Github fine-grained personal access token",
+    "regex": "github_pat_[0-9a-zA-Z]{22}_[0-9a-zA-Z]{59}",
+    "urls": [
+      "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/github_access_token"
+    ],
+    "tests": [
+      "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"
+    ]
   }
 ]

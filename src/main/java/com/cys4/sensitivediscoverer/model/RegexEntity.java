@@ -5,6 +5,7 @@ See the file 'LICENSE' for copying permission
 package com.cys4.sensitivediscoverer.model;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,27 +21,34 @@ public class RegexEntity {
     private final transient Pattern regexCompiled;
     private final String description;
     private final EnumSet<ProxyItemSection> sections;
+    private final List<String> tests;
     private boolean active;
-
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
-        this(description, regex, true, ProxyItemSection.getDefault());
+        this(description, regex, true, ProxyItemSection.getDefault(), null);
     }
 
     public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException {
-        this(description, regex, active, ProxyItemSection.getDefault());
+        this(description, regex, active, ProxyItemSection.getDefault(), null);
     }
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections) {
-        if (regex == null || regex.isBlank())
+        this(description, regex, active, sections, null);
+    }
+
+    public RegexEntity(String description, String regex, boolean active, EnumSet<ProxyItemSection> sections, List<String> tests) {
+        if (regex == null || regex.isBlank()) {
             throw new IllegalArgumentException(getLocaleString("exception-invalidRegex"));
-        if (sections == null)
+        }
+        if (sections == null) {
             throw new IllegalArgumentException(getLocaleString("exception-invalidSections"));
+        }
 
         this.active = active;
         this.description = description;
         this.regex = regex;
         this.regexCompiled = Pattern.compile(regex);
         this.sections = sections;
+        this.tests = tests;
     }
 
     public RegexEntity(RegexEntity entity) throws IllegalArgumentException {
@@ -57,6 +65,10 @@ public class RegexEntity {
         return Pattern
                 .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
                 .matcher(input);
+    }
+
+    public List<String> getTests() {
+        return tests;
     }
 
     public boolean isActive() {

@@ -29,8 +29,10 @@ public class MainUI implements ITab {
     private final Properties configProperties;
     private final ScannerOptions scannerOptions;
     private JTabbedPane mainPanel;
+    private boolean interfaceInitialized;
 
     public MainUI(IBurpExtenderCallbacks callbacks) throws Exception {
+        this.interfaceInitialized = false;
         this.callbacks = callbacks;
 
         // setup stdout/stderr
@@ -50,6 +52,10 @@ public class MainUI implements ITab {
         this.extensionsRegexList = RegexSeeder.getExtensionRegexes();
     }
 
+    public boolean isInterfaceInitialized() {
+        return interfaceInitialized;
+    }
+
     public ScannerOptions getScannerOptions() {
         return scannerOptions;
     }
@@ -57,11 +63,11 @@ public class MainUI implements ITab {
     /**
      * Main function that initializes the extension and creates the UI, asynchronously
      */
-    public void initialize() {
-        SwingUtilities.invokeLater(this::_initialize);
+    public void initializeUI() {
+        SwingUtilities.invokeLater(this::_initializeUI);
     }
 
-    private void _initialize() {
+    private void _initializeUI() {
         mainPanel = new JTabbedPane();
         LoggerTab loggerTab = new LoggerTab(this);
         mainPanel.addTab(loggerTab.getTabName(), loggerTab.getPanel());
@@ -72,6 +78,8 @@ public class MainUI implements ITab {
 
         callbacks.customizeUiComponent(mainPanel);
         callbacks.addSuiteTab(MainUI.this);
+
+        this.interfaceInitialized = true;
     }
 
     /**

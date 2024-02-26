@@ -10,21 +10,39 @@
     */
     "active": true,
     "description": "Slack Webhook",
-    "regex": "hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}"
+    "regex": "hooks\\.slack\\.com/services/T[a-zA-Z0-9_]{8,10}/B[a-zA-Z0-9_]{8,10}/[a-zA-Z0-9_]{24}",
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/slack_webhook_url"
+    ],
+    "tests": [
+      "https://hooks.slack.com/services/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",
+      "hooks.slack.com/services/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",
+      "https://hooks.slack.com/services/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"
+    ]
   },
   {
     "active": true,
     "description": "Outlook Teams 1",
-    "regex": "outlook\\.office\\.com/webhook/[\\w\\-]+"
+    "regex": "outlook\\.office\\.com/webhook/[\\w\\-]+",
+    "tests": [
+      "https://outlook.office.com/webhook/5348781d-52a8-490f-b75b-a720702114d1@b662313f-14fc-43a3-9a7a-d0e27f4f3470/IncomingWebhook/f280f53c0d244ebdba7fea00035f35df/eff4cd50-1bb8-4899-94de-795f65600a18"
+    ]
   },
   {
     "active": true,
     "description": "Outlook Teams 2",
-    "regex": "\\w+\\.webhook\\.office\\.com"
+    "regex": "\\w+\\.webhook\\.office\\.com",
+    "tests": [
+      "https://example.webhook.office.com/webhookb2/325b9962-d380-4003-9fe3-a1c246cbafa4@7f28634d-dced-4d04-bc25-b8373a972720/appId/fd92f39d3f37573e2ba95a3df72dcdb2/b5cb79af-3d26-4a56-9d17-52d1b5cd78d7"
+    ]
   },
   {
     "active": true,
-    "description": "Firebase URL",
-    "regex": "[0-9a-zA-Z\\.\\-]+\\.firebaseio\\.com"
+    "description": "Firebase database URL",
+    "regex": "[0-9a-zA-Z\\.\\-]{0,16}\\.(firebaseio\\.com|firebasedatabase\\.app)",
+    "tests": [
+      "example.europe-west1.firebasedatabase.app",
+      "Example1.firebaseio.com"
+    ]
   }
 ]

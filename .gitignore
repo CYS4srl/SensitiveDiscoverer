@@ -41,6 +41,7 @@ buildNumber.properties
 .classpath
 
 # manually added
+.attach_pid*
 out/
 *.iml
 src/build/
