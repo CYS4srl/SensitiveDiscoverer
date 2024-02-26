@@ -11,6 +11,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RegexSeederTest {
     private final Condition<String> positiveMatch = new Condition<>(s -> !(s.startsWith("!")), "positive match");
 
+    /**
+     * Assert that each regex in the list has at least one test string and also assert that each test string matches correctly
+     * @param regexList The regex list
+     */
     private void testRegexList(List<RegexEntity> regexList) {
         assertThat(regexList)
                 .isNotEmpty()
