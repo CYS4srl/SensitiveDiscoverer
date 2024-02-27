@@ -119,6 +119,15 @@ public class RegexEntity {
     }
 
     @Override
+    public String toString() {
+        return "RegexEntity{" +
+                "regex='" + regex + '\'' +
+                ", description='" + description + '\'' +
+                ", sections=" + sections +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(this.getRegex());
     }
