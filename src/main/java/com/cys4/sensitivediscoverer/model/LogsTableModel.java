@@ -25,37 +25,31 @@ public class LogsTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 3;
     }
 
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> getLocaleString("logger-table-requestId");
-            case 1 -> getLocaleString("common-url");
-            case 2 -> getLocaleString("common-regex");
-            case 3 -> getLocaleString("common-match");
+            case 0 -> getLocaleString("common-url");
+            case 1 -> getLocaleString("common-regex");
+            case 2 -> getLocaleString("common-match");
             default -> "";
         };
     }
 
     public String getColumnNameFormatted(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "request_id";
-            case 1 -> "url";
-            case 2 -> "regex";
-            case 3 -> "match";
+            case 0 -> "url";
+            case 1 -> "regex";
+            case 2 -> "match";
             default -> "";
         };
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 0) {
-            return Integer.class;
-        } else {
-            return String.class;
-        }
+        return String.class;
     }
 
     @Override
@@ -63,10 +57,9 @@ public class LogsTableModel extends AbstractTableModel {
         LogEntity logEntity = logEntries.get(rowIndex);
 
         return switch (columnIndex) {
-            case 0 -> logEntity.getIdRequest();
-            case 1 -> logEntity.getURL().toString();
-            case 2 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
-            case 3 -> logEntity.getMatch();
+            case 0 -> logEntity.getRequestResponse().finalRequest().url();
+            case 1 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
+            case 2 -> logEntity.getMatch();
             default -> "";
         };
     }

@@ -4,7 +4,10 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.tab;
 
-import burp.ITextEditor;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.ui.editor.HttpRequestEditor;
+import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.RegexScanner;
 import com.cys4.sensitivediscoverer.Utils;
@@ -47,8 +50,8 @@ public class LoggerTab implements ApplicationTab {
     private final Object analyzeLock = new Object();
     private final Object loggerLock = new Object();
     private final RegexScanner regexScanner;
-    private ITextEditor originalRequestViewer;
-    private ITextEditor originalResponseViewer;
+    private HttpRequestEditor originalRequestViewer;
+    private HttpResponseEditor originalResponseViewer;
     private LogsTable logsTable;
     private boolean isAnalysisRunning;
     private Thread analyzeProxyHistoryThread;
@@ -65,7 +68,7 @@ public class LoggerTab implements ApplicationTab {
         this.analyzeProxyHistoryThread = null;
         this.logEntries = new ArrayList<>();
         this.regexScanner = new RegexScanner(
-                this.mainUI.getCallbacks(),
+                this.mainUI.getBurpApi(),
                 this.mainUI.getScannerOptions(),
                 mainUI.getGeneralRegexList(),
                 mainUI.getExtensionsRegexList());
@@ -121,7 +124,7 @@ public class LoggerTab implements ApplicationTab {
         boxCenter = new JPanel();
         boxCenter.setLayout(new GridBagLayout());
 
-        // split plane
+        // vertical split plane - log entries on top and req/res editor on bottom
         JSplitPane verticalSplitPane = new JSplitPane();
         verticalSplitPane.setOrientation(0);
         verticalSplitPane.setResizeWeight(0.6);
@@ -142,7 +145,7 @@ public class LoggerTab implements ApplicationTab {
         requestLabel.setFont(UIOptions.H2_FONT);
         requestLabel.setForeground(UIOptions.ACCENT_COLOR);
         requestPanelHeader.add(requestLabel, BorderLayout.NORTH);
-        requestPanel.add(this.originalRequestViewer.getComponent(), BorderLayout.CENTER);
+        requestPanel.add(this.originalRequestViewer.uiComponent(), BorderLayout.CENTER);
         responsePanel = new JPanel(new BorderLayout(0, 0));
         requestResponseSplitPane.setRightComponent(responsePanel);
 
@@ -153,7 +156,7 @@ public class LoggerTab implements ApplicationTab {
         responseLabel.setFont(UIOptions.H2_FONT);
         responseLabel.setForeground(UIOptions.ACCENT_COLOR);
         responsePanelHeader.add(responseLabel, BorderLayout.NORTH);
-        responsePanel.add(this.originalResponseViewer.getComponent(), BorderLayout.CENTER);
+        responsePanel.add(this.originalResponseViewer.uiComponent(), BorderLayout.CENTER);
 
         return boxCenter;
     }
@@ -273,8 +276,8 @@ public class LoggerTab implements ApplicationTab {
 
     private JScrollPane createLogEntriesTable() {
         logsTableModel = new LogsTableModel(logEntries);
-        this.originalRequestViewer = this.mainUI.getCallbacks().createTextEditor();
-        this.originalResponseViewer = this.mainUI.getCallbacks().createTextEditor();
+        this.originalRequestViewer = this.mainUI.getBurpApi().userInterface().createHttpRequestEditor();
+        this.originalResponseViewer = this.mainUI.getBurpApi().userInterface().createHttpResponseEditor();
         this.logsTable = new LogsTable(logsTableModel, logEntries, this.originalRequestViewer, this.originalResponseViewer);
         // disable sorting on columns while scanning. This helps to prevent Swing exceptions.
         logsTable.getTableHeader().putClientProperty("analysisDependent", "1");
@@ -296,7 +299,7 @@ public class LoggerTab implements ApplicationTab {
                         LogEntity logentry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogsTable) {
-                            new LogsTableContextMenu(logentry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getCallbacks(), isAnalysisRunning)
+                            new LogsTableContextMenu(logentry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
                                     .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
@@ -318,17 +321,15 @@ public class LoggerTab implements ApplicationTab {
         itemToCSV.addActionListener(actionEvent -> {
             java.util.List<String> lines = new ArrayList<>();
 
-            lines.add(String.format("\"%s\",\"%s\",\"%s\"",
+            lines.add(String.format("\"%s\",\"%s\"",
                     logsTableModel.getColumnNameFormatted(0),
-                    logsTableModel.getColumnNameFormatted(1),
-                    logsTableModel.getColumnNameFormatted(3)));
+                    logsTableModel.getColumnNameFormatted(2)));
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
-                String request_id = logsTableModel.getValueAt(i, 0).toString();
-                String url = logsTableModel.getValueAt(i, 1).toString();
-                String matchEscaped = logsTableModel.getValueAt(i, 3).toString().replaceAll("\"", "\"\"");
-                lines.add(String.format("\"%s\",\"%s\",\"%s\"", request_id, url, matchEscaped));
+                String url = logsTableModel.getValueAt(i, 0).toString();
+                String matchEscaped = logsTableModel.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
+                lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
             }
 
             Utils.saveToFile("csv", lines);
@@ -340,15 +341,13 @@ public class LoggerTab implements ApplicationTab {
             java.util.List<JsonObject> lines = new ArrayList<>();
 
             String prop1 = logsTableModel.getColumnNameFormatted(0);
-            String prop2 = logsTableModel.getColumnNameFormatted(1);
-            String prop3 = logsTableModel.getColumnNameFormatted(3);
+            String prop2 = logsTableModel.getColumnNameFormatted(2);
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty(prop1, logsTableModel.getValueAt(i, 0).toString());
-                obj.addProperty(prop2, logsTableModel.getValueAt(i, 1).toString());
-                obj.addProperty(prop3, logsTableModel.getValueAt(i, 3).toString());
+                obj.addProperty(prop2, logsTableModel.getValueAt(i, 2).toString());
                 lines.add(obj);
             }
 
@@ -374,9 +373,9 @@ public class LoggerTab implements ApplicationTab {
                 logEntries.clear();
                 logsTableModel.clear();
 
-                originalResponseViewer.setText(new byte[0]);
+                originalResponseViewer.setResponse(HttpResponse.httpResponse(""));
                 originalResponseViewer.setSearchExpression("");
-                originalRequestViewer.setText(new byte[0]);
+                originalRequestViewer.setRequest(HttpRequest.httpRequest(""));
             }
 
             scrollPaneLogger.validate();

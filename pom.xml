@@ -23,9 +23,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.portswigger.burp.extender</groupId>
-            <artifactId>burp-extender-api</artifactId>
-            <version>2.3</version>
+            <groupId>net.portswigger.burp.extensions</groupId>
+            <artifactId>montoya-api</artifactId>
+            <version>2023.12.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

@@ -1,7 +1,7 @@
 package com.cys4.sensitivediscoverer;
 
-import burp.IBurpExtenderCallbacks;
-import com.cys4.sensitivediscoverer.mock.BurpExtenderCallbacksMock;
+import burp.api.montoya.MontoyaApi;
+import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +14,12 @@ import static org.awaitility.Awaitility.await;
 
 class MainUITest {
     private MainUI mainUI;
-    private IBurpExtenderCallbacks burpExtenderCallbacks;
+    private MontoyaApi burpApi;
 
     @BeforeEach
     void setUp() throws Exception {
-        this.burpExtenderCallbacks = new BurpExtenderCallbacksMock();
-        this.mainUI = new MainUI(burpExtenderCallbacks);
+        this.burpApi = new BurpMontoyaApiMock();
+        this.mainUI = new MainUI(burpApi);
         assertThat(this.mainUI.isInterfaceInitialized()).isFalse();
     }
 
@@ -50,8 +50,8 @@ class MainUITest {
 
     @Test
     void testGetCallbacks() {
-        assertThat(this.burpExtenderCallbacks).isNotNull();
-        assertThat(this.mainUI.getCallbacks()).isSameAs(this.burpExtenderCallbacks);
+        assertThat(this.burpApi).isNotNull();
+        assertThat(this.mainUI.getBurpApi()).isSameAs(this.burpApi);
     }
 
     @Test
@@ -65,17 +65,7 @@ class MainUITest {
     }
 
     @Test
-    void testGetNameExtension() {
-        assertThat(mainUI.getNameExtension()).isEqualTo("Sensitive Discoverer");
-    }
-
-    @Test
-    void testGetTabCaption() {
-        assertThat(this.mainUI.getTabCaption()).isEqualTo(this.mainUI.getNameExtension());
-    }
-
-    @Test
-    void testGetUiComponent() {
-        assertThat(this.mainUI.getUiComponent()).isSameAs(this.mainUI.getMainPanel());
+    void testGetExtensionName() {
+        assertThat(mainUI.getExtensionName()).isEqualTo("Sensitive Discoverer");
     }
 }
