@@ -296,10 +296,10 @@ public class LoggerTab implements ApplicationTab {
                     logsTable.setRowSelectionInterval(row, row);
                     if (logsTable.getSelectedRowCount() == 1) {
                         int realRow = logsTable.convertRowIndexToModel(row);
-                        LogEntity logentry = logEntries.get(realRow);
+                        LogEntity logEntry = logEntries.get(realRow);
 
                         if (e.getComponent() instanceof LogsTable) {
-                            new LogsTableContextMenu(logentry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
+                            new LogsTableContextMenu(logEntry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
                                     .show(e.getComponent(), e.getX(), e.getY());
                         }
                     }
