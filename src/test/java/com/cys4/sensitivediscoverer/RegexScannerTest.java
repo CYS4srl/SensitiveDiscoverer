@@ -1,6 +1,9 @@
 package com.cys4.sensitivediscoverer;
 
-import com.cys4.sensitivediscoverer.mock.*;
+import burp.api.montoya.proxy.ProxyHttpRequestResponse;
+import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
+import com.cys4.sensitivediscoverer.mock.ProxyHttpRequestResponseMock;
+import com.cys4.sensitivediscoverer.mock.ProxyMock;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
@@ -8,9 +11,6 @@ import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,38 +21,20 @@ class RegexScannerTest {
     private final List<RegexEntity> generalRegexList = List.of();
     private final List<RegexEntity> extensionsRegexList = List.of();
     private RegexScanner regexScanner;
-    private BurpExtenderCallbacksMock burpExtenderCallbacks;
-    private ExtensionHelpersMock extensionHelpers;
+    private BurpMontoyaApiMock burpApi;
     private ScannerOptions scannerOptions;
+    private List<LogEntity> logEntries;
+    private Consumer<Integer> itemAnalyzedCallback;
+    private Consumer<LogEntity> logEntityConsumer;
 
     private static void accept(Integer integer) {
     }
 
-    private byte[] B(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    private HttpRequestResponseMock HRR(String req, String res) {
-        return new HttpRequestResponseMock(B(req), B(res));
-    }
-
     @BeforeEach
     void setUp() {
-        extensionHelpers = new ExtensionHelpersMock();
-        //TODO missing way to test url & headers
-        extensionHelpers.setAnalyzeRequestFunction(httpRequestResponse -> {
-            try {
-                return new RequestInfoMock(List.of(), new URL("https://null"));
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        //TODO missing way to test headers
-        extensionHelpers.setAnalyzeResponseFunction(response -> new ResponseInfoMock(List.of()));
-        extensionHelpers.setBytesToStringFunction(bytes -> new String(bytes, StandardCharsets.UTF_8));
-        burpExtenderCallbacks = new BurpExtenderCallbacksMock();
-        burpExtenderCallbacks.setHelpers(extensionHelpers);
+        burpApi = new BurpMontoyaApiMock();
 
+        //TODO test scanner options
         scannerOptions = new ScannerOptions();
         scannerOptions.setConfigMaxResponseSize(10000000);
         scannerOptions.setConfigNumberOfThreads(1);
@@ -60,46 +42,78 @@ class RegexScannerTest {
         scannerOptions.setFilterSkipMaxSizeCheckbox(false);
         scannerOptions.setFilterSkipMediaTypeCheckbox(false);
 
-        this.regexScanner = new RegexScanner(burpExtenderCallbacks, scannerOptions, generalRegexList, extensionsRegexList);
+        this.regexScanner = new RegexScanner(burpApi, scannerOptions, generalRegexList, extensionsRegexList);
     }
 
-    @Test
-    void testAnalysisOfGeneralRegexes() {
-        final List<LogEntity> logEntities = new ArrayList<>();
+    @BeforeEach
+    void setUpCallbacks() {
+        this.logEntries = new ArrayList<>();
         final Object loggerLock = new Object();
 
-        // set-up callbacks
-        Consumer<Integer> itemAnalyzedCallback = RegexScannerTest::accept;
-        Consumer<LogEntity> logEntityConsumer = logEntity -> {
+        itemAnalyzedCallback = RegexScannerTest::accept;
+        //TODO logEntityConsumer should use LoggerTab::addLogEntry instead of re-implementing it
+        logEntityConsumer = logEntry -> {
             synchronized (loggerLock) {
-                logEntities.add(logEntity);
+                if (!logEntries.contains(logEntry)) {
+                    logEntries.add(logEntry);
+                }
             }
         };
-        // set-up BurpExtenderCallbacks
-        this.burpExtenderCallbacks.setIsInScopePredicate(url -> true);
-        HttpRequestResponseMock[] proxyHistory = {
-                HRR("testing", "testing")
-        };
-        this.burpExtenderCallbacks.setProxyHistory(proxyHistory);
+    }
 
-        // test 1
-        logEntities.clear();
-        this.regexScanner = new RegexScanner(this.burpExtenderCallbacks, this.scannerOptions,
+    //TODO: test matching of specific sections
+
+    @Test
+    void testGeneralRegexesWithFindings() {
+        List<ProxyHttpRequestResponse> proxyHistory = List.of(
+                new ProxyHttpRequestResponseMock("testing", "testing", "Mon, 01 Jan 1990 10:00:00 GMT"),
+                new ProxyHttpRequestResponseMock("a testing 2", "a testing 2", "Mon, 01 Jan 1990 10:00:01 GMT")
+        );
+        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
                         new RegexEntity("Match test string", "test", true, ProxyItemSection.ALL)
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
-        assertThat(logEntities).as("Check count of entries found").hasSize(2);
+        assertThat(logEntries).as("Check count of entries found").hasSize(2);
+    }
 
-        // test 2
-        logEntities.clear();
-        this.regexScanner = new RegexScanner(this.burpExtenderCallbacks, this.scannerOptions,
+    @Test
+    void testGeneralRegexesNoDuplicatesInFindings() {
+        List<ProxyHttpRequestResponse> proxyHistory = List.of(
+                new ProxyHttpRequestResponseMock("testing", "testing", "Mon, 01 Jan 1990 10:00:00 GMT"),
+                new ProxyHttpRequestResponseMock("testing", "testing", "Mon, 01 Jan 1990 10:00:00 GMT"),
+                new ProxyHttpRequestResponseMock("a testing 2", "a testing 2", "Mon, 01 Jan 1990 10:00:01 GMT"),
+                new ProxyHttpRequestResponseMock("a testing 2", "a testing 2", "Mon, 01 Jan 1990 10:00:01 GMT")
+        );
+        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
+                List.of(
+                        new RegexEntity("Match test string", "test", true, ProxyItemSection.ALL)
+                ),
+                List.of());
+        regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
+        assertThat(logEntries).as("Check duplicates aren't inserted more than once").hasSize(2);
+    }
+
+    @Test
+    void testGeneralRegexesNoFindings() {
+        List<ProxyHttpRequestResponse> proxyHistory = List.of(
+                new ProxyHttpRequestResponseMock("testing", "testing"),
+                new ProxyHttpRequestResponseMock("a testing 2", "a testing 2")
+        );
+        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
                         new RegexEntity("Match random string", "random", true, ProxyItemSection.ALL)
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
-        assertThat(logEntities).as("Check count of entries found").hasSize(0);
+        assertThat(logEntries).as("Check count of entries found").hasSize(0);
     }
 }

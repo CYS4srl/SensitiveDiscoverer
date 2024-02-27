@@ -1,21 +1,36 @@
 package com.cys4.sensitivediscoverer.mock;
 
-import burp.IHttpService;
+import burp.api.montoya.http.HttpService;
+import org.apache.commons.lang3.NotImplementedException;
 
-public class HttpServiceMock implements IHttpService {
+public class HttpServiceMock implements HttpService {
+    private final String host;
+    private final int port;
+    private final boolean secure;
 
-    @Override
-    public String getHost() {
-        return "test.com";
+    public HttpServiceMock(String host, int port, boolean secure) {
+        this.host = host;
+        this.port = port;
+        this.secure = secure;
     }
 
     @Override
-    public int getPort() {
-        return 443;
+    public String host() {
+        return this.host;
     }
 
     @Override
-    public String getProtocol() {
-        return "https";
+    public int port() {
+        return this.port;
+    }
+
+    @Override
+    public boolean secure() {
+        return this.secure;
+    }
+
+    @Override
+    public String ipAddress() {
+        throw new NotImplementedException();
     }
 }
