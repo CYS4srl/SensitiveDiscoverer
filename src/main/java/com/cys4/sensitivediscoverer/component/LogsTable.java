@@ -26,9 +26,6 @@ public class LogsTable extends JTable {
 
     public LogsTable(LogsTableModel logsTableModel, List<LogEntity> logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
         super(logsTableModel);
-        this.getColumnModel().getColumn(0).setMinWidth(80);
-        this.getColumnModel().getColumn(0).setMaxWidth(80);
-        this.getColumnModel().getColumn(0).setPreferredWidth(80);
 
         this.logEntries = logEntries;
         this.requestViewer = requestViewer;

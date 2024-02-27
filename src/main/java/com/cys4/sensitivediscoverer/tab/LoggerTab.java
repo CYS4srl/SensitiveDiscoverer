@@ -321,17 +321,15 @@ public class LoggerTab implements ApplicationTab {
         itemToCSV.addActionListener(actionEvent -> {
             java.util.List<String> lines = new ArrayList<>();
 
-            lines.add(String.format("\"%s\",\"%s\",\"%s\"",
+            lines.add(String.format("\"%s\",\"%s\"",
                     logsTableModel.getColumnNameFormatted(0),
-                    logsTableModel.getColumnNameFormatted(1),
-                    logsTableModel.getColumnNameFormatted(3)));
+                    logsTableModel.getColumnNameFormatted(2)));
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
-                String request_id = logsTableModel.getValueAt(i, 0).toString();
-                String url = logsTableModel.getValueAt(i, 1).toString();
-                String matchEscaped = logsTableModel.getValueAt(i, 3).toString().replaceAll("\"", "\"\"");
-                lines.add(String.format("\"%s\",\"%s\",\"%s\"", request_id, url, matchEscaped));
+                String url = logsTableModel.getValueAt(i, 0).toString();
+                String matchEscaped = logsTableModel.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
+                lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
             }
 
             Utils.saveToFile("csv", lines);
@@ -343,15 +341,13 @@ public class LoggerTab implements ApplicationTab {
             java.util.List<JsonObject> lines = new ArrayList<>();
 
             String prop1 = logsTableModel.getColumnNameFormatted(0);
-            String prop2 = logsTableModel.getColumnNameFormatted(1);
-            String prop3 = logsTableModel.getColumnNameFormatted(3);
+            String prop2 = logsTableModel.getColumnNameFormatted(2);
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty(prop1, logsTableModel.getValueAt(i, 0).toString());
-                obj.addProperty(prop2, logsTableModel.getValueAt(i, 1).toString());
-                obj.addProperty(prop3, logsTableModel.getValueAt(i, 3).toString());
+                obj.addProperty(prop2, logsTableModel.getValueAt(i, 2).toString());
                 lines.add(obj);
             }
 

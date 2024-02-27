@@ -9,7 +9,6 @@ import java.util.List;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
-//TODO remove first column that's not used anymore
 public class LogsTableModel extends AbstractTableModel {
 
     // get the reference of the array of entries
@@ -26,26 +25,24 @@ public class LogsTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 3;
     }
 
     @Override
     public String getColumnName(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "#";
-            case 1 -> getLocaleString("common-url");
-            case 2 -> getLocaleString("common-regex");
-            case 3 -> getLocaleString("common-match");
+            case 0 -> getLocaleString("common-url");
+            case 1 -> getLocaleString("common-regex");
+            case 2 -> getLocaleString("common-match");
             default -> "";
         };
     }
 
     public String getColumnNameFormatted(int columnIndex) {
         return switch (columnIndex) {
-            case 0 -> "#";
-            case 1 -> "url";
-            case 2 -> "regex";
-            case 3 -> "match";
+            case 0 -> "url";
+            case 1 -> "regex";
+            case 2 -> "match";
             default -> "";
         };
     }
@@ -60,10 +57,9 @@ public class LogsTableModel extends AbstractTableModel {
         LogEntity logEntity = logEntries.get(rowIndex);
 
         return switch (columnIndex) {
-            case 0 -> "#";
-            case 1 -> logEntity.getRequestResponse().finalRequest().url();
-            case 2 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
-            case 3 -> logEntity.getMatch();
+            case 0 -> logEntity.getRequestResponse().finalRequest().url();
+            case 1 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
+            case 2 -> logEntity.getMatch();
             default -> "";
         };
     }
