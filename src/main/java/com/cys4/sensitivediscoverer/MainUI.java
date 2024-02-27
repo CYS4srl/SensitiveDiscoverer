@@ -4,8 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer;
 
-import burp.IBurpExtenderCallbacks;
-import burp.ITab;
+import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import com.cys4.sensitivediscoverer.tab.AboutTab;
@@ -14,16 +13,13 @@ import com.cys4.sensitivediscoverer.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.tab.OptionsTab;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
 import static com.cys4.sensitivediscoverer.Utils.loadConfigFile;
 
-public class MainUI implements ITab {
-    private final IBurpExtenderCallbacks callbacks;
+public class MainUI {
+    private final MontoyaApi burpApi;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
     private final Properties configProperties;
@@ -31,13 +27,9 @@ public class MainUI implements ITab {
     private JTabbedPane mainPanel;
     private boolean interfaceInitialized;
 
-    public MainUI(IBurpExtenderCallbacks callbacks) throws Exception {
+    public MainUI(MontoyaApi burpApi) throws Exception {
         this.interfaceInitialized = false;
-        this.callbacks = callbacks;
-
-        // setup stdout/stderr
-        System.setOut(new PrintStream(callbacks.getStdout(), true, StandardCharsets.UTF_8));
-        System.setErr(new PrintStream(callbacks.getStderr(), true, StandardCharsets.UTF_8));
+        this.burpApi = burpApi;
 
         // parse configurations
         this.configProperties = loadConfigFile();
@@ -76,8 +68,8 @@ public class MainUI implements ITab {
         ApplicationTab aboutTab = new AboutTab();
         mainPanel.addTab(aboutTab.getTabName(), aboutTab.getPanel());
 
-        callbacks.customizeUiComponent(mainPanel);
-        callbacks.addSuiteTab(MainUI.this);
+        burpApi.userInterface().applyThemeToComponent(mainPanel);
+        burpApi.userInterface().registerSuiteTab(this.getExtensionName(), this.getMainPanel());
 
         this.interfaceInitialized = true;
     }
@@ -89,8 +81,8 @@ public class MainUI implements ITab {
         return mainPanel;
     }
 
-    public IBurpExtenderCallbacks getCallbacks() {
-        return callbacks;
+    public MontoyaApi getBurpApi() {
+        return burpApi;
     }
 
     public List<RegexEntity> getGeneralRegexList() {
@@ -102,19 +94,10 @@ public class MainUI implements ITab {
     }
 
     /**
-     * GetNameExtension return the name of the extension from the configuration file
+     * getExtensionName return the name of the extension from the configuration file
      */
-    public String getNameExtension() {
+    public String getExtensionName() {
         return configProperties.getProperty("ui.extension_name");
     }
 
-    @Override
-    public String getTabCaption() {
-        return getNameExtension();
-    }
-
-    @Override
-    public Component getUiComponent() {
-        return getMainPanel();
-    }
 }

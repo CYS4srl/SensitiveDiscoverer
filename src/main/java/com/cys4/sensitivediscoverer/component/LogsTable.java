@@ -4,13 +4,15 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.component;
 
-import burp.ITextEditor;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.ui.editor.HttpRequestEditor;
+import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * JTable for Viewing Logs
@@ -19,10 +21,10 @@ public class LogsTable extends JTable {
 
     // get the reference of the array of entries
     private final List<LogEntity> logEntries;
-    private final ITextEditor requestViewer;
-    private final ITextEditor responseViewer;
+    private final HttpRequestEditor requestViewer;
+    private final HttpResponseEditor responseViewer;
 
-    public LogsTable(LogsTableModel logsTableModel, List<LogEntity> logEntries, ITextEditor requestViewer, ITextEditor responseViewer) {
+    public LogsTable(LogsTableModel logsTableModel, List<LogEntity> logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
         super(logsTableModel);
         this.getColumnModel().getColumn(0).setMinWidth(80);
         this.getColumnModel().getColumn(0).setMaxWidth(80);
@@ -43,16 +45,14 @@ public class LogsTable extends JTable {
         int realRow = this.convertRowIndexToModel(row);
         LogEntity logEntry = logEntries.get(realRow);
 
-        byte[] originalRequest = logEntry.getRequestResponse().getRequest();
-        byte[] originalResponse = logEntry.getRequestResponse().getResponse();
-        updateRequestViewers(originalRequest, originalResponse, logEntry.getMatch());
+        updateRequestViewers(logEntry.getRequestResponse().finalRequest(), logEntry.getRequestResponse().response(), logEntry.getMatch());
     }
 
-    public void updateRequestViewers(byte[] request, byte[] response, String search) {
+    public void updateRequestViewers(HttpRequest request, HttpResponse response, String search) {
         SwingUtilities.invokeLater(() -> {
-            requestViewer.setText(Objects.requireNonNullElseGet(request, () -> new byte[0]));
+            requestViewer.setRequest(request);
             requestViewer.setSearchExpression(search);
-            responseViewer.setText(Objects.requireNonNullElseGet(response, () -> new byte[0]));
+            responseViewer.setResponse(response);
             responseViewer.setSearchExpression(search);
         });
     }

@@ -4,8 +4,11 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.component;
 
-import burp.IBurpExtenderCallbacks;
-import burp.ITextEditor;
+import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.ui.editor.HttpRequestEditor;
+import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
 
@@ -20,24 +23,18 @@ import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
 public class LogsTableContextMenu extends JPopupMenu {
 
-    public LogsTableContextMenu(LogEntity le,
+    public LogsTableContextMenu(LogEntity logEntry,
                                 List<LogEntity> logEntries,
-                                ITextEditor originalRequestViewer,
-                                ITextEditor originalResponseViewer,
+                                HttpRequestEditor originalRequestViewer,
+                                HttpResponseEditor originalResponseViewer,
                                 LogsTableModel logsTableModel,
                                 LogsTable logsTable,
-                                IBurpExtenderCallbacks callbacks,
+                                MontoyaApi burpApi,
                                 boolean isAnalysisRunning) {
-        // populate the menu
-        String urlLog = le.getURL().toString();
-        if (urlLog.length() > 50) urlLog = urlLog.substring(0, 47) + "...";
-        this.add(new JMenuItem(urlLog));
-        this.add(new JPopupMenu.Separator());
-
         JMenuItem sendToRepeater = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToRepeater")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                callbacks.sendToRepeater(le.getHost(), le.getPort(), le.isSSL(), le.getRequestResponse().getRequest(), "regext");
+                burpApi.repeater().sendToRepeater(logEntry.getRequestResponse().request(), logEntry.getRegexEntity().getDescription());
             }
         });
         this.add(sendToRepeater);
@@ -45,7 +42,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem sendToIntruder = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToIntruder")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                callbacks.sendToIntruder(le.getHost(), le.getPort(), le.isSSL(), le.getRequestResponse().getRequest());
+                burpApi.intruder().sendToIntruder(logEntry.getRequestResponse().request());
             }
         });
         this.add(sendToIntruder);
@@ -54,7 +51,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem comparerRequest = new JMenuItem(new AbstractAction(getLocaleString("common-request")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                callbacks.sendToComparer(le.getRequestResponse().getRequest());
+                burpApi.comparer().sendToComparer(logEntry.getRequestResponse().finalRequest().toByteArray());
             }
         });
         sendToComparer.add(comparerRequest);
@@ -62,7 +59,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem comparerResponse = new JMenuItem(new AbstractAction(getLocaleString("common-response")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                callbacks.sendToComparer(le.getRequestResponse().getResponse());
+                burpApi.comparer().sendToComparer(logEntry.getRequestResponse().response().toByteArray());
             }
         });
         sendToComparer.add(comparerResponse);
@@ -72,15 +69,15 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem removeItem = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-removeItem")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                logEntries.remove(le);
+                logEntries.remove(logEntry);
 
                 int rowIndex = logsTable.getSelectedRow();
                 if (rowIndex == -1) return;
                 int realRow = logsTable.convertRowIndexToModel(rowIndex);
                 logsTableModel.fireTableRowsDeleted(realRow, realRow);
 
-                originalResponseViewer.setText(new byte[0]);
-                originalRequestViewer.setText(new byte[0]);
+                originalResponseViewer.setResponse(HttpResponse.httpResponse(""));
+                originalRequestViewer.setRequest(HttpRequest.httpRequest(""));
             }
         });
         if (isAnalysisRunning) removeItem.setEnabled(false);
@@ -89,7 +86,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyURL")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection selection = new StringSelection(le.getURL().toString());
+                StringSelection selection = new StringSelection(logEntry.getRequestResponse().finalRequest().url());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(selection, selection);
             }
@@ -98,7 +95,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyDescription")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection selection = new StringSelection(le.getRegexEntity().getDescription());
+                StringSelection selection = new StringSelection(logEntry.getRegexEntity().getDescription());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(selection, selection);
             }
@@ -107,7 +104,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyRegex")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection selection = new StringSelection(le.getRegexEntity().getRegex());
+                StringSelection selection = new StringSelection(logEntry.getRegexEntity().getRegex());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(selection, selection);
             }
@@ -116,7 +113,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyMatch")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection selection = new StringSelection(le.getMatch());
+                StringSelection selection = new StringSelection(logEntry.getMatch());
                 Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
                 system.setContents(selection, selection);
             }
