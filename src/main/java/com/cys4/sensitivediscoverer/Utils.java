@@ -213,16 +213,23 @@ public class Utils {
         Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
     }
 
+    // todo: separate this function from the file-chooser GUI modal in Utils.linesFromFile to allow for testing.
     public static void openListFromCSV(RegexListContext ctx) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
 
         List<String> lines = Utils.linesFromFile("csv");
         if (Objects.isNull(lines)) return;
 
+        //todo: Allow files without the header line.
+
+        //todo: if first line is not the header line, then don't skip it.
+
         // for each line after the first (Headers Line)
         lines.subList(1, lines.size()).forEach(line -> {
             Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
             if (!matcher.find()) return;
+
+            //todo: when sections are not specified it should still parse the regex and set the sections to all
 
             String description = matcher.group(1).replaceAll("\"\"", "\"");
             String regex = matcher.group(2).replaceAll("\"\"", "\"");
