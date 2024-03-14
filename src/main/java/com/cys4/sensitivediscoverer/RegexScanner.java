@@ -5,6 +5,7 @@ See the file 'LICENSE' for copying permission
 package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
@@ -14,12 +15,14 @@ import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,11 +33,6 @@ public class RegexScanner {
     private final ScannerOptions scannerOptions;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
-    /**
-     * Flag that indicates if the scan must be interrupted.
-     * Used to interrupt scan before completion.
-     */
-    private boolean interruptScan;
     /**
      * List of MIME types to ignore while scanning when the relevant option is enabled
      */
@@ -53,7 +51,12 @@ public class RegexScanner {
             MimeType.RTF,
             MimeType.SOUND,
             MimeType.VIDEO
-    );;
+    );
+    /**
+     * Flag that indicates if the scan must be interrupted.
+     * Used to interrupt scan before completion.
+     */
+    private boolean interruptScan;
 
     public RegexScanner(MontoyaApi burpApi,
                         ScannerOptions scannerOptions,
@@ -69,28 +72,30 @@ public class RegexScanner {
     /**
      * Method for analyzing the elements in Burp > Proxy > HTTP history
      *
-     * @param itemAnalyzedCallback A callback that's called after analysing each item with the maxItemsCount as the argument
-     * @param logEntriesCallback   A callback that's called for every new finding, with the LogEntity as an argument
+     * @param progressBarCallbackSetup A setup function that given the number of items to analyze, returns a Runnable to be called after analysing each item.
+     * @param logEntriesCallback       A callback that's called for every new finding, with a LogEntity as the only argument
      */
-    public void analyzeProxyHistory(Consumer<Integer> itemAnalyzedCallback, Consumer<LogEntity> logEntriesCallback) {
-        List<ProxyHttpRequestResponse> proxyEntries = this.burpApi.proxy().history();
-
-        // create copy of regex list to protect from changes while scanning
+    public void analyzeProxyHistory(Function<Integer, Runnable> progressBarCallbackSetup, Consumer<LogEntity> logEntriesCallback) {
+        // create a copy of the regex list to protect from changes while scanning
         List<RegexEntity> allRegexListCopy = Stream
                 .concat(generalRegexList.stream(), extensionsRegexList.stream())
                 .map(RegexEntity::new)
                 .toList();
 
         ExecutorService executor = Executors.newFixedThreadPool(scannerOptions.getConfigNumberOfThreads());
-        proxyEntries.forEach(proxyEntry -> {
+
+        // removing items from the list allows the GC to clean up just after the task is executed
+        // instead of waiting until the whole analysis finishes.
+        List<ProxyHttpRequestResponse> proxyEntries = this.burpApi.proxy().history();
+        Runnable itemAnalyzedCallback = progressBarCallbackSetup.apply(proxyEntries.size());
+        for (int entryIndex = proxyEntries.size() - 1; entryIndex >= 0; entryIndex--) {
+            ProxyHttpRequestResponse proxyEntry = proxyEntries.remove(entryIndex);
             executor.execute(() -> {
-                analyzeSingleMessage(allRegexListCopy, scannerOptions, proxyEntry, logEntriesCallback);
-
                 if (interruptScan) return;
-
-                itemAnalyzedCallback.accept(proxyEntries.size());
+                analyzeSingleMessage(allRegexListCopy, scannerOptions, proxyEntry, logEntriesCallback);
+                itemAnalyzedCallback.run();
             });
-        });
+        }
 
         try {
             executor.shutdown();
@@ -111,12 +116,15 @@ public class RegexScanner {
      * @param regexList          list of regexes to try and match
      * @param scannerOptions     options for the scanner
      * @param proxyEntry         the item (request/response) from burp's http proxy
-     * @param logEntriesCallback A callback function where to report findings
+     * @param logEntriesCallback A callback that's called for every new finding, with a LogEntity as the only argument.
      */
     private void analyzeSingleMessage(List<RegexEntity> regexList,
                                       ScannerOptions scannerOptions,
                                       ProxyHttpRequestResponse proxyEntry,
                                       Consumer<LogEntity> logEntriesCallback) {
+        // The initial checks must be kept ordered based on the amount of information required from Burp APIs.
+        // API calls (to MontoyaAPI) for specific parts of the request/response are quite slow.
+
         // check if URL is in scope
         HttpRequest request = proxyEntry.finalRequest();
         if (scannerOptions.isFilterInScopeCheckbox() && (!request.isInScope())) return;
@@ -124,34 +132,32 @@ public class RegexScanner {
         // skip empty responses
         HttpResponse response = proxyEntry.response();
         if (Objects.isNull(response)) return;
-        // check for max request size
-        if (scannerOptions.isFilterSkipMaxSizeCheckbox() && response.body().length() > scannerOptions.getConfigMaxResponseSize())
-            return;
 
         // check for blacklisted MIME types
         if (scannerOptions.isFilterSkipMediaTypeCheckbox() && isMimeTypeBlacklisted(response.statedMimeType(), response.inferredMimeType()))
             return;
 
-        String requestBody = request.bodyToString();
-        String requestHeaders = String.join("\r\n", request.headers().stream().map(HttpHeader::toString).toList());
+        // check for max request size
+        ByteArray responseBody = response.body();
+        if (scannerOptions.isFilterSkipMaxSizeCheckbox() && responseBody.length() > scannerOptions.getConfigMaxResponseSize())
+            return;
 
-        String responseBody = response.bodyToString();
+        // Not using request.bodyToString() as it's extremely slow
+        String requestBodyDecoded = new String(request.body().getBytes(), StandardCharsets.UTF_8);
+        String requestHeaders = String.join("\r\n", request.headers().stream().map(HttpHeader::toString).toList());
+        // Not using response.bodyToString() as it's extremely slow
+        String responseBodyDecoded = new String(responseBody.getBytes(), StandardCharsets.UTF_8);
         String responseHeaders = String.join("\r\n", response.headers().stream().map(HttpHeader::toString).toList());
 
-        for (RegexEntity entry : regexList) {
+        for (RegexEntity regex : regexList) {
             if (this.interruptScan) return;
+            if (!regex.isActive()) continue;
 
-            // if the box related to the regex in the Options tab of the extension is checked
-            if (!entry.isActive()) continue;
-
-            getRegexMatchers(entry, request.url(), requestHeaders, requestBody, responseHeaders, responseBody)
+            getRegexMatchers(regex, request.url(), requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded)
                     .parallelStream()
                     .forEach(matcher -> {
                         while (matcher.find()) {
-                            logEntriesCallback.accept(new LogEntity(
-                                    proxyEntry,
-                                    entry,
-                                    matcher.group()));
+                            logEntriesCallback.accept(new LogEntity(request, response, regex, matcher.group()));
                         }
                     });
         }

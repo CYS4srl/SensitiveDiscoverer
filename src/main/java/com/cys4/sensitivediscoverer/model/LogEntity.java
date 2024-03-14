@@ -5,27 +5,51 @@ See the file 'LICENSE' for copying permission
 package com.cys4.sensitivediscoverer.model;
 
 import burp.api.montoya.http.message.HttpHeader;
-import burp.api.montoya.proxy.ProxyHttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * A LogEntity represents the results of a successful match of a regex in a request/response.
+ * <br><br>
+ * Dev notes:<br>
+ * This entity contains immutable references to:
+ * <ul>
+ *  <li>the request object</li>
+ *  <li>the response object</li>
+ *  <li>the url of the request</li>
+ *  <li>the matched regex</li>
+ *  <li>the results of the match</li>
+ * </ul>
+ * Some information, such as the URL, could be considered redundant but serves as a cache layer between the extension and the Burp APIs.
+ * Calling request.url() is slow, therefore a copy is kept here as the underlying request is not going to change.
+ */
 public class LogEntity {
-    private final ProxyHttpRequestResponse requestResponse;
+    private final HttpRequest request;
+    private final HttpResponse response;
     private final RegexEntity regexEntity;
     /**
-     * string from the body that matches
+     * String matched with the regex on 1+ sections (specific sections not currently tracked).
      */
     private final String match;
+    /**
+     * Cached value from request.url()
+     */
+    private String requestUrl;
+    /**
+     * Cached value from the response field
+     */
+    private String responseHeaders;
 
-    public LogEntity(ProxyHttpRequestResponse requestResponse, RegexEntity regexEntity, String match) {
-        this.requestResponse = requestResponse;
+    public LogEntity(HttpRequest request, HttpResponse httpResponse, RegexEntity regexEntity, String match) {
+        this.request = request;
+        this.response = httpResponse;
         this.regexEntity = regexEntity;
         this.match = match;
-    }
-
-    public ProxyHttpRequestResponse getRequestResponse() {
-        return requestResponse;
+        this.requestUrl = null;
+        this.responseHeaders = null;
     }
 
     public RegexEntity getRegexEntity() {
@@ -34,6 +58,36 @@ public class LogEntity {
 
     public String getMatch() {
         return match;
+    }
+
+    public HttpRequest getRequest() {
+        return request;
+    }
+
+    public HttpResponse getResponse() {
+        return response;
+    }
+
+    /**
+     * The URL from the request.
+     * Cached version of request.url()
+     */
+    public String getRequestUrl() {
+        if (this.requestUrl == null) {
+            this.requestUrl = this.request.url();
+        }
+        return this.requestUrl;
+    }
+
+    /**
+     * The Headers of the response as a String with single headers separated by the usual CRLF.
+     * Cached version from response.headers()
+     */
+    private String getResponseHeaders() {
+        if (this.responseHeaders == null) {
+            this.responseHeaders = this.response.headers().stream().map(HttpHeader::toString).collect(Collectors.joining("\r\n"));
+        }
+        return this.responseHeaders;
     }
 
     /**
@@ -62,22 +116,22 @@ public class LogEntity {
                         this.getRegexEntity(),
                         logEntity.getRegexEntity()) &&
                 Objects.equals(
-                        this.getRequestResponse().finalRequest().url(),
-                        logEntity.getRequestResponse().finalRequest().url()) &&
+                        this.getRequestUrl(),
+                        logEntity.getRequestUrl()) &&
                 Objects.equals(
-                        this.getRequestResponse().response().headers().stream().map(HttpHeader::toString).collect(Collectors.joining("\r\n")),
-                        logEntity.getRequestResponse().response().headers().stream().map(HttpHeader::toString).collect(Collectors.joining("\r\n")));
+                        this.getResponseHeaders(),
+                        logEntity.getResponseHeaders());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getRequestResponse(), getRegexEntity(), getMatch());
+        return Objects.hash(getRequest(), getResponse(), getRegexEntity(), getMatch());
     }
 
     @Override
     public String toString() {
         return "LogEntity{" +
-                "url='" + requestResponse.finalRequest().url() + '\'' +
+                "url='" + this.getRequestUrl() + '\'' +
                 ", regex='" + regexEntity.getDescription() + '\'' +
                 ", match='" + match + '\'' +
                 '}';

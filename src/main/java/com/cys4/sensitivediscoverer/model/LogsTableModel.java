@@ -57,7 +57,7 @@ public class LogsTableModel extends AbstractTableModel {
         LogEntity logEntity = logEntries.get(rowIndex);
 
         return switch (columnIndex) {
-            case 0 -> logEntity.getRequestResponse().finalRequest().url();
+            case 0 -> logEntity.getRequestUrl();
             case 1 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
             case 2 -> logEntity.getMatch();
             default -> "";

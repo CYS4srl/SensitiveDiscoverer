@@ -30,7 +30,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -243,25 +243,27 @@ public class LoggerTab implements ApplicationTab {
         this.preAnalysisOperations();
         isAnalysisRunning = true;
         analyzeProxyHistoryThread = new Thread(() -> {
-            // pre scan
+            // setup before scan
             String previousText = analysisButton.getText();
             analysisButton.setText(getLocaleString("logger-analysis-stop"));
             logsTable.setAutoCreateRowSorter(false);
-            // progress bar
+            // setup progress bar
             this.analyzedItems = 0;
             progressBar.setValue(this.analyzedItems);
-            Consumer<Integer> singleItemCallback = (maxItems) -> {
+            Function<Integer, Runnable> progressBarCallbackSetup = (maxItems) -> {
                 progressBar.setMaximum(maxItems);
-                synchronized (analyzeLock) {
-                    this.analyzedItems++;
-                }
-                progressBar.setValue(this.analyzedItems);
+                return () -> {
+                    synchronized (analyzeLock) {
+                        this.analyzedItems++;
+                    }
+                    progressBar.setValue(this.analyzedItems);
+                };
             };
 
             // start scan
-            regexScanner.analyzeProxyHistory(singleItemCallback, this::addLogEntry);
+            regexScanner.analyzeProxyHistory(progressBarCallbackSetup, this::addLogEntry);
 
-            // post scan
+            // finalization after scan finished
             analysisButton.setText(previousText);
             logsTable.setAutoCreateRowSorter(true);
             analyzeProxyHistoryThread = null;
