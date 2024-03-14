@@ -42,7 +42,12 @@ public class HttpRequestMock implements HttpRequest {
 
     @Override
     public String bodyToString() {
-        return body;
+        return this.body;
+    }
+
+    @Override
+    public ByteArray body() {
+        return new ByteArrayMock(this.body);
     }
 
     @Override
@@ -157,11 +162,6 @@ public class HttpRequestMock implements HttpRequest {
 
     @Override
     public int bodyOffset() {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public ByteArray body() {
         throw new NotImplementedException();
     }
 
