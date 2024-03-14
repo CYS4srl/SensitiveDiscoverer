@@ -1,11 +1,14 @@
 package com.cys4.sensitivediscoverer.model;
 
+import com.cys4.sensitivediscoverer.Utils;
+import com.cys4.sensitivediscoverer.tab.LoggerTab;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 import java.util.regex.Matcher;
 
 import static org.assertj.core.api.Assertions.*;
+import com.cys4.sensitivediscoverer.tab.LoggerTab;
 
 class RegexEntityTest {
 
@@ -51,9 +54,15 @@ class RegexEntityTest {
         assertThat(entity.isActive()).isTrue();
     }
 
-    //TODO add a test that checks regex are imported correctly
-
-    //TODO add a test that checks CSV files without the header line are imported correctly
+    @Test
+    void checkRegexEntityFromCSVNoSections() {
+        Matcher csvMatcher = RegexEntity.checkRegexEntityFromCSV("\"description\",\"regex\"");
+        assertThat(csvMatcher.find()).isTrue();
+        assertThat(csvMatcher.groupCount()).isEqualTo(3);
+        assertThat(csvMatcher.group(1)).isEqualTo("description");
+        assertThat(csvMatcher.group(2)).isEqualTo("regex");
+        assertThat(csvMatcher.group(3)).isNullOrEmpty();
+    }
 
     @Test
     void checkRegexEntityFromCSV() {
