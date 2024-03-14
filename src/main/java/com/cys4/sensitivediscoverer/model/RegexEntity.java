@@ -23,6 +23,7 @@ public class RegexEntity {
     private final EnumSet<ProxyItemSection> sections;
     private final List<String> tests;
     private boolean active;
+
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true, ProxyItemSection.getDefault(), null);
     }
@@ -63,7 +64,7 @@ public class RegexEntity {
      */
     public static Matcher checkRegexEntityFromCSV(String input) {
         return Pattern
-                .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
+                .compile("^[\\t ]*[\\\"'](.+?)[\\\"'][\\t ]*,[\\t ]*[\\\"'](.+?)[\\\"'][\\t ]*(?:,[\\t ]*[\\\"'](.+?)[\\\"'][\\t ]*)?$")
                 .matcher(input);
     }
 

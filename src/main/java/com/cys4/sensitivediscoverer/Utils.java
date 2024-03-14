@@ -18,6 +18,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -86,26 +87,37 @@ public class Utils {
     /**
      * Open JFileChooser to get lines from a file
      *
-     * @param extensionName the extension to filter files
-     * @return The lines from the file, or null if there was an error
+     * @param extensionNames the extensions to filter files
+     * @param title          the window title
+     * @return The filename, or null if there was an error
      */
-    public static List<String> linesFromFile(String extensionName) {
+    public static String selectFile(String[] extensionNames, String title) {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("." + extensionName, extensionName);
-        fileChooser.setFileFilter(filter);
-        fileChooser.setDialogTitle(getLocaleString("utils-linesFromFile-importFile"));
+        for (String extensionName : extensionNames) {
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("." + extensionName, extensionName);
+            fileChooser.addChoosableFileFilter(filter);
+        }
 
-        int userSelection = fileChooser.showOpenDialog(parentFrame);
+        fileChooser.setDialogTitle(title);
+
+        int userSelection = title.toLowerCase().contains("import") ?
+                fileChooser.showOpenDialog(parentFrame) :
+                fileChooser.showSaveDialog(parentFrame);
+
         if (userSelection != JFileChooser.APPROVE_OPTION) return null;
 
-        File selectedFile = fileChooser.getSelectedFile();
-        try {
-            return Files.readAllLines(selectedFile.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+
+        String selectedExt = fileChooser.getFileFilter().getDescription().toLowerCase();
+        if (selectedExt.equals("all files"))
+            return exportFilePath;
+
+        if (!exportFilePath.toLowerCase().endsWith(selectedExt)) {
+            exportFilePath += selectedExt;
         }
+
+        return exportFilePath;
     }
 
     /**
@@ -177,7 +189,7 @@ public class Utils {
         return Utils.class.getClassLoader().getResourceAsStream(name);
     }
 
-    public static void saveListToCSV(List<RegexEntity> regexEntities) {
+    public static void saveListToCSV(String csvFile, List<RegexEntity> regexEntities) {
         List<String> lines = new ArrayList<>();
 
         lines.add("\"description\",\"regex\",\"sections\"");
@@ -190,10 +202,16 @@ public class Utils {
             lines.add(String.format("\"%s\",\"%s\",\"%s\"", description, regex, sections));
         });
 
-        Utils.saveToFile("csv", lines);
+        try {
+            PrintWriter pwt = new PrintWriter(csvFile, StandardCharsets.UTF_8);
+            lines.forEach(pwt::println);
+            pwt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void saveListToJSON(List<RegexEntity> regexEntities) {
+    public static void saveListToJSON(String jsonFile, List<RegexEntity> regexEntities) {
         List<JsonObject> lines = new ArrayList<>();
 
         regexEntities.forEach(regexEntity -> {
@@ -210,36 +228,48 @@ public class Utils {
         Gson gson = builder.create();
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
-        Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+
+        try {
+            PrintWriter pwt = new PrintWriter(jsonFile, StandardCharsets.UTF_8);
+            List.of(gson.toJson(lines, tListEntries)).forEach(pwt::println);
+            pwt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    // todo: separate this function from the file-chooser GUI modal in Utils.linesFromFile to allow for testing.
-    public static void openListFromCSV(RegexListContext ctx) {
+    public static void openListFromCSV(String csvFile, RegexListContext ctx) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(Path.of(csvFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
-        List<String> lines = Utils.linesFromFile("csv");
-        if (Objects.isNull(lines)) return;
+        //Skip header line if present
+        int startRow = (lines.get(0).contains("\"description\",\"regex\"")) ? 1 : 0;
 
-        //todo: Allow files without the header line.
-
-        //todo: if first line is not the header line, then don't skip it.
-
-        // for each line after the first (Headers Line)
-        lines.subList(1, lines.size()).forEach(line -> {
+        // for each line
+        lines.subList(startRow, lines.size()).forEach(line -> {
             Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
-            if (!matcher.find()) return;
 
-            //todo: when sections are not specified it should still parse the regex and set the sections to all
+            if (!matcher.find())
+                return;
+
+            //load sections if presents, otherwise set all sections
+            boolean hasSections = !(matcher.group(3) == null || matcher.group(3).isBlank());
 
             String description = matcher.group(1).replaceAll("\"\"", "\"");
             String regex = matcher.group(2).replaceAll("\"\"", "\"");
-            List<String> sections = List.of(matcher.group(3).replaceAll("\"\"", "\"").split("\\|"));
+            List<String> sections = hasSections ? List.of(matcher.group(3).replaceAll("\"\"", "\"").split("\\|")) : null;
 
             RegexEntity newRegexEntity = new RegexEntity(
                     description,
                     regex,
                     true,
-                    ProxyItemSection.deserializeSections(sections)
+                    hasSections ? ProxyItemSection.deserializeSections(sections) : ProxyItemSection.ALL
             );
 
             if (!ctx.getRegexEntities().contains(newRegexEntity)) {
@@ -255,12 +285,16 @@ public class Utils {
                 alreadyAddedMsg.toString());
     }
 
-    public static void openListFromJSON(RegexListContext ctx) {
+    public static void openListFromJSON(String jsonFile, RegexListContext ctx) {
         Gson gson = new Gson();
         StringBuilder alreadyAddedMsg = new StringBuilder();
-
-        List<String> lines = Utils.linesFromFile("json");
-        if (Objects.isNull(lines)) return;
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(Path.of(jsonFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
         }.getType();
