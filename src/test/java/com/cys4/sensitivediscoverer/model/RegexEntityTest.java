@@ -1,14 +1,11 @@
 package com.cys4.sensitivediscoverer.model;
 
-import com.cys4.sensitivediscoverer.Utils;
-import com.cys4.sensitivediscoverer.tab.LoggerTab;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 import java.util.regex.Matcher;
 
 import static org.assertj.core.api.Assertions.*;
-import com.cys4.sensitivediscoverer.tab.LoggerTab;
 
 class RegexEntityTest {
 

@@ -20,7 +20,7 @@
     "description": "AWS Access Key ID",
     //TODO length should be {16}, but some examples have {17}
     //TODO what is A3T. ?
-    "regex": "(?i)(?<![a-zA-Z0-9])(A3T[A-Z0-9]|ABIA|ACCA|AGPA|AIDA|AIPA|AKIA|ANPA|ANVA|APKA|AROA|ASCA|ASIA)[a-zA-Z0-9]{14,20}(?![a-zA-Z0-9])",
+    "regex": "(?i)(A3T[A-Z0-9]|ABIA|ACCA|AGPA|AIDA|AIPA|AKIA|ANPA|ANVA|APKA|AROA|ASCA|ASIA)[a-zA-Z0-9]{14,20}(?![a-zA-Z0-9+/=])",
     "tests": [
       "AKIAIOSFODNN7EXAMPLE",
       "ASIAIOSFODNN7EXAMPLE",
@@ -274,20 +274,20 @@
       "sq0idp-Y7WFLOjXXp00XXXp00_0_A"
     ]
   },
-  {
-    "active": true,
-    "description": "Square Auth Token",
-    "regex": "(?<![a-zA-Z0-9\/+])EAAA[a-zA-Z0-9\\-_]{60}",
-    "urls": [
-      "https://developer.squareup.com/docs/build-basics/access-tokens"
-    ],
-    "tests": [
-      "EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
-      "!RandomEAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
-      "!/EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
-      "!+EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg"
-    ]
-  },
+//  {
+//    "active": true,
+//    "description": "Square Auth Token",
+//    "regex": "(?<![a-zA-Z0-9\/+])EAAA[a-zA-Z0-9\\-_]{60}",
+//    "urls": [
+//      "https://developer.squareup.com/docs/build-basics/access-tokens"
+//    ],
+//    "tests": [
+//      "EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
+//      "!RandomEAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
+//      "!/EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg",
+//      "!+EAAAEB0XZqkuXAPRKhusNNaHhrZUsZNKw_ay92e-kmhYSDrKo73FgPX9RsrFr3Fg"
+//    ]
+//  },
   //    {
   //      "active": true,
   //      "description": "StackHawk API Key",
@@ -325,7 +325,7 @@
   {
     "active": true,
     "description": "Twilio Account SID",
-    "regex": "(?<![a-zA-Z0-9])SK[0-9a-zA-Z]{32}(?![a-zA-Z0-9])",
+    "regex": "SK[0-9a-zA-Z]{32}(?![a-zA-Z0-9+/=])",
     "urls": [
       "https://www.twilio.com/docs/iam/api-keys/api-key",
       "https://www.twilio.com/docs/glossary/what-is-a-sid"

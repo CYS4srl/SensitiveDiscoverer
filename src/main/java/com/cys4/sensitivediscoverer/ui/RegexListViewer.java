@@ -2,15 +2,14 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer;
+package com.cys4.sensitivediscoverer.ui;
 
-import com.cys4.sensitivediscoverer.component.PopupMenuButton;
-import com.cys4.sensitivediscoverer.component.RegexEditDialog;
-import com.cys4.sensitivediscoverer.component.RegexListViewerTable;
+import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
-import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.utils.FileUtils;
+import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -97,8 +96,8 @@ public class RegexListViewer {
         header.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
 
         JLabel titleLabel = new JLabel();
-        titleLabel.setFont(UIOptions.H1_FONT);
-        titleLabel.setForeground(UIOptions.ACCENT_COLOR);
+        titleLabel.setFont(MainUI.UIOptions.H1_FONT);
+        titleLabel.setForeground(MainUI.UIOptions.ACCENT_COLOR);
         titleLabel.setText(title);
         gbc = createGridConstraints(0, 0, 0.0, 1.0, GridBagConstraints.WEST);
         gbc.insets = new Insets(0, 0, 1, 0);
@@ -255,12 +254,12 @@ public class RegexListViewer {
         List<String> options = Arrays.asList("JSON", "CSV");
         menuItem.addActionListener(actionEvent -> {
 
-            String fileName = Utils.selectFile(options, false);
+            String fileName = SwingUtils.selectFile(options, false);
 
             if (fileName.toUpperCase().endsWith("JSON")) {
-                Utils.saveListToJSON(fileName, regexEntities);
+                FileUtils.exportRegexListToJSON(fileName, regexEntities);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
-                Utils.saveListToCSV(fileName, regexEntities);
+                FileUtils.exportRegexListToCSV(fileName, regexEntities);
             }
         });
 
@@ -274,12 +273,12 @@ public class RegexListViewer {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
 
-            String fileName = Utils.selectFile(options, true);
+            String fileName = SwingUtils.selectFile(options, true);
 
             if (fileName.toUpperCase().endsWith("JSON")) {
-                Utils.openListFromJSON(fileName, ctx);
+                FileUtils.importRegexListFromJSON(fileName, ctx);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
-                Utils.openListFromCSV(fileName, ctx);
+                FileUtils.importRegexListFromCSV(fileName, ctx);
             }
 
             tableModel.fireTableDataChanged();

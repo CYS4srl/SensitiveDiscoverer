@@ -2,11 +2,15 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.tab;
+package com.cys4.sensitivediscoverer.ui.tab;
 
-import com.cys4.sensitivediscoverer.*;
+import com.cys4.sensitivediscoverer.MainUI;
+import com.cys4.sensitivediscoverer.RegexSeeder;
+import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateListener;
+import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateMaxSizeListener;
+import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateNumThreadsListener;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
-import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.ui.RegexListViewer;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -166,8 +170,8 @@ public class OptionsTab implements ApplicationTab {
                 getLocaleString("options-scanner-title"),
                 TitledBorder.LEFT,
                 TitledBorder.DEFAULT_POSITION,
-                UIOptions.H2_FONT,
-                UIOptions.ACCENT_COLOR
+                MainUI.UIOptions.H2_FONT,
+                MainUI.UIOptions.ACCENT_COLOR
         ));
 
         createOptionThreadsNumber(panel, threadNumListener);
@@ -186,8 +190,8 @@ public class OptionsTab implements ApplicationTab {
                 getLocaleString("options-filters-title"),
                 TitledBorder.LEFT,
                 TitledBorder.DEFAULT_POSITION,
-                UIOptions.H2_FONT,
-                UIOptions.ACCENT_COLOR
+                MainUI.UIOptions.H2_FONT,
+                MainUI.UIOptions.ACCENT_COLOR
         ));
 
         JCheckBox inScopeCheckbox = new JCheckBox();

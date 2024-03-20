@@ -7,16 +7,17 @@ package com.cys4.sensitivediscoverer;
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
-import com.cys4.sensitivediscoverer.tab.AboutTab;
-import com.cys4.sensitivediscoverer.tab.ApplicationTab;
-import com.cys4.sensitivediscoverer.tab.LoggerTab;
-import com.cys4.sensitivediscoverer.tab.OptionsTab;
+import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
+import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
+import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
+import com.cys4.sensitivediscoverer.ui.tab.OptionsTab;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 import java.util.Properties;
 
-import static com.cys4.sensitivediscoverer.Utils.loadConfigFile;
+import static com.cys4.sensitivediscoverer.utils.Utils.loadConfigFile;
 
 public class MainUI {
     private final MontoyaApi burpApi;
@@ -100,4 +101,9 @@ public class MainUI {
         return configProperties.getProperty("ui.extension_name");
     }
 
+    public static final class UIOptions {
+        public static final Font H1_FONT = new Font("SansSerif", Font.BOLD, 16);
+        public static final Font H2_FONT = new Font("SansSerif", Font.BOLD, 14);
+        public static final Color ACCENT_COLOR = new Color(255, 102, 51);
+    }
 }

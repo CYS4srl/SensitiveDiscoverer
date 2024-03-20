@@ -2,7 +2,7 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.tab;
+package com.cys4.sensitivediscoverer.ui.tab;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
@@ -10,13 +10,13 @@ import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.RegexScanner;
-import com.cys4.sensitivediscoverer.Utils;
-import com.cys4.sensitivediscoverer.component.LogsTable;
-import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
-import com.cys4.sensitivediscoverer.component.PopupMenuButton;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
-import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.ui.LogsTable;
+import com.cys4.sensitivediscoverer.ui.LogsTableContextMenu;
+import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
+import com.cys4.sensitivediscoverer.utils.FileUtils;
+import com.cys4.sensitivediscoverer.utils.SwingUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -30,7 +30,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -101,7 +100,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private void preAnalysisOperations() {
         // disable components that shouldn't be used while scanning
-        Utils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent");
+        SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent");
     }
 
     /**
@@ -110,7 +109,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private void postAnalysisOperations() {
         // re-enable components not usable while scanning
-        Utils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), true, "analysisDependent");
+        SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), true, "analysisDependent");
     }
 
     private JPanel createCenterBox(JScrollPane scrollPane) {
@@ -142,8 +141,8 @@ public class LoggerTab implements ApplicationTab {
         requestPanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         requestPanel.add(requestPanelHeader, BorderLayout.NORTH);
         final JLabel requestLabel = new JLabel(getLocaleString("common-request"));
-        requestLabel.setFont(UIOptions.H2_FONT);
-        requestLabel.setForeground(UIOptions.ACCENT_COLOR);
+        requestLabel.setFont(MainUI.UIOptions.H2_FONT);
+        requestLabel.setForeground(MainUI.UIOptions.ACCENT_COLOR);
         requestPanelHeader.add(requestLabel, BorderLayout.NORTH);
         requestPanel.add(this.originalRequestViewer.uiComponent(), BorderLayout.CENTER);
         responsePanel = new JPanel(new BorderLayout(0, 0));
@@ -153,8 +152,8 @@ public class LoggerTab implements ApplicationTab {
         responsePanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         responsePanel.add(responsePanelHeader, BorderLayout.NORTH);
         final JLabel responseLabel = new JLabel(getLocaleString("common-response"));
-        responseLabel.setFont(UIOptions.H2_FONT);
-        responseLabel.setForeground(UIOptions.ACCENT_COLOR);
+        responseLabel.setFont(MainUI.UIOptions.H2_FONT);
+        responseLabel.setForeground(MainUI.UIOptions.ACCENT_COLOR);
         responsePanelHeader.add(responseLabel, BorderLayout.NORTH);
         responsePanel.add(this.originalResponseViewer.uiComponent(), BorderLayout.CENTER);
 
@@ -209,7 +208,9 @@ public class LoggerTab implements ApplicationTab {
      */
     private JButton createAnalysisButton(JProgressBar progressBar) {
         JButton analysisButton = new JButton();
-        analysisButton.setText(getLocaleString("logger-analysis-start"));
+        String startAnalysisText = getLocaleString("logger-analysis-start");
+        analysisButton.putClientProperty("initialText", startAnalysisText);
+        analysisButton.setText(startAnalysisText);
         analysisButton.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
                 startAnalysisAction(progressBar, analysisButton);
@@ -242,33 +243,42 @@ public class LoggerTab implements ApplicationTab {
     private void startAnalysisAction(JProgressBar progressBar, JButton analysisButton) {
         this.preAnalysisOperations();
         isAnalysisRunning = true;
-        analyzeProxyHistoryThread = new Thread(() -> {
-            // setup before scan
-            String previousText = analysisButton.getText();
-            analysisButton.setText(getLocaleString("logger-analysis-stop"));
-            logsTable.setAutoCreateRowSorter(false);
-            // setup progress bar
-            this.analyzedItems = 0;
-            progressBar.setValue(this.analyzedItems);
-            Function<Integer, Runnable> progressBarCallbackSetup = (maxItems) -> {
+        analyzeProxyHistoryThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setupScan();
+                startScan();
+                finalizeScan();
+            }
+
+            private Runnable setupProgressBarCallback(int maxItems) {
                 progressBar.setMaximum(maxItems);
                 return () -> {
                     synchronized (analyzeLock) {
-                        this.analyzedItems++;
+                        LoggerTab.this.analyzedItems++;
                     }
-                    progressBar.setValue(this.analyzedItems);
+                    progressBar.setValue(LoggerTab.this.analyzedItems);
                 };
-            };
+            }
 
-            // start scan
-            regexScanner.analyzeProxyHistory(progressBarCallbackSetup, this::addLogEntry);
+            private void setupScan() {
+                analysisButton.setText(getLocaleString("logger-analysis-stop"));
+                logsTable.setAutoCreateRowSorter(false);
+                LoggerTab.this.analyzedItems = 0;
+                progressBar.setValue(LoggerTab.this.analyzedItems);
+            }
 
-            // finalization after scan finished
-            analysisButton.setText(previousText);
-            logsTable.setAutoCreateRowSorter(true);
-            analyzeProxyHistoryThread = null;
-            isAnalysisRunning = false;
-            this.postAnalysisOperations();
+            private void startScan() {
+                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, LoggerTab.this::addLogEntry);
+            }
+
+            private void finalizeScan() {
+                analysisButton.setText((String) analysisButton.getClientProperty("initialText"));
+                logsTable.setAutoCreateRowSorter(true);
+                analyzeProxyHistoryThread = null;
+                isAnalysisRunning = false;
+                LoggerTab.this.postAnalysisOperations();
+            }
         });
         analyzeProxyHistoryThread.start();
 
@@ -321,7 +331,7 @@ public class LoggerTab implements ApplicationTab {
 
         JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
         itemToCSV.addActionListener(actionEvent -> {
-            String csvFile = Utils.selectFile(List.of("CSV"), false);
+            String csvFile = SwingUtils.selectFile(List.of("CSV"), false);
             if (csvFile.isBlank()) return;
 
             java.util.List<String> lines = new ArrayList<>();
@@ -337,13 +347,13 @@ public class LoggerTab implements ApplicationTab {
                 lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
             }
 
-            Utils.writeLinesToFile(csvFile, lines);
+            FileUtils.writeLinesToFile(csvFile, lines);
         });
         menu.add(itemToCSV);
 
         JMenuItem itemToJSON = new JMenuItem(getLocaleString("common-toJSON"));
         itemToJSON.addActionListener(actionEvent -> {
-            String jsonFile = Utils.selectFile(List.of("JSON"), false);
+            String jsonFile = SwingUtils.selectFile(List.of("JSON"), false);
             if (jsonFile.isBlank()) return;
 
             java.util.List<JsonObject> lines = new ArrayList<>();
@@ -364,7 +374,7 @@ public class LoggerTab implements ApplicationTab {
             Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {
             }.getType();
 
-            Utils.writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
+            FileUtils.writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
         });
         menu.add(itemToJSON);
 
