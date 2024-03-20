@@ -4,13 +4,13 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer;
 
-import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
-import com.cys4.sensitivediscoverer.ui.RegexEditDialog;
-import com.cys4.sensitivediscoverer.ui.RegexListViewerTable;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
 import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
+import com.cys4.sensitivediscoverer.ui.RegexEditDialog;
+import com.cys4.sensitivediscoverer.ui.RegexListViewerTable;
 import com.cys4.sensitivediscoverer.utils.FileUtils;
 import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
