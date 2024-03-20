@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
@@ -255,6 +256,9 @@ public class RegexListViewer {
         menuItem.addActionListener(actionEvent -> {
 
             String fileName = Utils.selectFile(options, getLocaleString("utils-saveToFile-exportFile"));
+
+            if (Objects.isNull(fileName)) return;
+
             if (fileName.toUpperCase().endsWith("JSON")) {
                 Utils.saveListToJSON(fileName, regexEntities);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
