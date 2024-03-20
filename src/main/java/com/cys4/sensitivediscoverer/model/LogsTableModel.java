@@ -25,42 +25,27 @@ public class LogsTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return Column.getSize();
     }
 
     @Override
     public String getColumnName(int columnIndex) {
-        return switch (columnIndex) {
-            case 0 -> getLocaleString("common-url");
-            case 1 -> getLocaleString("common-regex");
-            case 2 -> getLocaleString("common-match");
-            default -> "";
-        };
-    }
-
-    public String getColumnNameFormatted(int columnIndex) {
-        return switch (columnIndex) {
-            case 0 -> "url";
-            case 1 -> "regex";
-            case 2 -> "match";
-            default -> "";
-        };
+        return getLocaleString(Column.getById(columnIndex).localeKey);
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        return Column.getById(columnIndex).columnType;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         LogEntity logEntity = logEntries.get(rowIndex);
 
-        return switch (columnIndex) {
-            case 0 -> logEntity.getRequestResponse().finalRequest().url();
-            case 1 -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
-            case 2 -> logEntity.getMatch();
-            default -> "";
+        return switch (Column.getById(columnIndex)) {
+            case URL -> logEntity.getRequestUrl();
+            case REGEX -> logEntity.getRegexEntity().getDescription() + " - " + logEntity.getRegexEntity().getRegex();
+            case MATCH -> logEntity.getMatch();
         };
     }
 
@@ -70,5 +55,47 @@ public class LogsTableModel extends AbstractTableModel {
 
     public void clear() {
         fireTableDataChanged();
+    }
+
+    /**
+     * Enum representing the columns of the table model for logs
+     */
+    public enum Column {
+        URL("common-url", "url", String.class),
+        REGEX("common-regex", "regex", String.class),
+        MATCH("common-match", "match", String.class);
+
+        private static final List<Column> columns = List.of(URL, REGEX, MATCH);
+
+        private final String localeKey;
+        private final String formattedName;
+        private final Class<?> columnType;
+
+        Column(String localeKey, String formattedName, Class<?> columnType) {
+            this.localeKey = localeKey;
+            this.formattedName = formattedName;
+            this.columnType = columnType;
+        }
+
+        public static Column getById(int index) {
+            return columns.get(index);
+        }
+
+        /**
+         * Returns the number of elements in this enum
+         *
+         * @return the number of elements in this enum
+         */
+        public static int getSize() {
+            return columns.size();
+        }
+
+        public String getNameFormatted() {
+            return formattedName;
+        }
+
+        public int getIndex() {
+            return columns.indexOf(this);
+        }
     }
 }

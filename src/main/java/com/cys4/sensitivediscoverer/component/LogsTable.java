@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class LogsTable extends JTable {
 
-    // get the reference of the array of entries
     private final List<LogEntity> logEntries;
     private final HttpRequestEditor requestViewer;
     private final HttpResponseEditor responseViewer;
@@ -42,7 +41,7 @@ public class LogsTable extends JTable {
         int realRow = this.convertRowIndexToModel(row);
         LogEntity logEntry = logEntries.get(realRow);
 
-        updateRequestViewers(logEntry.getRequestResponse().finalRequest(), logEntry.getRequestResponse().response(), logEntry.getMatch());
+        updateRequestViewers(logEntry.getRequest(), logEntry.getResponse(), logEntry.getMatch());
     }
 
     public void updateRequestViewers(HttpRequest request, HttpResponse response, String search) {

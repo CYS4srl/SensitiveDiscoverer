@@ -39,6 +39,11 @@ public class HttpResponseMock implements HttpResponse {
     }
 
     @Override
+    public ByteArray body() {
+        return new ByteArrayMock(this.body);
+    }
+
+    @Override
     public short statusCode() {
         throw new NotImplementedException();
     }
@@ -135,11 +140,6 @@ public class HttpResponseMock implements HttpResponse {
 
     @Override
     public int bodyOffset() {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public ByteArray body() {
         throw new NotImplementedException();
     }
 
