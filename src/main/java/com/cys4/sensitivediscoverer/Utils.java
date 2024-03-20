@@ -85,24 +85,28 @@ public class Utils {
     }
 
     /**
-     * Open JFileChooser to get lines from a file
+     * Open JFileChooser to get a file name
      *
      * @param extensionNames the extensions to filter files
-     * @param title          the window title
+     * @param openFile Set to true if the file should be opened, false if it should be saved
      * @return The filename, or null if there was an error
      */
-    public static String selectFile(List<String> extensionNames, String title) {
+    public static String selectFile(List<String> extensionNames, boolean openFile) {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
 
+        //add supported extensions
         extensionNames.stream()
                 .map(extensionName -> new FileNameExtensionFilter("." + extensionName, extensionName))
                 .forEachOrdered(fileChooser::addChoosableFileFilter);
 
+        //set window title to Open or Save
+        fileChooser.setDialogTitle(getLocaleString(openFile?
+                getLocaleString("utils-linesFromFile-importFile")
+                : "utils-saveToFile-exportFile"));
 
-        fileChooser.setDialogTitle(title);
-
-        int userSelection = title.toLowerCase().contains("import") ?
+        //show the Open or Save window
+        int userSelection = openFile ?
                 fileChooser.showOpenDialog(parentFrame) :
                 fileChooser.showSaveDialog(parentFrame);
 

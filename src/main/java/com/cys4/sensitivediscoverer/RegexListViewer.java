@@ -256,7 +256,7 @@ public class RegexListViewer {
         List<String> options = Arrays.asList("JSON", "CSV");
         menuItem.addActionListener(actionEvent -> {
 
-            String fileName = Utils.selectFile(options, getLocaleString("utils-saveToFile-exportFile"));
+            String fileName = Utils.selectFile(options, false);
 
             if (Objects.isNull(fileName)) return;
 
@@ -277,7 +277,7 @@ public class RegexListViewer {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
 
-            String fileName = Utils.selectFile(options, getLocaleString("utils-linesFromFile-importFile"));
+            String fileName = Utils.selectFile(options, true);
 
             if (Objects.isNull(fileName)) return;
 
