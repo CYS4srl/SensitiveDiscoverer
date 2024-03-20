@@ -95,6 +95,8 @@ public class Utils {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
 
+        fileChooser.setAcceptAllFileFilterUsed(false);
+
         //add supported extensions
         extensionNames.stream()
                 .map(extensionName -> new FileNameExtensionFilter("." + extensionName, extensionName))
@@ -115,14 +117,8 @@ public class Utils {
         String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
 
         String selectedExt = fileChooser.getFileFilter().getDescription().toLowerCase();
-        if (selectedExt.equals("all files"))
-            return exportFilePath;
 
-        if (!exportFilePath.toLowerCase().endsWith(selectedExt)) {
-            exportFilePath += selectedExt;
-        }
-
-        return exportFilePath;
+        return exportFilePath.toLowerCase().endsWith(selectedExt) ? exportFilePath : exportFilePath+selectedExt;
     }
 
     /**
