@@ -30,7 +30,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -209,7 +208,9 @@ public class LoggerTab implements ApplicationTab {
      */
     private JButton createAnalysisButton(JProgressBar progressBar) {
         JButton analysisButton = new JButton();
-        analysisButton.setText(getLocaleString("logger-analysis-start"));
+        String startAnalysisText = getLocaleString("logger-analysis-start");
+        analysisButton.putClientProperty("initialText", startAnalysisText);
+        analysisButton.setText(startAnalysisText);
         analysisButton.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
                 startAnalysisAction(progressBar, analysisButton);
@@ -242,33 +243,42 @@ public class LoggerTab implements ApplicationTab {
     private void startAnalysisAction(JProgressBar progressBar, JButton analysisButton) {
         this.preAnalysisOperations();
         isAnalysisRunning = true;
-        analyzeProxyHistoryThread = new Thread(() -> {
-            // setup before scan
-            String previousText = analysisButton.getText();
-            analysisButton.setText(getLocaleString("logger-analysis-stop"));
-            logsTable.setAutoCreateRowSorter(false);
-            // setup progress bar
-            this.analyzedItems = 0;
-            progressBar.setValue(this.analyzedItems);
-            Function<Integer, Runnable> progressBarCallbackSetup = (maxItems) -> {
+        analyzeProxyHistoryThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setupScan();
+                startScan();
+                finalizeScan();
+            }
+
+            private Runnable setupProgressBarCallback(int maxItems) {
                 progressBar.setMaximum(maxItems);
                 return () -> {
                     synchronized (analyzeLock) {
-                        this.analyzedItems++;
+                        LoggerTab.this.analyzedItems++;
                     }
-                    progressBar.setValue(this.analyzedItems);
+                    progressBar.setValue(LoggerTab.this.analyzedItems);
                 };
-            };
+            }
 
-            // start scan
-            regexScanner.analyzeProxyHistory(progressBarCallbackSetup, this::addLogEntry);
+            private void setupScan() {
+                analysisButton.setText(getLocaleString("logger-analysis-stop"));
+                logsTable.setAutoCreateRowSorter(false);
+                LoggerTab.this.analyzedItems = 0;
+                progressBar.setValue(LoggerTab.this.analyzedItems);
+            }
 
-            // finalization after scan finished
-            analysisButton.setText(previousText);
-            logsTable.setAutoCreateRowSorter(true);
-            analyzeProxyHistoryThread = null;
-            isAnalysisRunning = false;
-            this.postAnalysisOperations();
+            private void startScan() {
+                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, LoggerTab.this::addLogEntry);
+            }
+
+            private void finalizeScan() {
+                analysisButton.setText((String) analysisButton.getClientProperty("initialText"));
+                logsTable.setAutoCreateRowSorter(true);
+                analyzeProxyHistoryThread = null;
+                isAnalysisRunning = false;
+                LoggerTab.this.postAnalysisOperations();
+            }
         });
         analyzeProxyHistoryThread.start();
 

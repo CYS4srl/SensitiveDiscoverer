@@ -6,7 +6,6 @@ package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.ByteArray;
-import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
@@ -15,7 +14,6 @@ import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 
-import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -23,20 +21,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RegexScanner {
-    private final MontoyaApi burpApi;
-    private final ScannerOptions scannerOptions;
-    private final List<RegexEntity> generalRegexList;
-    private final List<RegexEntity> extensionsRegexList;
     /**
      * List of MIME types to ignore while scanning when the relevant option is enabled
      */
-    private final EnumSet<MimeType> blacklistedMimeTypes = EnumSet.of(
+    public static final EnumSet<MimeType> blacklistedMimeTypes = EnumSet.of(
             MimeType.APPLICATION_FLASH,
             MimeType.FONT_WOFF,
             MimeType.FONT_WOFF2,
@@ -52,6 +46,10 @@ public class RegexScanner {
             MimeType.SOUND,
             MimeType.VIDEO
     );
+    private final MontoyaApi burpApi;
+    private final ScannerOptions scannerOptions;
+    private final List<RegexEntity> generalRegexList;
+    private final List<RegexEntity> extensionsRegexList;
     /**
      * Flag that indicates if the scan must be interrupted.
      * Used to interrupt scan before completion.
@@ -124,51 +122,42 @@ public class RegexScanner {
                                       Consumer<LogEntity> logEntriesCallback) {
         // The initial checks must be kept ordered based on the amount of information required from Burp APIs.
         // API calls (to MontoyaAPI) for specific parts of the request/response are quite slow.
-
-        // check if URL is in scope
         HttpRequest request = proxyEntry.finalRequest();
-        if (scannerOptions.isFilterInScopeCheckbox() && (!request.isInScope())) return;
-
-        // skip empty responses
+        if (UtilsScanner.isUrlOutOfScope(scannerOptions, request)) return;
         HttpResponse response = proxyEntry.response();
-        if (Objects.isNull(response)) return;
-
-        // check for blacklisted MIME types
-        if (scannerOptions.isFilterSkipMediaTypeCheckbox() && isMimeTypeBlacklisted(response.statedMimeType(), response.inferredMimeType()))
-            return;
-
-        // check for max request size
+        if (UtilsScanner.isResponseEmpty(response)) return;
+        if (UtilsScanner.isMimeTypeBlacklisted(scannerOptions, response)) return;
         ByteArray responseBody = response.body();
-        if (scannerOptions.isFilterSkipMaxSizeCheckbox() && responseBody.length() > scannerOptions.getConfigMaxResponseSize())
-            return;
+        if (UtilsScanner.isResponseSizeOverMaxSize(scannerOptions, responseBody)) return;
 
-        // Not using request.bodyToString() as it's extremely slow
-        String requestBodyDecoded = new String(request.body().getBytes(), StandardCharsets.UTF_8);
-        String requestHeaders = String.join("\r\n", request.headers().stream().map(HttpHeader::toString).toList());
-        // Not using response.bodyToString() as it's extremely slow
-        String responseBodyDecoded = new String(responseBody.getBytes(), StandardCharsets.UTF_8);
-        String responseHeaders = String.join("\r\n", response.headers().stream().map(HttpHeader::toString).toList());
+        // Not using bodyToString() as it's extremely slow
+        String requestBodyDecoded = Utils.convertByteArrayToString(request.body());
+        String requestHeaders = Utils.convertHttpHeaderListToString(request.headers());
+        String responseBodyDecoded = Utils.convertByteArrayToString(responseBody);
+        String responseHeaders = Utils.convertHttpHeaderListToString(response.headers());
 
         for (RegexEntity regex : regexList) {
             if (this.interruptScan) return;
             if (!regex.isActive()) continue;
 
-            getRegexMatchers(regex, request.url(), requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded)
-                    .parallelStream()
-                    .forEach(matcher -> {
-                        while (matcher.find()) {
-                            logEntriesCallback.accept(new LogEntity(request, response, regex, matcher.group()));
-                        }
-                    });
+            Consumer<String> logMatchCallback = match -> logEntriesCallback.accept(new LogEntity(request, response, regex, match));
+            performMatchingOnMessage(regex, request, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded, logMatchCallback);
         }
     }
 
-    private List<Matcher> getRegexMatchers(RegexEntity regex,
-                                           String requestUrl,
-                                           String requestHeaders,
-                                           String requestBody,
-                                           String responseHeaders,
-                                           String responseBody) {
+    private void performMatchingOnMessage(RegexEntity regex, HttpRequest request, String requestHeaders, String requestBodyDecoded, String responseHeaders, String responseBodyDecoded, Consumer<String> logMatchCallback) {
+        getRegexMatchers(regex, request.url(), requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded)
+                .flatMap(Matcher::results)
+                .map(MatchResult::group)
+                .forEachOrdered(logMatchCallback);
+    }
+
+    private Stream<Matcher> getRegexMatchers(RegexEntity regex,
+                                             String requestUrl,
+                                             String requestHeaders,
+                                             String requestBody,
+                                             String responseHeaders,
+                                             String responseBody) {
         Pattern regexCompiled = regex.getRegexCompiled();
 
         //TODO keep track of section where regex matched. Show the section in the logger table;
@@ -182,20 +171,7 @@ public class RegexScanner {
                     case RES_BODY -> responseBody;
                 })
                 .filter(Objects::nonNull)
-                .map(regexCompiled::matcher)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Checks if the MimeType is inside the list of blacklisted mime types "mime_types.json".
-     * If the stated mime type in the header isBlank, then the inferred mime type is used.
-     *
-     * @param statedMimeType   Stated mime type from a HttpResponse object
-     * @param inferredMimeType Inferred mime type from a HttpResponse object
-     * @return True if the mime type is blacklisted
-     */
-    private boolean isMimeTypeBlacklisted(MimeType statedMimeType, MimeType inferredMimeType) {
-        return blacklistedMimeTypes.contains(Objects.isNull(statedMimeType) ? inferredMimeType : statedMimeType);
+                .map(regexCompiled::matcher);
     }
 
     /**

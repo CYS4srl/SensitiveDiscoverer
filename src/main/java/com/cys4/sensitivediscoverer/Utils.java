@@ -4,6 +4,8 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer;
 
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.http.message.HttpHeader;
 import com.cys4.sensitivediscoverer.model.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -351,5 +353,13 @@ public class Utils {
                 title,
                 JOptionPane.INFORMATION_MESSAGE);
         alreadyAddedDialog.setVisible(true);
+    }
+
+    public static String convertByteArrayToString(ByteArray request) {
+        return new String(request.getBytes(), StandardCharsets.UTF_8);
+    }
+
+    public static String convertHttpHeaderListToString(List<HttpHeader> headers) {
+        return String.join("\r\n", headers.stream().map(HttpHeader::toString).toList());
     }
 }
