@@ -319,6 +319,9 @@ public class LoggerTab implements ApplicationTab {
 
         JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
         itemToCSV.addActionListener(actionEvent -> {
+            String csvFile = Utils.selectFile(List.of("CSV"), false);
+            if (csvFile.isBlank()) return;
+
             java.util.List<String> lines = new ArrayList<>();
 
             lines.add(String.format("\"%s\",\"%s\"",
@@ -332,12 +335,15 @@ public class LoggerTab implements ApplicationTab {
                 lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
             }
 
-            Utils.saveToFile("csv", lines);
+            Utils.writeLinesToFile(csvFile, lines);
         });
         menu.add(itemToCSV);
 
         JMenuItem itemToJSON = new JMenuItem(getLocaleString("common-toJSON"));
         itemToJSON.addActionListener(actionEvent -> {
+            String jsonFile = Utils.selectFile(List.of("JSON"), false);
+            if (jsonFile.isBlank()) return;
+
             java.util.List<JsonObject> lines = new ArrayList<>();
 
             String prop1 = logsTableModel.getColumnNameFormatted(0);
@@ -355,7 +361,8 @@ public class LoggerTab implements ApplicationTab {
             Gson gson = builder.create();
             Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {
             }.getType();
-            Utils.saveToFile("json", List.of(gson.toJson(lines, tListEntries)));
+
+            Utils.writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
         });
         menu.add(itemToJSON);
 

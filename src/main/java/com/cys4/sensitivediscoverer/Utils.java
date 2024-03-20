@@ -89,7 +89,7 @@ public class Utils {
      *
      * @param extensionNames the extensions to filter files
      * @param openFile       Set to true if the file should be opened, false if it should be saved
-     * @return The filename, or null if there was an error
+     * @return The filename, or empty string if there was an error
      */
     public static String selectFile(List<String> extensionNames, boolean openFile) {
         JFrame parentFrame = new JFrame();
@@ -190,13 +190,22 @@ public class Utils {
         return Utils.class.getClassLoader().getResourceAsStream(name);
     }
 
-    private static void writeLinesToFile(String fileName, List<String> lines) {
+    public static void writeLinesToFile(String fileName, List<String> lines) {
         try {
             PrintWriter pwt = new PrintWriter(fileName, StandardCharsets.UTF_8);
             lines.forEach(pwt::println);
             pwt.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static List<String> readLinesFromFile(String fileName) {
+        try {
+            return Files.readAllLines(Path.of(fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -239,13 +248,9 @@ public class Utils {
 
     public static void openListFromCSV(String csvFile, RegexListContext ctx) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
-        List<String> lines;
-        try {
-            lines = Files.readAllLines(Path.of(csvFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+
+        List<String> lines = readLinesFromFile(csvFile);
+        if (Objects.isNull(lines)) return;
 
         //Skip header line if present
         int startRow = (lines.get(0).contains("\"description\",\"regex\"")) ? 1 : 0;
@@ -287,13 +292,9 @@ public class Utils {
     public static void openListFromJSON(String jsonFile, RegexListContext ctx) {
         Gson gson = new Gson();
         StringBuilder alreadyAddedMsg = new StringBuilder();
-        List<String> lines;
-        try {
-            lines = Files.readAllLines(Path.of(jsonFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+
+        List<String> lines = readLinesFromFile(jsonFile);
+        if (Objects.isNull(lines)) return;
 
         Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
         }.getType();
