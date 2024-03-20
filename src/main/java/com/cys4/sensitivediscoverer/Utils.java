@@ -91,13 +91,14 @@ public class Utils {
      * @param title          the window title
      * @return The filename, or null if there was an error
      */
-    public static String selectFile(String[] extensionNames, String title) {
+    public static String selectFile(List<String> extensionNames, String title) {
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
-        for (String extensionName : extensionNames) {
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("." + extensionName, extensionName);
-            fileChooser.addChoosableFileFilter(filter);
-        }
+
+        extensionNames.stream()
+                .map(extensionName -> new FileNameExtensionFilter("." + extensionName, extensionName))
+                .forEachOrdered(fileChooser::addChoosableFileFilter);
+
 
         fileChooser.setDialogTitle(title);
 
