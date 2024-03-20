@@ -1,6 +1,6 @@
 package com.cys4.sensitivediscoverer.utils;
 
-import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.MainUI;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -25,7 +25,7 @@ public class SwingUtils {
 
         JPanel mainPanel = new JPanel(new BorderLayout(0, 6));
         JLabel headerLabel = new JLabel(headerMessage + ":");
-        headerLabel.setFont(UIOptions.H1_FONT);
+        headerLabel.setFont(MainUI.UIOptions.H1_FONT);
         mainPanel.add(headerLabel, BorderLayout.NORTH);
         JTextArea messageTextArea = new JTextArea(message);
         messageTextArea.setEditable(false);

@@ -7,7 +7,6 @@ package com.cys4.sensitivediscoverer;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
-import com.cys4.sensitivediscoverer.model.UIOptions;
 import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
 import com.cys4.sensitivediscoverer.ui.RegexEditDialog;
 import com.cys4.sensitivediscoverer.ui.RegexListViewerTable;
@@ -99,8 +98,8 @@ public class RegexListViewer {
         header.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
 
         JLabel titleLabel = new JLabel();
-        titleLabel.setFont(UIOptions.H1_FONT);
-        titleLabel.setForeground(UIOptions.ACCENT_COLOR);
+        titleLabel.setFont(MainUI.UIOptions.H1_FONT);
+        titleLabel.setForeground(MainUI.UIOptions.ACCENT_COLOR);
         titleLabel.setText(title);
         gbc = createGridConstraints(0, 0, 0.0, 1.0, GridBagConstraints.WEST);
         gbc.insets = new Insets(0, 0, 1, 0);

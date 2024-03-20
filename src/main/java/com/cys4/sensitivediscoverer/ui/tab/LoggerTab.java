@@ -12,7 +12,6 @@ import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.RegexScanner;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
-import com.cys4.sensitivediscoverer.model.UIOptions;
 import com.cys4.sensitivediscoverer.ui.LogsTable;
 import com.cys4.sensitivediscoverer.ui.LogsTableContextMenu;
 import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
@@ -142,8 +141,8 @@ public class LoggerTab implements ApplicationTab {
         requestPanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         requestPanel.add(requestPanelHeader, BorderLayout.NORTH);
         final JLabel requestLabel = new JLabel(getLocaleString("common-request"));
-        requestLabel.setFont(UIOptions.H2_FONT);
-        requestLabel.setForeground(UIOptions.ACCENT_COLOR);
+        requestLabel.setFont(MainUI.UIOptions.H2_FONT);
+        requestLabel.setForeground(MainUI.UIOptions.ACCENT_COLOR);
         requestPanelHeader.add(requestLabel, BorderLayout.NORTH);
         requestPanel.add(this.originalRequestViewer.uiComponent(), BorderLayout.CENTER);
         responsePanel = new JPanel(new BorderLayout(0, 0));
@@ -153,8 +152,8 @@ public class LoggerTab implements ApplicationTab {
         responsePanelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         responsePanel.add(responsePanelHeader, BorderLayout.NORTH);
         final JLabel responseLabel = new JLabel(getLocaleString("common-response"));
-        responseLabel.setFont(UIOptions.H2_FONT);
-        responseLabel.setForeground(UIOptions.ACCENT_COLOR);
+        responseLabel.setFont(MainUI.UIOptions.H2_FONT);
+        responseLabel.setForeground(MainUI.UIOptions.ACCENT_COLOR);
         responsePanelHeader.add(responseLabel, BorderLayout.NORTH);
         responsePanel.add(this.originalResponseViewer.uiComponent(), BorderLayout.CENTER);
 

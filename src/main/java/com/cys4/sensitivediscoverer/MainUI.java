@@ -13,6 +13,7 @@ import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.ui.tab.OptionsTab;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 import java.util.Properties;
 
@@ -100,4 +101,9 @@ public class MainUI {
         return configProperties.getProperty("ui.extension_name");
     }
 
+    public static final class UIOptions {
+        public static final Font H1_FONT = new Font("SansSerif", Font.BOLD, 16);
+        public static final Font H2_FONT = new Font("SansSerif", Font.BOLD, 14);
+        public static final Color ACCENT_COLOR = new Color(255, 102, 51);
+    }
 }
