@@ -2,14 +2,12 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer;
+package com.cys4.sensitivediscoverer.ui;
 
+import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
-import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
-import com.cys4.sensitivediscoverer.ui.RegexEditDialog;
-import com.cys4.sensitivediscoverer.ui.RegexListViewerTable;
 import com.cys4.sensitivediscoverer.utils.FileUtils;
 import com.cys4.sensitivediscoverer.utils.SwingUtils;
 

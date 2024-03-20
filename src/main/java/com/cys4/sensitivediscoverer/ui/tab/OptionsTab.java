@@ -5,12 +5,12 @@ See the file 'LICENSE' for copying permission
 package com.cys4.sensitivediscoverer.ui.tab;
 
 import com.cys4.sensitivediscoverer.MainUI;
-import com.cys4.sensitivediscoverer.RegexListViewer;
 import com.cys4.sensitivediscoverer.RegexSeeder;
 import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateListener;
 import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateMaxSizeListener;
 import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateNumThreadsListener;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.ui.RegexListViewer;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
