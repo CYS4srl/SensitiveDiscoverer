@@ -88,7 +88,7 @@ public class Utils {
      * Open JFileChooser to get a file name
      *
      * @param extensionNames the extensions to filter files
-     * @param openFile Set to true if the file should be opened, false if it should be saved
+     * @param openFile       Set to true if the file should be opened, false if it should be saved
      * @return The filename, or null if there was an error
      */
     public static String selectFile(List<String> extensionNames, boolean openFile) {
@@ -103,8 +103,8 @@ public class Utils {
                 .forEachOrdered(fileChooser::addChoosableFileFilter);
 
         //set window title to Open or Save
-        fileChooser.setDialogTitle(getLocaleString(openFile?
-                getLocaleString("utils-linesFromFile-importFile")
+        fileChooser.setDialogTitle(getLocaleString(openFile ?
+                "utils-linesFromFile-importFile"
                 : "utils-saveToFile-exportFile"));
 
         //show the Open or Save window
@@ -112,13 +112,13 @@ public class Utils {
                 fileChooser.showOpenDialog(parentFrame) :
                 fileChooser.showSaveDialog(parentFrame);
 
-        if (userSelection != JFileChooser.APPROVE_OPTION) return null;
+        if (userSelection != JFileChooser.APPROVE_OPTION) return "";
 
         String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
 
         String selectedExt = fileChooser.getFileFilter().getDescription().toLowerCase();
 
-        return exportFilePath.toLowerCase().endsWith(selectedExt) ? exportFilePath : exportFilePath+selectedExt;
+        return exportFilePath.toLowerCase().endsWith(selectedExt) ? exportFilePath : exportFilePath + selectedExt;
     }
 
     /**
@@ -235,7 +235,6 @@ public class Utils {
         }).getType();
 
         writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
-
     }
 
     public static void openListFromCSV(String csvFile, RegexListContext ctx) {
