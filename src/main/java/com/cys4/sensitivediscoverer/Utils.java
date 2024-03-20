@@ -190,6 +190,16 @@ public class Utils {
         return Utils.class.getClassLoader().getResourceAsStream(name);
     }
 
+    private static void writeLinesToFile(String fileName, List<String> lines) {
+        try {
+            PrintWriter pwt = new PrintWriter(fileName, StandardCharsets.UTF_8);
+            lines.forEach(pwt::println);
+            pwt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void saveListToCSV(String csvFile, List<RegexEntity> regexEntities) {
         List<String> lines = new ArrayList<>();
 
@@ -203,13 +213,7 @@ public class Utils {
             lines.add(String.format("\"%s\",\"%s\",\"%s\"", description, regex, sections));
         });
 
-        try {
-            PrintWriter pwt = new PrintWriter(csvFile, StandardCharsets.UTF_8);
-            lines.forEach(pwt::println);
-            pwt.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        writeLinesToFile(csvFile, lines);
     }
 
     public static void saveListToJSON(String jsonFile, List<RegexEntity> regexEntities) {
@@ -230,13 +234,8 @@ public class Utils {
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
 
-        try {
-            PrintWriter pwt = new PrintWriter(jsonFile, StandardCharsets.UTF_8);
-            List.of(gson.toJson(lines, tListEntries)).forEach(pwt::println);
-            pwt.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
+
     }
 
     public static void openListFromCSV(String csvFile, RegexListContext ctx) {
