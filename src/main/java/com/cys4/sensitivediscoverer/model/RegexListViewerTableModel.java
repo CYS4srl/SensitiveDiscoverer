@@ -24,43 +24,33 @@ public class RegexListViewerTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return Column.getSize();
     }
 
     @Override
     public String getColumnName(int columnIndex) {
-        return switch (columnIndex) {
-            case 0 -> getLocaleString("common-active");
-            case 1 -> getLocaleString("common-regex");
-            case 2 -> getLocaleString("common-description");
-            case 3 -> getLocaleString("common-sections");
-            default -> "";
-        };
+        return getLocaleString(Column.getById(columnIndex).localeKey);
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 0) {
-            return Boolean.class;
-        }
-        return String.class;
+        return Column.getById(columnIndex).columnType;
     }
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return column == 0;
+        return Column.getById(column).editable;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         RegexEntity regexEntry = regexList.get(rowIndex);
 
-        return switch (columnIndex) {
-            case 0 -> regexEntry.isActive();
-            case 1 -> regexEntry.getRegex();
-            case 2 -> regexEntry.getDescription();
-            case 3 -> regexEntry.getSectionsHumanReadable();
-            default -> "";
+        return switch (Column.getById(columnIndex)) {
+            case ACTIVE -> regexEntry.isActive();
+            case REGEX -> regexEntry.getRegex();
+            case DESCRIPTION -> regexEntry.getDescription();
+            case SECTIONS -> regexEntry.getSectionsHumanReadable();
         };
     }
 
@@ -69,5 +59,40 @@ public class RegexListViewerTableModel extends AbstractTableModel {
         RegexEntity regexEntry = regexList.get(rowIndex);
         regexEntry.setActive((Boolean) value);
         fireTableCellUpdated(rowIndex, columnIndex);
+    }
+
+    /**
+     * Enum representing the columns of the table model for regex lists
+     */
+    public enum Column {
+        ACTIVE("common-active", true, Boolean.class),
+        REGEX("common-regex", false, String.class),
+        DESCRIPTION("common-description", false, String.class),
+        SECTIONS("common-sections", false, String.class);
+
+        private static final List<Column> columns = List.of(ACTIVE, REGEX, DESCRIPTION, SECTIONS);
+
+        private final String localeKey;
+        private final boolean editable;
+        private final Class<?> columnType;
+
+        Column(String localeKey, boolean editable, Class<?> columnType) {
+            this.localeKey = localeKey;
+            this.editable = editable;
+            this.columnType = columnType;
+        }
+
+        public static Column getById(int index) {
+            return columns.get(index);
+        }
+
+        /**
+         * Returns the number of elements in this enum
+         *
+         * @return the number of elements in this enum
+         */
+        public static int getSize() {
+            return columns.size();
+        }
     }
 }
