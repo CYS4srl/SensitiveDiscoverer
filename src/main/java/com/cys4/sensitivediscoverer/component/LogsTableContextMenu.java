@@ -10,7 +10,6 @@ import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.model.LogEntity;
@@ -37,13 +36,15 @@ public class LogsTableContextMenu extends JPopupMenu {
                                 MontoyaApi burpApi,
                                 boolean isAnalysisRunning) {
         RegexEntity regexEntity = logEntry.getRegexEntity();
-        ProxyHttpRequestResponse requestResponse = logEntry.getRequestResponse();
+        String url = logEntry.getRequestUrl();
+        HttpRequest request = logEntry.getRequest();
+        HttpResponse response = logEntry.getResponse();
         Clipboard systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
         JMenuItem sendToRepeater = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToRepeater")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                burpApi.repeater().sendToRepeater(requestResponse.finalRequest(), regexEntity.getDescription());
+                burpApi.repeater().sendToRepeater(request, regexEntity.getDescription());
             }
         });
         this.add(sendToRepeater);
@@ -51,7 +52,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem sendToIntruder = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToIntruder")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                burpApi.intruder().sendToIntruder(requestResponse.finalRequest());
+                burpApi.intruder().sendToIntruder(request);
             }
         });
         this.add(sendToIntruder);
@@ -59,10 +60,11 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem sendToOrganizer = new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-sendToOrganizer")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                burpApi.organizer().sendToOrganizer(HttpRequestResponse.httpRequestResponse(
-                        requestResponse.finalRequest(),
-                        requestResponse.response(),
-                        Annotations.annotations(logEntry.getMatch())));
+                burpApi.organizer().sendToOrganizer(
+                        HttpRequestResponse.httpRequestResponse(
+                                request,
+                                response,
+                                Annotations.annotations(logEntry.getMatch())));
             }
         });
         this.add(sendToOrganizer);
@@ -71,13 +73,13 @@ public class LogsTableContextMenu extends JPopupMenu {
         JMenuItem comparerRequest = new JMenuItem(new AbstractAction(getLocaleString("common-request")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                burpApi.comparer().sendToComparer(requestResponse.finalRequest().toByteArray());
+                burpApi.comparer().sendToComparer(request.toByteArray());
             }
         });
         JMenuItem comparerResponse = new JMenuItem(new AbstractAction(getLocaleString("common-response")) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                burpApi.comparer().sendToComparer(requestResponse.response().toByteArray());
+                burpApi.comparer().sendToComparer(response.toByteArray());
             }
         });
         sendToComparer.add(comparerRequest);
@@ -113,7 +115,7 @@ public class LogsTableContextMenu extends JPopupMenu {
         this.add(new JMenuItem(new AbstractAction(getLocaleString("logger-ctxMenu-copyURL")) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                StringSelection selection = new StringSelection(requestResponse.finalRequest().url());
+                StringSelection selection = new StringSelection(url);
                 systemClipboard.setContents(selection, selection);
             }
         }));

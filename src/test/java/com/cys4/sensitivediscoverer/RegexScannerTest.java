@@ -12,8 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,11 +26,8 @@ class RegexScannerTest {
     private BurpMontoyaApiMock burpApi;
     private ScannerOptions scannerOptions;
     private List<LogEntity> logEntries;
-    private Consumer<Integer> itemAnalyzedCallback;
+    private Function<Integer, Runnable> progressBarCallbackSetupMock;
     private Consumer<LogEntity> logEntityConsumer;
-
-    private static void accept(Integer integer) {
-    }
 
     @BeforeEach
     void setUp() {
@@ -50,7 +49,8 @@ class RegexScannerTest {
         this.logEntries = new ArrayList<>();
         final Object loggerLock = new Object();
 
-        itemAnalyzedCallback = RegexScannerTest::accept;
+        progressBarCallbackSetupMock = (maxItems) -> () -> {
+        };
         //TODO logEntityConsumer should use LoggerTab::addLogEntry instead of re-implementing it
         logEntityConsumer = logEntry -> {
             synchronized (loggerLock) {
@@ -65,55 +65,57 @@ class RegexScannerTest {
 
     @Test
     void testGeneralRegexesWithFindings() {
-        List<ProxyHttpRequestResponse> proxyHistory = List.of(
+        this.setProxyHistory(
                 new ProxyHttpRequestResponseMock("testing", "testing", "Mon, 01 Jan 1990 10:00:00 GMT"),
                 new ProxyHttpRequestResponseMock("a testing 2", "a testing 2", "Mon, 01 Jan 1990 10:00:01 GMT")
         );
-        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
                         new RegexEntity("Match test string", "test", true, ProxyItemSection.ALL)
                 ),
                 List.of());
-        regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
         assertThat(logEntries).as("Check count of entries found").hasSize(2);
     }
 
     @Test
     void testGeneralRegexesNoDuplicatesInFindings() {
-        List<ProxyHttpRequestResponse> proxyHistory = List.of(
+        this.setProxyHistory(
                 new ProxyHttpRequestResponseMock("testing", "testing", "Mon, 01 Jan 1990 10:00:00 GMT"),
                 new ProxyHttpRequestResponseMock("testing", "testing", "Mon, 01 Jan 1990 10:00:00 GMT"),
                 new ProxyHttpRequestResponseMock("a testing 2", "a testing 2", "Mon, 01 Jan 1990 10:00:01 GMT"),
                 new ProxyHttpRequestResponseMock("a testing 2", "a testing 2", "Mon, 01 Jan 1990 10:00:01 GMT")
         );
-        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
                         new RegexEntity("Match test string", "test", true, ProxyItemSection.ALL)
                 ),
                 List.of());
-        regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
-        regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
         assertThat(logEntries).as("Check duplicates aren't inserted more than once").hasSize(2);
     }
 
     @Test
     void testGeneralRegexesNoFindings() {
-        List<ProxyHttpRequestResponse> proxyHistory = List.of(
+        this.setProxyHistory(
                 new ProxyHttpRequestResponseMock("testing", "testing"),
                 new ProxyHttpRequestResponseMock("a testing 2", "a testing 2")
         );
-        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
                         new RegexEntity("Match random string", "random", true, ProxyItemSection.ALL)
                 ),
                 List.of());
-        regexScanner.analyzeProxyHistory(itemAnalyzedCallback, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
         assertThat(logEntries).as("Check count of entries found").hasSize(0);
+    }
+
+    void setProxyHistory(ProxyHttpRequestResponseMock... proxyElements) {
+        List<ProxyHttpRequestResponse> proxyHistory = new ArrayList<>(Arrays.asList(proxyElements));
+        ((ProxyMock) this.burpApi.proxy()).setHistory(proxyHistory);
     }
 }
