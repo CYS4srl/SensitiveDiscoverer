@@ -133,6 +133,7 @@ public class RegexScanner {
         if (ScannerUtils.isResponseSizeOverMaxSize(scannerOptions, responseBody)) return;
 
         // Not using bodyToString() as it's extremely slow
+        String requestUrl = request.url();
         String requestBodyDecoded = BurpUtils.convertByteArrayToString(request.body());
         String requestHeaders = BurpUtils.convertHttpHeaderListToString(request.headers());
         String responseBodyDecoded = BurpUtils.convertByteArrayToString(responseBody);
@@ -143,12 +144,18 @@ public class RegexScanner {
             if (!regex.isActive()) continue;
 
             Consumer<String> logMatchCallback = match -> logEntriesCallback.accept(new LogEntity(request, response, regex, match));
-            performMatchingOnMessage(regex, request, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded, logMatchCallback);
+            performMatchingOnMessage(regex, requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded, logMatchCallback);
         }
     }
 
-    private void performMatchingOnMessage(RegexEntity regex, HttpRequest request, String requestHeaders, String requestBodyDecoded, String responseHeaders, String responseBodyDecoded, Consumer<String> logMatchCallback) {
-        getRegexMatchers(regex, request.url(), requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded)
+    private void performMatchingOnMessage(RegexEntity regex,
+                                          String requestUrl,
+                                          String requestHeaders,
+                                          String requestBodyDecoded,
+                                          String responseHeaders,
+                                          String responseBodyDecoded,
+                                          Consumer<String> logMatchCallback) {
+        getRegexMatchers(regex, requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded)
                 .flatMap(Matcher::results)
                 .map(MatchResult::group)
                 .forEachOrdered(logMatchCallback);
