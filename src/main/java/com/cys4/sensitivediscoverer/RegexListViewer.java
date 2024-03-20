@@ -278,6 +278,8 @@ public class RegexListViewer {
 
             String fileName = Utils.selectFile(options, getLocaleString("utils-linesFromFile-importFile"));
 
+            if (Objects.isNull(fileName)) return;
+
             if (fileName.toUpperCase().endsWith("JSON")) {
                 Utils.openListFromJSON(fileName, ctx);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
