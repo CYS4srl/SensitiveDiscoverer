@@ -10,6 +10,7 @@ import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
+import com.cys4.sensitivediscoverer.model.HttpRecord;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
@@ -144,40 +145,29 @@ public class RegexScanner {
             if (!regex.isActive()) continue;
 
             Consumer<String> logMatchCallback = match -> logEntriesCallback.accept(new LogEntity(request, response, regex, match));
-            performMatchingOnMessage(regex, requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded, logMatchCallback);
+            performMatchingOnMessage(regex, logMatchCallback, new HttpRecord(requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded));
         }
     }
 
-    private void performMatchingOnMessage(RegexEntity regex,
-                                          String requestUrl,
-                                          String requestHeaders,
-                                          String requestBodyDecoded,
-                                          String responseHeaders,
-                                          String responseBodyDecoded,
-                                          Consumer<String> logMatchCallback) {
-        getRegexMatchers(regex, requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded)
+    private void performMatchingOnMessage(RegexEntity regex, Consumer<String> logMatchCallback, HttpRecord requestResponse) {
+        getRegexMatchers(regex, requestResponse)
                 .flatMap(Matcher::results)
                 .map(MatchResult::group)
-                .forEachOrdered(logMatchCallback);
+                .forEach(logMatchCallback);
     }
 
-    private Stream<Matcher> getRegexMatchers(RegexEntity regex,
-                                             String requestUrl,
-                                             String requestHeaders,
-                                             String requestBody,
-                                             String responseHeaders,
-                                             String responseBody) {
+    private Stream<Matcher> getRegexMatchers(RegexEntity regex, HttpRecord requestResponse) {
         Pattern regexCompiled = regex.getRegexCompiled();
 
         //TODO keep track of section where regex matched. Show the section in the logger table;
         return regex.getSections()
                 .parallelStream()
                 .map(proxyItemSection -> switch (proxyItemSection) {
-                    case REQ_URL -> requestUrl;
-                    case REQ_HEADERS -> requestHeaders;
-                    case REQ_BODY -> requestBody;
-                    case RES_HEADERS -> responseHeaders;
-                    case RES_BODY -> responseBody;
+                    case REQ_URL -> requestResponse.requestUrl();
+                    case REQ_HEADERS -> requestResponse.requestHeaders();
+                    case REQ_BODY -> requestResponse.requestBody();
+                    case RES_HEADERS -> requestResponse.responseHeaders();
+                    case RES_BODY -> requestResponse.responseBody();
                 })
                 .filter(Objects::nonNull)
                 .map(regexCompiled::matcher);
