@@ -4,13 +4,15 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer;
 
-import com.cys4.sensitivediscoverer.component.PopupMenuButton;
-import com.cys4.sensitivediscoverer.component.RegexEditDialog;
-import com.cys4.sensitivediscoverer.component.RegexListViewerTable;
+import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
+import com.cys4.sensitivediscoverer.ui.RegexEditDialog;
+import com.cys4.sensitivediscoverer.ui.RegexListViewerTable;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
 import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.utils.FileUtils;
+import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -255,12 +257,12 @@ public class RegexListViewer {
         List<String> options = Arrays.asList("JSON", "CSV");
         menuItem.addActionListener(actionEvent -> {
 
-            String fileName = Utils.selectFile(options, false);
+            String fileName = SwingUtils.selectFile(options, false);
 
             if (fileName.toUpperCase().endsWith("JSON")) {
-                Utils.saveListToJSON(fileName, regexEntities);
+                FileUtils.exportRegexListToJSON(fileName, regexEntities);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
-                Utils.saveListToCSV(fileName, regexEntities);
+                FileUtils.exportRegexListToCSV(fileName, regexEntities);
             }
         });
 
@@ -274,12 +276,12 @@ public class RegexListViewer {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
 
-            String fileName = Utils.selectFile(options, true);
+            String fileName = SwingUtils.selectFile(options, true);
 
             if (fileName.toUpperCase().endsWith("JSON")) {
-                Utils.openListFromJSON(fileName, ctx);
+                FileUtils.importRegexListFromJSON(fileName, ctx);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
-                Utils.openListFromCSV(fileName, ctx);
+                FileUtils.importRegexListFromCSV(fileName, ctx);
             }
 
             tableModel.fireTableDataChanged();

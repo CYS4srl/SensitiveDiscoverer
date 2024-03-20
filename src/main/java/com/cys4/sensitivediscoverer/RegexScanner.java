@@ -13,6 +13,8 @@ import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.utils.BurpUtils;
+import com.cys4.sensitivediscoverer.utils.ScannerUtils;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -123,18 +125,18 @@ public class RegexScanner {
         // The initial checks must be kept ordered based on the amount of information required from Burp APIs.
         // API calls (to MontoyaAPI) for specific parts of the request/response are quite slow.
         HttpRequest request = proxyEntry.finalRequest();
-        if (UtilsScanner.isUrlOutOfScope(scannerOptions, request)) return;
+        if (ScannerUtils.isUrlOutOfScope(scannerOptions, request)) return;
         HttpResponse response = proxyEntry.response();
-        if (UtilsScanner.isResponseEmpty(response)) return;
-        if (UtilsScanner.isMimeTypeBlacklisted(scannerOptions, response)) return;
+        if (ScannerUtils.isResponseEmpty(response)) return;
+        if (ScannerUtils.isMimeTypeBlacklisted(scannerOptions, response)) return;
         ByteArray responseBody = response.body();
-        if (UtilsScanner.isResponseSizeOverMaxSize(scannerOptions, responseBody)) return;
+        if (ScannerUtils.isResponseSizeOverMaxSize(scannerOptions, responseBody)) return;
 
         // Not using bodyToString() as it's extremely slow
-        String requestBodyDecoded = Utils.convertByteArrayToString(request.body());
-        String requestHeaders = Utils.convertHttpHeaderListToString(request.headers());
-        String responseBodyDecoded = Utils.convertByteArrayToString(responseBody);
-        String responseHeaders = Utils.convertHttpHeaderListToString(response.headers());
+        String requestBodyDecoded = BurpUtils.convertByteArrayToString(request.body());
+        String requestHeaders = BurpUtils.convertHttpHeaderListToString(request.headers());
+        String responseBodyDecoded = BurpUtils.convertByteArrayToString(responseBody);
+        String responseHeaders = BurpUtils.convertHttpHeaderListToString(response.headers());
 
         for (RegexEntity regex : regexList) {
             if (this.interruptScan) return;

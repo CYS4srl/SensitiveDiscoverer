@@ -1,14 +1,15 @@
-package com.cys4.sensitivediscoverer;
+package com.cys4.sensitivediscoverer.utils;
 
 import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
+import com.cys4.sensitivediscoverer.RegexScanner;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 
 import java.util.Objects;
 
-public class UtilsScanner {
+public class ScannerUtils {
     public static boolean isResponseSizeOverMaxSize(ScannerOptions scannerOptions, ByteArray responseBody) {
         return scannerOptions.isFilterSkipMaxSizeCheckbox() && responseBody.length() > scannerOptions.getConfigMaxResponseSize();
     }

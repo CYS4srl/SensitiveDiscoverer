@@ -2,7 +2,7 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.component;
+package com.cys4.sensitivediscoverer.ui;
 
 import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;

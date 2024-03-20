@@ -7,16 +7,16 @@ package com.cys4.sensitivediscoverer;
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
-import com.cys4.sensitivediscoverer.tab.AboutTab;
-import com.cys4.sensitivediscoverer.tab.ApplicationTab;
-import com.cys4.sensitivediscoverer.tab.LoggerTab;
-import com.cys4.sensitivediscoverer.tab.OptionsTab;
+import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
+import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
+import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
+import com.cys4.sensitivediscoverer.ui.tab.OptionsTab;
 
 import javax.swing.*;
 import java.util.List;
 import java.util.Properties;
 
-import static com.cys4.sensitivediscoverer.Utils.loadConfigFile;
+import static com.cys4.sensitivediscoverer.utils.Utils.loadConfigFile;
 
 public class MainUI {
     private final MontoyaApi burpApi;

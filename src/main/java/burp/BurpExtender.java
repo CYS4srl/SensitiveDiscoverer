@@ -7,7 +7,7 @@ package burp;
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.MainUI;
-import com.cys4.sensitivediscoverer.Utils;
+import com.cys4.sensitivediscoverer.utils.Utils;
 
 public class BurpExtender implements BurpExtension {
     @Override

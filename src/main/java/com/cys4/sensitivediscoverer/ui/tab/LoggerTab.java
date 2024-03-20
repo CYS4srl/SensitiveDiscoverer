@@ -2,7 +2,7 @@
 Copyright (C) 2023 CYS4 Srl
 See the file 'LICENSE' for copying permission
 */
-package com.cys4.sensitivediscoverer.tab;
+package com.cys4.sensitivediscoverer.ui.tab;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
@@ -10,13 +10,14 @@ import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.RegexScanner;
-import com.cys4.sensitivediscoverer.Utils;
-import com.cys4.sensitivediscoverer.component.LogsTable;
-import com.cys4.sensitivediscoverer.component.LogsTableContextMenu;
-import com.cys4.sensitivediscoverer.component.PopupMenuButton;
+import com.cys4.sensitivediscoverer.ui.LogsTable;
+import com.cys4.sensitivediscoverer.ui.LogsTableContextMenu;
+import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
 import com.cys4.sensitivediscoverer.model.UIOptions;
+import com.cys4.sensitivediscoverer.utils.FileUtils;
+import com.cys4.sensitivediscoverer.utils.SwingUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -100,7 +101,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private void preAnalysisOperations() {
         // disable components that shouldn't be used while scanning
-        Utils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent");
+        SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent");
     }
 
     /**
@@ -109,7 +110,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private void postAnalysisOperations() {
         // re-enable components not usable while scanning
-        Utils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), true, "analysisDependent");
+        SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), true, "analysisDependent");
     }
 
     private JPanel createCenterBox(JScrollPane scrollPane) {
@@ -331,7 +332,7 @@ public class LoggerTab implements ApplicationTab {
 
         JMenuItem itemToCSV = new JMenuItem(getLocaleString("common-toCSV"));
         itemToCSV.addActionListener(actionEvent -> {
-            String csvFile = Utils.selectFile(List.of("CSV"), false);
+            String csvFile = SwingUtils.selectFile(List.of("CSV"), false);
             if (csvFile.isBlank()) return;
 
             java.util.List<String> lines = new ArrayList<>();
@@ -347,13 +348,13 @@ public class LoggerTab implements ApplicationTab {
                 lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
             }
 
-            Utils.writeLinesToFile(csvFile, lines);
+            FileUtils.writeLinesToFile(csvFile, lines);
         });
         menu.add(itemToCSV);
 
         JMenuItem itemToJSON = new JMenuItem(getLocaleString("common-toJSON"));
         itemToJSON.addActionListener(actionEvent -> {
-            String jsonFile = Utils.selectFile(List.of("JSON"), false);
+            String jsonFile = SwingUtils.selectFile(List.of("JSON"), false);
             if (jsonFile.isBlank()) return;
 
             java.util.List<JsonObject> lines = new ArrayList<>();
@@ -374,7 +375,7 @@ public class LoggerTab implements ApplicationTab {
             Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {
             }.getType();
 
-            Utils.writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
+            FileUtils.writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
         });
         menu.add(itemToJSON);
 
