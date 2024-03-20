@@ -23,6 +23,7 @@ public class RegexEntity {
     private final EnumSet<ProxyItemSection> sections;
     private final List<String> tests;
     private boolean active;
+
     public RegexEntity(String description, String regex) throws IllegalArgumentException {
         this(description, regex, true, ProxyItemSection.getDefault(), null);
     }
@@ -114,8 +115,13 @@ public class RegexEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RegexEntity that = (RegexEntity) o;
-        return this.getRegex().equals(that.getRegex());
+        RegexEntity entity = (RegexEntity) o;
+        return Objects.equals(getRegex(), entity.getRegex()) && Objects.equals(getDescription(), entity.getDescription()) && Objects.equals(getSections(), entity.getSections());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getRegex(), getDescription(), getSections());
     }
 
     @Override
@@ -125,10 +131,5 @@ public class RegexEntity {
                 ", description='" + description + '\'' +
                 ", sections=" + sections +
                 '}';
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.getRegex());
     }
 }
