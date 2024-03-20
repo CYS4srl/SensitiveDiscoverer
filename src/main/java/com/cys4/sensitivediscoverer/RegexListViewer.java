@@ -15,6 +15,7 @@ import com.cys4.sensitivediscoverer.model.UIOptions;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -251,22 +252,15 @@ public class RegexListViewer {
 
     private JMenuItem createListSaveMenuItem(List<RegexEntity> regexEntities) {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-save"));
-        String[] options = {"JSON", "CSV"};
+        List<String> options = Arrays.asList("JSON", "CSV");
         menuItem.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showOptionDialog(
-                    null,
-                    getLocaleString("options-list-save-formatDialogMessage"),
-                    getLocaleString("options-list-save-formatDialogTitle"),
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    null
-            );
-            if ("JSON".equals(options[dialog])) {
-                Utils.saveListToJSON(regexEntities);
-            } else if ("CSV".equals(options[dialog])) {
-                Utils.saveListToCSV(regexEntities);
+
+            String fileName = Utils.selectFile(options, false);
+
+            if (fileName.toUpperCase().endsWith("JSON")) {
+                Utils.saveListToJSON(fileName, regexEntities);
+            } else if (fileName.toUpperCase().endsWith("CSV")) {
+                Utils.saveListToCSV(fileName, regexEntities);
             }
         });
 
@@ -276,24 +270,18 @@ public class RegexListViewer {
     private JMenuItem createListOpenMenuItem(RegexListContext ctx,
                                              JPanel tabPaneOptions,
                                              RegexListViewerTableModel tableModel) {
-        String[] options = {"JSON", "CSV"};
+        List<String> options = Arrays.asList("JSON", "CSV");
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
-            int dialog = JOptionPane.showOptionDialog(
-                    null,
-                    getLocaleString("options-list-open-formatDialogMessage"),
-                    getLocaleString("options-list-open-formatDialogTitle"),
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    null
-            );
-            if ("JSON".equals(options[dialog])) {
-                Utils.openListFromJSON(ctx);
-            } else if ("CSV".equals(options[dialog])) {
-                Utils.openListFromCSV(ctx);
+
+            String fileName = Utils.selectFile(options, true);
+
+            if (fileName.toUpperCase().endsWith("JSON")) {
+                Utils.openListFromJSON(fileName, ctx);
+            } else if (fileName.toUpperCase().endsWith("CSV")) {
+                Utils.openListFromCSV(fileName, ctx);
             }
+
             tableModel.fireTableDataChanged();
             tabPaneOptions.validate();
             tabPaneOptions.repaint();

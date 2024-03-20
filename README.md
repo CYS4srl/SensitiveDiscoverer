@@ -13,6 +13,7 @@
     * [Manual install](#manual-install)
   * [Usage](#usage)
     * [Importing Lists](#importing-lists)
+    * [Importing Lists - Advanced](#importing-lists---advanced)
   * [How to compile from source code](#how-to-compile-from-source-code)
     * [Using Maven from CLI](#using-maven-from-cli)
   * [About us](#about-us)
@@ -131,6 +132,45 @@ Both `CSV` and `JSON` files with their respective extensions are supported.
   ```
 
 Regexes must be compliant with the Java's Regexes Style. If in doubt, use [regex101](https://regex101.com/) with the `Java 8` flavour to test regexes.
+
+### Importing Lists - Advanced
+
+In the lists it's also possible to specify the sections that the regexes should match. If no section is specified, by default `all` sections are used.
+
+Each HTTP item composed of a request and a response is divided into the following matchable sections:
+
+- `req_url`: Request URL;
+- `req_headers`: Request headers without the request line (first line);
+- `req_body`: Request body;
+- `res_headers`: Response headers without the status line (first line);
+- `res_body`: Response body;
+
+The following sections groups are also available to make things easier and more readable:
+
+- `req`: req_url + req_headers + req_body
+- `res`: res_headers + res_body
+- `all`: req + res
+
+To specify the sections to match use the following format:
+
+- For **CSV** files, add a `sections` column and for each row add the list of sections to be matched as a string with sections delimited by the character `|`:
+
+  ```csv
+  "description","regex","sections"
+  "Google e-mail","\w+@gmail.com","req|res_body"
+  ```
+  
+- For **JSON** files, add a `sections` field containing the array of sections to be matched as strings:
+
+  ```json
+  [
+    {
+      "description": "Google e-mail",
+      "regex": "\\w+@gmail.com",
+      "sections": [ "req", "res_body" ]
+    }
+  ]
+  ```
 
 ## How to compile from source code
 

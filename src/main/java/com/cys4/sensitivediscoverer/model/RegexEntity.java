@@ -58,13 +58,13 @@ public class RegexEntity {
 
     /**
      * Checks if the input is in the format: `"Description","Regex","Sections"`
-     *
+     * Matches also if sections are not present, in this case group(3) is null
      * @param input Text string to check against the format
      * @return If the input was in the correct format, a Matcher object where group(1) = description, group(2) = regex, group(3) = sections
      */
     public static Matcher checkRegexEntityFromCSV(String input) {
         return Pattern
-                .compile("^\\s*[\"'](.*?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*,\\s*[\"'](.+?)[\"']\\s*$")
+                .compile("^[\t ]*[\"'](.+?)[\"'][\t ]*,[\t ]*[\"'](.+?)[\"'][\t ]*(?:,[\t ]*[\"'](.+?)[\"'][\t ]*)?$")
                 .matcher(input);
     }
 
