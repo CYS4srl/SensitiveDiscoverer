@@ -322,13 +322,13 @@ public class LoggerTab implements ApplicationTab {
             java.util.List<String> lines = new ArrayList<>();
 
             lines.add(String.format("\"%s\",\"%s\"",
-                    logsTableModel.getColumnNameFormatted(0),
-                    logsTableModel.getColumnNameFormatted(2)));
+                    LogsTableModel.Column.URL.getNameFormatted(),
+                    LogsTableModel.Column.MATCH.getNameFormatted()));
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
-                String url = logsTableModel.getValueAt(i, 0).toString();
-                String matchEscaped = logsTableModel.getValueAt(i, 2).toString().replaceAll("\"", "\"\"");
+                String url = logsTableModel.getValueAt(i, LogsTableModel.Column.URL.getIndex()).toString();
+                String matchEscaped = logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString().replaceAll("\"", "\"\"");
                 lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
             }
 
@@ -340,14 +340,14 @@ public class LoggerTab implements ApplicationTab {
         itemToJSON.addActionListener(actionEvent -> {
             java.util.List<JsonObject> lines = new ArrayList<>();
 
-            String prop1 = logsTableModel.getColumnNameFormatted(0);
-            String prop2 = logsTableModel.getColumnNameFormatted(2);
+            String prop1 = LogsTableModel.Column.URL.getNameFormatted();
+            String prop2 = LogsTableModel.Column.MATCH.getNameFormatted();
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 JsonObject obj = new JsonObject();
-                obj.addProperty(prop1, logsTableModel.getValueAt(i, 0).toString());
-                obj.addProperty(prop2, logsTableModel.getValueAt(i, 2).toString());
+                obj.addProperty(prop1, logsTableModel.getValueAt(i, LogsTableModel.Column.URL.getIndex()).toString());
+                obj.addProperty(prop2, logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString());
                 lines.add(obj);
             }
 
