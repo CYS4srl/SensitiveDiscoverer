@@ -336,15 +336,17 @@ public class LoggerTab implements ApplicationTab {
 
             java.util.List<String> lines = new ArrayList<>();
 
-            lines.add(String.format("\"%s\",\"%s\"",
+            lines.add(String.format("\"%s\",\"%s\",\"%s\"",
                     LogsTableModel.Column.URL.getNameFormatted(),
+                    LogsTableModel.Column.REGEX.getNameFormatted(),
                     LogsTableModel.Column.MATCH.getNameFormatted()));
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 String url = logsTableModel.getValueAt(i, LogsTableModel.Column.URL.getIndex()).toString();
+                String description = logsTableModel.getValueAt(i, LogsTableModel.Column.REGEX.getIndex()).toString().split(" - ")[0];
                 String matchEscaped = logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString().replaceAll("\"", "\"\"");
-                lines.add(String.format("\"%s\",\"%s\"", url, matchEscaped));
+                lines.add(String.format("\"%s\",\"%s\",\"%s\"", url, description, matchEscaped));
             }
 
             FileUtils.writeLinesToFile(csvFile, lines);
@@ -359,13 +361,15 @@ public class LoggerTab implements ApplicationTab {
             java.util.List<JsonObject> lines = new ArrayList<>();
 
             String prop1 = LogsTableModel.Column.URL.getNameFormatted();
-            String prop2 = LogsTableModel.Column.MATCH.getNameFormatted();
+            String prop2 = LogsTableModel.Column.REGEX.getNameFormatted();
+            String prop3 = LogsTableModel.Column.MATCH.getNameFormatted();
 
             // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty(prop1, logsTableModel.getValueAt(i, LogsTableModel.Column.URL.getIndex()).toString());
-                obj.addProperty(prop2, logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString());
+                obj.addProperty(prop2, logsTableModel.getValueAt(i, LogsTableModel.Column.REGEX.getIndex()).toString().split(" - ")[0]);
+                obj.addProperty(prop3, logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString());
                 lines.add(obj);
             }
 
