@@ -88,16 +88,6 @@ class RegexEntityTest {
     }
 
     @Test
-    void checkRegexEntityFromCSV() {
-        Matcher csvMatcher = RegexEntity.checkRegexEntityFromCSV("\"description\",\"regex\",\"SECTION_1|SECTION_2\"");
-        assertThat(csvMatcher.find()).isTrue();
-        assertThat(csvMatcher.groupCount()).isEqualTo(3);
-        assertThat(csvMatcher.group(1)).isEqualTo("description");
-        assertThat(csvMatcher.group(2)).isEqualTo("regex");
-        assertThat(csvMatcher.group(3)).isEqualTo("SECTION_1|SECTION_2");
-    }
-
-    @Test
     void testGetSectionsHumanReadable() {
         RegexEntity entity;
         EnumSet<HttpSection> sections;

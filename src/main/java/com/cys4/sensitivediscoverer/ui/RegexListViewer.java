@@ -269,9 +269,9 @@ public class RegexListViewer {
             String fileName = SwingUtils.selectFile(options, true);
 
             if (fileName.toUpperCase().endsWith("JSON")) {
-                FileUtils.importRegexListFromJSON(fileName, ctx);
+                FileUtils.importRegexListFromFileJSON(fileName, ctx);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
-                FileUtils.importRegexListFromCSV(fileName, ctx);
+                FileUtils.importRegexListFromFileCSV(fileName, ctx);
             }
 
             tableModel.fireTableDataChanged();

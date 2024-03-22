@@ -77,7 +77,7 @@ public class RegexEntity {
      */
     public static Optional<MatchResult> checkRegexEntityFromCSV(String input) {
         return Pattern
-                .compile("^\"(.+?)\",\"(.+?)\"(?:,\"(.+?)\",\"(.+?)\")?$")
+                .compile("^\"(.+?)\",\"(.+?)\"(?:,\"(.*?)\",\"(.*?)\")?$")
                 .matcher(input)
                 .results()
                 .findFirst();

@@ -83,14 +83,24 @@ public class FileUtils {
         writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
     }
 
-    public static void importRegexListFromCSV(String csvFile, RegexListContext ctx) {
-        StringBuilder alreadyAddedMsg = new StringBuilder();
-        List<String> lines = readLinesFromFile(csvFile);
+    public static void importRegexListFromFileCSV(String csvFilepath, RegexListContext ctx) {
+        List<String> lines = readLinesFromFile(csvFilepath);
         if (Objects.isNull(lines)) return;
 
+        String alreadyAddedMsg = importRegexListFromCSV(lines, ctx);
+
+        SwingUtils.showMessageDialog(
+                getLocaleString("options-list-open-alreadyPresentTitle"),
+                getLocaleString("options-list-open-alreadyPresentWarn"),
+                alreadyAddedMsg);
+    }
+
+    public static String importRegexListFromCSV(List<String> csvLines, RegexListContext ctx) {
+        StringBuilder alreadyAddedMsg = new StringBuilder();
+
         // skip header line if present
-        int startRow = lines.get(0).startsWith("\"description\",\"regex\"") ? 1 : 0;
-        lines.subList(startRow, lines.size())
+        int startRow = csvLines.get(0).startsWith("\"description\",\"regex\"") ? 1 : 0;
+        csvLines.subList(startRow, csvLines.size())
                 .stream()
                 .map(RegexEntity::checkRegexEntityFromCSV)
                 .flatMap(Optional::stream)
@@ -98,10 +108,8 @@ public class FileUtils {
                         unescapeCsvQuotes(match.group(1)),
                         unescapeCsvQuotes(match.group(2)),
                         true,
-                        Objects.nonNull(match.group(3))
-                                ? HttpSection.deserializeSections(List.of(unescapeCsvQuotes(match.group(3)).split("\\|")))
-                                : HttpSection.ALL,
-                        unescapeCsvQuotes(match.group(4))))
+                        HttpSection.deserializeSections(decodeSectionListFromCSV(match.group(4))),
+                        unescapeCsvQuotes(match.group(3))))
                 .forEachOrdered(newRegex -> {
                     if (!ctx.regexEntities().contains(newRegex)) {
                         ctx.regexEntities().add(newRegex);
@@ -109,23 +117,28 @@ public class FileUtils {
                         alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
                     }
                 });
+        return alreadyAddedMsg.toString();
+    }
+
+    public static void importRegexListFromFileJSON(String jsonFilepath, RegexListContext ctx) {
+        List<String> lines = readLinesFromFile(jsonFilepath);
+        if (Objects.isNull(lines)) return;
+
+        String alreadyAddedMsg = importRegexListFromJSON(String.join("", lines), ctx);
 
         SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
                 getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg.toString());
+                alreadyAddedMsg);
     }
 
-    public static void importRegexListFromJSON(String jsonFile, RegexListContext ctx) {
+    public static String importRegexListFromJSON(String json, RegexListContext ctx) {
         Gson gson = new Gson();
         StringBuilder alreadyAddedMsg = new StringBuilder();
-
-        List<String> lines = readLinesFromFile(jsonFile);
-        if (Objects.isNull(lines)) return;
-
         Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
         }.getType();
-        Stream.of(String.join("", lines))
+
+        Stream.of(json)
                 .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
                 .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
@@ -142,12 +155,17 @@ public class FileUtils {
                         alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
                     }
                 });
-
-        SwingUtils.showMessageDialog(
-                getLocaleString("options-list-open-alreadyPresentTitle"),
-                getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg.toString());
+        return alreadyAddedMsg.toString();
     }
+
+    /**
+     * @param encodedSections
+     * @return
+     */
+    private static List<String> decodeSectionListFromCSV(String encodedSections) {
+        return Objects.isNull(encodedSections) ? null : List.of(unescapeCsvQuotes(encodedSections).split("\\|"));
+    }
+
 
     /**
      * @param input The text to unescape
