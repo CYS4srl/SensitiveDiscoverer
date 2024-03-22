@@ -5,7 +5,7 @@ See the file 'LICENSE' for copying permission
 package com.cys4.sensitivediscoverer;
 
 import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.HttpSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.utils.Utils;
 import com.google.gson.Gson;
@@ -35,7 +35,8 @@ public class RegexSeeder {
                         element.getDescription(),
                         element.getRegex(),
                         element.isActive(),
-                        ProxyItemSection.deserializeSections(element.getSections()),
+                        HttpSection.deserializeSections(element.getSections()),
+                        element.getRefinerRegex(),
                         element.getTests()))
                 .collect(Collectors.toList());
     }

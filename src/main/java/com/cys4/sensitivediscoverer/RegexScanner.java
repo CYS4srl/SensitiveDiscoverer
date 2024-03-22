@@ -10,21 +10,17 @@ import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
-import com.cys4.sensitivediscoverer.model.HttpRecord;
-import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.BurpUtils;
 import com.cys4.sensitivediscoverer.utils.ScannerUtils;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -144,33 +140,33 @@ public class RegexScanner {
             if (this.interruptScan) return;
             if (!regex.isActive()) continue;
 
-            Consumer<String> logMatchCallback = match -> logEntriesCallback.accept(new LogEntity(request, response, regex, match));
+            Consumer<HttpMatchResult> logMatchCallback = match -> logEntriesCallback.accept(new LogEntity(request, response, regex, match.section, match.match));
             performMatchingOnMessage(regex, logMatchCallback, new HttpRecord(requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded));
         }
     }
 
-    private void performMatchingOnMessage(RegexEntity regex, Consumer<String> logMatchCallback, HttpRecord requestResponse) {
-        getRegexMatchers(regex, requestResponse)
-                .flatMap(Matcher::results)
-                .map(MatchResult::group)
-                .forEach(logMatchCallback);
-    }
-
-    private Stream<Matcher> getRegexMatchers(RegexEntity regex, HttpRecord requestResponse) {
+    private void performMatchingOnMessage(RegexEntity regex, Consumer<HttpMatchResult> logMatchCallback, HttpRecord requestResponse) {
         Pattern regexCompiled = regex.getRegexCompiled();
+        Optional<Pattern> refinerRegexCompiled = regex.getRefinerRegexCompiled();
 
-        //TODO keep track of section where regex matched. Show the section in the logger table;
-        return regex.getSections()
-                .parallelStream()
-                .map(proxyItemSection -> switch (proxyItemSection) {
-                    case REQ_URL -> requestResponse.requestUrl();
-                    case REQ_HEADERS -> requestResponse.requestHeaders();
-                    case REQ_BODY -> requestResponse.requestBody();
-                    case RES_HEADERS -> requestResponse.responseHeaders();
-                    case RES_BODY -> requestResponse.responseBody();
+        regex.getSections()
+                .stream()
+                .map(httpSection -> ScannerUtils.getSectionText(httpSection, requestResponse))
+                .flatMap(sectionRecord -> {
+                    Matcher matcher = regexCompiled.matcher(sectionRecord.text());
+                    return matcher.results().map(result -> {
+                        String match = result.group();
+                        if (refinerRegexCompiled.isPresent()) {
+                            int startIndex = result.start();
+                            Matcher preMatch = refinerRegexCompiled.get().matcher(sectionRecord.text());
+                            preMatch.region(Math.max(startIndex - 64, 0), startIndex); //todo: just 64?
+                            if (preMatch.find())
+                                match = preMatch.group() + match;
+                        }
+                        return new HttpMatchResult(sectionRecord.section(), match);
+                    });
                 })
-                .filter(Objects::nonNull)
-                .map(regexCompiled::matcher);
+                .forEach(logMatchCallback);
     }
 
     /**
@@ -180,5 +176,8 @@ public class RegexScanner {
      */
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
+    }
+
+    private record HttpMatchResult(HttpSection section, String match) {
     }
 }

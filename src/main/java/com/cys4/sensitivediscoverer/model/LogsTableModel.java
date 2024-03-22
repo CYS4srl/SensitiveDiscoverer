@@ -45,6 +45,7 @@ public class LogsTableModel extends AbstractTableModel {
         return switch (Column.getById(columnIndex)) {
             case URL -> logEntity.getRequestUrl();
             case REGEX -> logEntity.getRegexEntity().getDescription();
+            case SECTION -> logEntity.getMatchedSection();
             case MATCH -> logEntity.getMatch();
         };
     }
@@ -63,9 +64,10 @@ public class LogsTableModel extends AbstractTableModel {
     public enum Column {
         URL("common-url", "url", String.class),
         REGEX("common-regex", "regex", String.class),
+        SECTION("common-section", "section", String.class),
         MATCH("common-match", "match", String.class);
 
-        private static final List<Column> columns = List.of(URL, REGEX, MATCH);
+        private static final List<Column> columns = List.of(REGEX, MATCH, URL, SECTION);
 
         private final String localeKey;
         private final String formattedName;

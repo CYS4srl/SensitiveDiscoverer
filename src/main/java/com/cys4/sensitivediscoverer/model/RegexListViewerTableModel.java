@@ -48,7 +48,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
 
         return switch (Column.getById(columnIndex)) {
             case ACTIVE -> regexEntry.isActive();
-            case REGEX -> regexEntry.getRegex();
+            case REGEX -> regexEntry.getRefinerRegex().orElse("") + regexEntry.getRegex();
             case DESCRIPTION -> regexEntry.getDescription();
             case SECTIONS -> regexEntry.getSectionsHumanReadable();
         };
@@ -70,7 +70,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
         DESCRIPTION("common-description", false, String.class),
         SECTIONS("common-sections", false, String.class);
 
-        private static final List<Column> columns = List.of(ACTIVE, REGEX, DESCRIPTION, SECTIONS);
+        private static final List<Column> columns = List.of(ACTIVE, DESCRIPTION, REGEX, SECTIONS);
 
         private final String localeKey;
         private final boolean editable;

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  *  <li>the response object</li>
  *  <li>the url of the request</li>
  *  <li>the matched regex</li>
+ *  <li>the section where the regex matched</li>
  *  <li>the results of the match</li>
  * </ul>
  * Some information, such as the URL, could be considered redundant but serves as a cache layer between the extension and the Burp APIs.
@@ -30,6 +31,10 @@ public class LogEntity {
     private final HttpRequest request;
     private final HttpResponse response;
     private final RegexEntity regexEntity;
+    /**
+     * Section where the regex matched.
+     */
+    private final HttpSection matchedSection;
     /**
      * String matched with the regex on 1+ sections (specific sections not currently tracked).
      */
@@ -43,10 +48,11 @@ public class LogEntity {
      */
     private String responseHeaders;
 
-    public LogEntity(HttpRequest request, HttpResponse httpResponse, RegexEntity regexEntity, String match) {
+    public LogEntity(HttpRequest request, HttpResponse httpResponse, RegexEntity regexEntity, HttpSection matchedSection, String match) {
         this.request = request;
         this.response = httpResponse;
         this.regexEntity = regexEntity;
+        this.matchedSection = matchedSection;
         this.match = match;
         this.requestUrl = null;
         this.responseHeaders = null;
@@ -54,6 +60,10 @@ public class LogEntity {
 
     public RegexEntity getRegexEntity() {
         return regexEntity;
+    }
+
+    public HttpSection getMatchedSection() {
+        return matchedSection;
     }
 
     public String getMatch() {
@@ -95,6 +105,7 @@ public class LogEntity {
      * When two LogEntity are equal, only one entry is kept in the Logger table.
      * The current implementation consider two LogEntity equals when:
      * - the matched content is the same;
+     * - the section of the match is the same;
      * - the matched regex is the same;
      * - the request URL is the same;
      * - the response headers are the same. This should cover most of the cases as responses usually contain the Date header;
@@ -113,6 +124,9 @@ public class LogEntity {
                 this.getMatch(),
                 logEntity.getMatch()) &&
                 Objects.equals(
+                        this.getMatchedSection(),
+                        logEntity.getMatchedSection()) &&
+                Objects.equals(
                         this.getRegexEntity(),
                         logEntity.getRegexEntity()) &&
                 Objects.equals(
@@ -125,15 +139,16 @@ public class LogEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getRequest(), getResponse(), getRegexEntity(), getMatch());
+        return Objects.hash(getRequest(), getResponse(), getRegexEntity(), getMatchedSection(), getMatch());
     }
 
     @Override
     public String toString() {
         return "LogEntity{" +
-                "url='" + this.getRequestUrl() + '\'' +
+                "url='" + getRequestUrl() + '\'' +
                 ", regex='" + regexEntity.getDescription() + '\'' +
-                ", match='" + match + '\'' +
+                ", section='" + getMatchedSection() + '\'' +
+                ", match='" + getMatch() + '\'' +
                 '}';
     }
 }

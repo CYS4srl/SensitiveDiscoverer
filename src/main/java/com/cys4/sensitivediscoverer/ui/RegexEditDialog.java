@@ -79,12 +79,32 @@ public class RegexEditDialog {
         gbc.fill = GridBagConstraints.BOTH;
         contentPanel.add(regexTextField, gbc);
 
+        // refinerRegex
+        JLabel refinerRegexLabel = new JLabel("%s: ".formatted(getLocaleString("common-refinerRegex")));
+        refinerRegexLabel.setVerticalTextPosition(SwingConstants.CENTER);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 6, 0);
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        contentPanel.add(refinerRegexLabel, gbc);
+        JTextField refinerRegexTextField = new JTextField(12);
+        refinerRegexLabel.setLabelFor(refinerRegexTextField);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 2, 6, 0);
+        gbc.fill = GridBagConstraints.BOTH;
+        contentPanel.add(refinerRegexTextField, gbc);
+
         // description
         JLabel descriptionLabel = new JLabel("%s: ".formatted(getLocaleString("common-description")));
         descriptionLabel.setVerticalTextPosition(SwingConstants.CENTER);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.VERTICAL;
         contentPanel.add(descriptionLabel, gbc);
@@ -92,7 +112,7 @@ public class RegexEditDialog {
         descriptionLabel.setLabelFor(descriptionTextField);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0, 2, 0, 0);
@@ -104,14 +124,14 @@ public class RegexEditDialog {
         sectionsLabel.setVerticalAlignment(SwingConstants.TOP);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(10, 0, 0, 0);
         contentPanel.add(sectionsLabel, gbc);
         JPanel sectionsPanel = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(10, 2, 0, 0);
@@ -130,6 +150,7 @@ public class RegexEditDialog {
         // set defaults
         if (Objects.nonNull(this.regexEntity)) {
             regexTextField.setText(this.regexEntity.getRegex());
+            refinerRegexTextField.setText(this.regexEntity.getRefinerRegex().orElse(""));
             descriptionTextField.setText(this.regexEntity.getDescription());
 
             sectionReqURL.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_URL));
@@ -159,7 +180,8 @@ public class RegexEditDialog {
                 descriptionTextField.getText(),
                 regexTextField.getText(),
                 Objects.isNull(this.regexEntity) || this.regexEntity.isActive(),
-                sections.stream().filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)))
+                sections.stream().filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(HttpSection.class))),
+                refinerRegexTextField.getText()
         );
         return true;
     }
