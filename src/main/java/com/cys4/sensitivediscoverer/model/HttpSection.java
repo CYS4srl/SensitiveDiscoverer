@@ -81,10 +81,10 @@ public enum HttpSection {
     public String toString() {
         return switch (this) {
             case REQ_URL -> getLocaleString("regex-section-reqURL");
-            case REQ_BODY -> getLocaleString("regex-section-reqBody");
             case REQ_HEADERS -> getLocaleString("regex-section-reqHeaders");
-            case RES_BODY -> getLocaleString("regex-section-resBody");
+            case REQ_BODY -> getLocaleString("regex-section-reqBody");
             case RES_HEADERS -> getLocaleString("regex-section-resHeaders");
+            case RES_BODY -> getLocaleString("regex-section-resBody");
         };
     }
 }
