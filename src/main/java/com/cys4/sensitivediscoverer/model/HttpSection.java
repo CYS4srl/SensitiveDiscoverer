@@ -72,7 +72,6 @@ public enum HttpSection {
                     case REQ_HEADERS -> Stream.of("req_body");
                     case RES_BODY -> Stream.of("res_headers");
                     case RES_HEADERS -> Stream.of("res_body");
-                    default -> null;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.<String>toList());
@@ -86,7 +85,6 @@ public enum HttpSection {
             case REQ_HEADERS -> getLocaleString("regex-section-reqHeaders");
             case RES_BODY -> getLocaleString("regex-section-resBody");
             case RES_HEADERS -> getLocaleString("regex-section-resHeaders");
-            default -> this.name();
         };
     }
 }

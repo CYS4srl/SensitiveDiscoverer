@@ -150,7 +150,7 @@ public class RegexEditDialog {
         // set defaults
         if (Objects.nonNull(this.regexEntity)) {
             regexTextField.setText(this.regexEntity.getRegex());
-            refinerRegexTextField.setText(this.regexEntity.getRefinerRegex().orElse(""));
+            this.regexEntity.getRefinerRegex().ifPresent(refinerRegexTextField::setText);
             descriptionTextField.setText(this.regexEntity.getDescription());
 
             sectionReqURL.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_URL));
