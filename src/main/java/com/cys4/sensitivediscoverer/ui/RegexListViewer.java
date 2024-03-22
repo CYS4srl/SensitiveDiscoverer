@@ -251,9 +251,9 @@ public class RegexListViewer {
             String fileName = SwingUtils.selectFile(options, false);
 
             if (fileName.toUpperCase().endsWith("JSON")) {
-                FileUtils.exportRegexListToJSON(fileName, regexEntities);
+                FileUtils.exportRegexListToFileJSON(fileName, regexEntities);
             } else if (fileName.toUpperCase().endsWith("CSV")) {
-                FileUtils.exportRegexListToCSV(fileName, regexEntities);
+                FileUtils.exportRegexListToFileCSV(fileName, regexEntities);
             }
         });
 

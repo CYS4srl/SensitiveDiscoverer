@@ -43,7 +43,11 @@ public class FileUtils {
         }
     }
 
-    public static void exportRegexListToCSV(String csvFile, List<RegexEntity> regexEntities) {
+    public static void exportRegexListToFileCSV(String csvFile, List<RegexEntity> regexEntities) {
+        writeLinesToFile(csvFile, exportRegexListToCSV(regexEntities));
+    }
+
+    public static List<String> exportRegexListToCSV(List<RegexEntity> regexEntities) {
         List<String> lines = new ArrayList<>();
 
         lines.add("\"description\",\"regex\",\"refinerRegex\",\"sections\"");
@@ -56,11 +60,14 @@ public class FileUtils {
                     .replaceAll("\"", "\"\"");
             lines.add(String.format("\"%s\",\"%s\",\"%s\",\"%s\"", description, regex, refinerRegex, sections));
         });
-
-        writeLinesToFile(csvFile, lines);
+        return lines;
     }
 
-    public static void exportRegexListToJSON(String jsonFile, List<RegexEntity> regexEntities) {
+    public static void exportRegexListToFileJSON(String jsonFile, List<RegexEntity> regexEntities) {
+        writeLinesToFile(jsonFile, List.of(exportRegexListToJson(regexEntities)));
+    }
+
+    public static String exportRegexListToJson(List<RegexEntity> regexEntities) {
         List<JsonObject> lines;
         lines = regexEntities
                 .stream()
@@ -76,11 +83,12 @@ public class FileUtils {
                 })
                 .collect(Collectors.toList());
 
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
-
-        writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
+        return new GsonBuilder()
+                .disableHtmlEscaping()
+                .create()
+                .toJson(lines, tListEntries);
     }
 
     public static void importRegexListFromFileCSV(String csvFilepath, RegexListContext ctx) {

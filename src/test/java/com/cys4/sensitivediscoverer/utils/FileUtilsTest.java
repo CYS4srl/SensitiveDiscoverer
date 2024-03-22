@@ -13,13 +13,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FileUtilsTest {
 
-//    @Test
-//    void testExportRegexListToCSV() {
-//    }
-//
-//    @Test
-//    void testExportRegexListToJSON() {
-//    }
+    @Test
+    void testExportRegexListToCSV() {
+        List<RegexEntity> regexes = List.of(
+                // no refinerRegex
+                new RegexEntity("Test regex 1", "-----BEGIN", true, EnumSet.of(HttpSection.REQ_BODY, HttpSection.RES_HEADERS, HttpSection.RES_BODY), ""),
+                // all
+                new RegexEntity("Test regex 2", "-----BEGIN", true, HttpSection.RES, ".+$"),
+                // empty section; no refinerRegex
+                new RegexEntity("Test regex 3", "-----BEGIN", true, EnumSet.noneOf(HttpSection.class), null),
+                // all
+                new RegexEntity("Test regex 4", "(?i)example\\.app", true, HttpSection.ALL, "[a-z\\-]{1,64}$")
+        );
+        assertThat(FileUtils.exportRegexListToCSV(regexes)).containsExactly(
+                "\"description\",\"regex\",\"refinerRegex\",\"sections\"",
+                "\"Test regex 1\",\"-----BEGIN\",\"\",\"req_body|res_headers|res_body\"",
+                "\"Test regex 2\",\"-----BEGIN\",\".+$\",\"res_headers|res_body\"",
+                "\"Test regex 3\",\"-----BEGIN\",\"\",\"\"",
+                "\"Test regex 4\",\"(?i)example\\.app\",\"[a-z\\-]{1,64}$\",\"req_url|req_headers|req_body|res_headers|res_body\""
+        );
+    }
+
+    @Test
+    void testExportRegexListToJSON() {
+        List<RegexEntity> regexes = List.of(
+                // no refinerRegex
+                new RegexEntity("Test regex 1", "-----BEGIN", true, EnumSet.of(HttpSection.REQ_BODY, HttpSection.RES_HEADERS, HttpSection.RES_BODY), ""),
+                // all
+                new RegexEntity("Test regex 2", "-----BEGIN", true, HttpSection.RES, ".+$"),
+                // empty section; no refinerRegex
+                new RegexEntity("Test regex 3", "-----BEGIN", true, EnumSet.noneOf(HttpSection.class), null),
+                // all
+                new RegexEntity("Test regex 4", "(?i)example\\.app", true, HttpSection.ALL, "[a-z\\-]{1,64}$")
+        );
+        assertThat(FileUtils.exportRegexListToJson(regexes)).isEqualTo(
+                "[{\"description\":\"Test regex 1\",\"regex\":\"-----BEGIN\",\"sections\":[\"req_body\",\"res_headers\",\"res_body\"]},{\"description\":\"Test regex 2\",\"regex\":\"-----BEGIN\",\"refinerRegex\":\".+$\",\"sections\":[\"res_headers\",\"res_body\"]},{\"description\":\"Test regex 3\",\"regex\":\"-----BEGIN\",\"sections\":[]},{\"description\":\"Test regex 4\",\"regex\":\"(?i)example\\\\.app\",\"refinerRegex\":\"[a-z\\\\-]{1,64}$\",\"sections\":[\"req_url\",\"req_headers\",\"req_body\",\"res_headers\",\"res_body\"]}]"
+        );
+    }
 
     @Test
     void testImportRegexListFromCSV_extendedFormat() {
