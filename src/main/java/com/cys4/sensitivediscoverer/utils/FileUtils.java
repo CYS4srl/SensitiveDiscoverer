@@ -1,7 +1,7 @@
 package com.cys4.sensitivediscoverer.utils;
 
-import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.HttpSection;
+import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.google.gson.Gson;
@@ -16,11 +16,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
@@ -49,34 +46,37 @@ public class FileUtils {
     public static void exportRegexListToCSV(String csvFile, List<RegexEntity> regexEntities) {
         List<String> lines = new ArrayList<>();
 
-        lines.add("\"description\",\"regex\",\"sections\"");
+        lines.add("\"description\",\"regex\",\"refinerRegex\",\"sections\"");
         regexEntities.forEach(regexEntity -> {
             String description = regexEntity.getDescription().replaceAll("\"", "\"\"");
             String regex = regexEntity.getRegex().replaceAll("\"", "\"\"");
+            String refinerRegex = regexEntity.getRefinerRegex().orElse("");
             String sections = String
                     .join("|", HttpSection.serializeSections(regexEntity.getSections()))
                     .replaceAll("\"", "\"\"");
-            lines.add(String.format("\"%s\",\"%s\",\"%s\"", description, regex, sections));
+            lines.add(String.format("\"%s\",\"%s\",\"%s\",\"%s\"", description, regex, refinerRegex, sections));
         });
 
         writeLinesToFile(csvFile, lines);
     }
 
     public static void exportRegexListToJSON(String jsonFile, List<RegexEntity> regexEntities) {
-        List<JsonObject> lines = new ArrayList<>();
+        List<JsonObject> lines;
+        lines = regexEntities
+                .stream()
+                .map(regexEntity -> {
+                    JsonObject json = new JsonObject();
+                    json.addProperty("description", regexEntity.getDescription());
+                    json.addProperty("regex", regexEntity.getRegex());
+                    regexEntity.getRefinerRegex().ifPresent(s -> json.addProperty("refinerRegex", s));
+                    JsonArray sections = new JsonArray();
+                    HttpSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
+                    json.add("sections", sections);
+                    return json;
+                })
+                .collect(Collectors.toList());
 
-        regexEntities.forEach(regexEntity -> {
-            JsonObject obj = new JsonObject();
-            obj.addProperty("description", regexEntity.getDescription());
-            obj.addProperty("regex", regexEntity.getRegex());
-            JsonArray sections = new JsonArray();
-            HttpSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
-            obj.add("sections", sections);
-            lines.add(obj);
-        });
-
-        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
-        Gson gson = builder.create();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
 
@@ -85,39 +85,30 @@ public class FileUtils {
 
     public static void importRegexListFromCSV(String csvFile, RegexListContext ctx) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
-
         List<String> lines = readLinesFromFile(csvFile);
         if (Objects.isNull(lines)) return;
 
-        //Skip header line if present
-        int startRow = (lines.get(0).contains("\"description\",\"regex\"")) ? 1 : 0;
-
-        lines.subList(startRow, lines.size()).forEach(line -> {
-            Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
-
-            if (!matcher.find())
-                return;
-
-            //load sections if presents, otherwise set all sections
-            boolean hasSections = !(matcher.group(3) == null || matcher.group(3).isBlank());
-
-            String description = matcher.group(1).replaceAll("\"\"", "\"");
-            String regex = matcher.group(2).replaceAll("\"\"", "\"");
-            List<String> sections = hasSections ? List.of(matcher.group(3).replaceAll("\"\"", "\"").split("\\|")) : null;
-
-            RegexEntity newRegexEntity = new RegexEntity(
-                    description,
-                    regex,
-                    true,
-                    hasSections ? HttpSection.deserializeSections(sections) : HttpSection.ALL
-            );
-
-            if (!ctx.getRegexEntities().contains(newRegexEntity)) {
-                ctx.getRegexEntities().add(newRegexEntity);
-            } else {
-                alreadyAddedMsg.append(String.format("%s - %s\n", newRegexEntity.getDescription(), newRegexEntity.getRegex()));
-            }
-        });
+        // skip header line if present
+        int startRow = lines.get(0).startsWith("\"description\",\"regex\"") ? 1 : 0;
+        lines.subList(startRow, lines.size())
+                .stream()
+                .map(RegexEntity::checkRegexEntityFromCSV)
+                .flatMap(Optional::stream)
+                .map(match -> new RegexEntity(
+                        unescapeCsvQuotes(match.group(1)),
+                        unescapeCsvQuotes(match.group(2)),
+                        true,
+                        match.groupCount() == 4
+                                ? HttpSection.deserializeSections(List.of(unescapeCsvQuotes(match.group(3)).split("\\|")))
+                                : HttpSection.ALL,
+                        unescapeCsvQuotes(match.group(4))))
+                .forEachOrdered(newRegex -> {
+                    if (!ctx.regexEntities().contains(newRegex)) {
+                        ctx.regexEntities().add(newRegex);
+                    } else {
+                        alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
+                    }
+                });
 
         SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
@@ -142,16 +133,13 @@ public class FileUtils {
                         element.getDescription(),
                         element.getRegex(),
                         true,
-                        HttpSection.deserializeSections(element.getSections())))
-                .forEachOrdered(regexEntity -> {
-                    if (!ctx.getRegexEntities().contains(regexEntity)) {
-                        ctx.getRegexEntities().add(regexEntity);
+                        HttpSection.deserializeSections(element.getSections()),
+                        element.getRefinerRegex()))
+                .forEachOrdered(newRegex -> {
+                    if (!ctx.regexEntities().contains(newRegex)) {
+                        ctx.regexEntities().add(newRegex);
                     } else {
-                        alreadyAddedMsg
-                                .append(regexEntity.getDescription())
-                                .append(" - ")
-                                .append(regexEntity.getRegex())
-                                .append("\n");
+                        alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
                     }
                 });
 
@@ -159,5 +147,13 @@ public class FileUtils {
                 getLocaleString("options-list-open-alreadyPresentTitle"),
                 getLocaleString("options-list-open-alreadyPresentWarn"),
                 alreadyAddedMsg.toString());
+    }
+
+    /**
+     * @param input The text to unescape
+     * @return the input with "" converted to ", or an empty string if input is null
+     */
+    public static String unescapeCsvQuotes(String input) {
+        return Objects.nonNull(input) ? input.replaceAll("\"\"", "\"") : "";
     }
 }

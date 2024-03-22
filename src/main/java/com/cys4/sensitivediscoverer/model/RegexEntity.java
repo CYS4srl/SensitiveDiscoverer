@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
+import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
@@ -33,14 +33,6 @@ public class RegexEntity {
 
     public RegexEntity(String description, String regex, boolean active) throws IllegalArgumentException {
         this(description, regex, active, HttpSection.getDefault(), null, null);
-    }
-
-    public RegexEntity(String description, String regex, boolean active, EnumSet<HttpSection> sections) {
-        this(description, regex, active, sections, null, null);
-    }
-
-    public RegexEntity(String description, String regex, boolean active, String refinerRegex) {
-        this(description, regex, active, HttpSection.getDefault(), refinerRegex, null);
     }
 
     public RegexEntity(String description, String regex, boolean active, EnumSet<HttpSection> sections, String refinerRegex) {
@@ -75,16 +67,20 @@ public class RegexEntity {
     }
 
     /**
-     * Checks if the input is in the format: `"Description","Regex","Sections"`
-     * Matches also if sections are not present, in this case group(3) is null
+     * Tries to match the CSV line as a RegexEntity.
+     * <br><br>
+     * There are 2 supported formats:
+     * <ul><li>the extended: {@code "...","...","...","..."}</li><li>the simple: {@code "...","..."}</li></ul>
      *
-     * @param input Text string to check against the format
-     * @return If the input was in the correct format, a Matcher object where group(1) = description, group(2) = regex, group(3) = sections
+     * @param input CSV line to match against one of the formats
+     * @return An Optional that may contain the successful result of the match. When there's a result, it has 4 or 2 groups depending on the matched format.
      */
-    public static Matcher checkRegexEntityFromCSV(String input) {
+    public static Optional<MatchResult> checkRegexEntityFromCSV(String input) {
         return Pattern
-                .compile("^[\t ]*[\"'](.+?)[\"'][\t ]*,[\t ]*[\"'](.+?)[\"'][\t ]*(?:,[\t ]*[\"'](.+?)[\"'][\t ]*)?$")
-                .matcher(input);
+                .compile("^\"(.+?)\",\"(.+?)\"(?:,\"(.+?)\",\"(.+?)\")?$")
+                .matcher(input)
+                .results()
+                .findFirst();
     }
 
     public List<String> getTests() {
