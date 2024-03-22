@@ -15,22 +15,19 @@ import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 /**
  * Enum to identify all the various section that a regex can match in an HttpProxyItem object.
  */
-public enum ProxyItemSection {
+public enum HttpSection {
     REQ_URL,
     REQ_HEADERS,
     REQ_BODY,
     RES_HEADERS,
     RES_BODY;
 
-    public static final EnumSet<ProxyItemSection> REQ = EnumSet.of(
-            ProxyItemSection.REQ_URL, ProxyItemSection.REQ_HEADERS, ProxyItemSection.REQ_BODY);
-    public static final EnumSet<ProxyItemSection> RES = EnumSet.of(
-            ProxyItemSection.RES_HEADERS, ProxyItemSection.RES_BODY);
-    public static final EnumSet<ProxyItemSection> ALL = EnumSet.allOf(
-            ProxyItemSection.class);
+    public static final EnumSet<HttpSection> REQ = EnumSet.of(HttpSection.REQ_URL, HttpSection.REQ_HEADERS, HttpSection.REQ_BODY);
+    public static final EnumSet<HttpSection> RES = EnumSet.of(HttpSection.RES_HEADERS, HttpSection.RES_BODY);
+    public static final EnumSet<HttpSection> ALL = EnumSet.allOf(HttpSection.class);
 
-    public static EnumSet<ProxyItemSection> getDefault() {
-        return ProxyItemSection.RES;
+    public static EnumSet<HttpSection> getDefault() {
+        return HttpSection.RES;
     }
 
     /**
@@ -39,25 +36,25 @@ public enum ProxyItemSection {
      * @param sections List of the serialized sections
      * @return An EnumSet with all the sections in the given list
      */
-    public static EnumSet<ProxyItemSection> deserializeSections(List<String> sections) {
+    public static EnumSet<HttpSection> deserializeSections(List<String> sections) {
         if (Objects.isNull(sections))
-            return ProxyItemSection.getDefault();
+            return HttpSection.getDefault();
 
         return sections
                 .stream()
                 .flatMap(section -> switch (section) {
-                    case "req_url" -> Stream.of(ProxyItemSection.REQ_URL);
-                    case "req_headers" -> Stream.of(ProxyItemSection.REQ_HEADERS);
-                    case "req_body" -> Stream.of(ProxyItemSection.REQ_BODY);
-                    case "res_headers" -> Stream.of(ProxyItemSection.RES_HEADERS);
-                    case "res_body" -> Stream.of(ProxyItemSection.RES_BODY);
-                    case "req" -> ProxyItemSection.REQ.stream();
-                    case "res" -> ProxyItemSection.RES.stream();
-                    case "all" -> ProxyItemSection.ALL.stream();
+                    case "req_url" -> Stream.of(HttpSection.REQ_URL);
+                    case "req_headers" -> Stream.of(HttpSection.REQ_HEADERS);
+                    case "req_body" -> Stream.of(HttpSection.REQ_BODY);
+                    case "res_headers" -> Stream.of(HttpSection.RES_HEADERS);
+                    case "res_body" -> Stream.of(HttpSection.RES_BODY);
+                    case "req" -> HttpSection.REQ.stream();
+                    case "res" -> HttpSection.RES.stream();
+                    case "all" -> HttpSection.ALL.stream();
                     default -> null;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)));
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(HttpSection.class)));
     }
 
     /**
@@ -66,7 +63,7 @@ public enum ProxyItemSection {
      * @param sections EnumSet of sections
      * @return A list of the sections in the EnumSet as serialized strings
      */
-    public static List<String> serializeSections(EnumSet<ProxyItemSection> sections) {
+    public static List<String> serializeSections(EnumSet<HttpSection> sections) {
         return sections
                 .stream()
                 .flatMap(section -> switch (section) {

@@ -1,7 +1,7 @@
 package com.cys4.sensitivediscoverer.utils;
 
 import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.HttpSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.google.gson.Gson;
@@ -54,7 +54,7 @@ public class FileUtils {
             String description = regexEntity.getDescription().replaceAll("\"", "\"\"");
             String regex = regexEntity.getRegex().replaceAll("\"", "\"\"");
             String sections = String
-                    .join("|", ProxyItemSection.serializeSections(regexEntity.getSections()))
+                    .join("|", HttpSection.serializeSections(regexEntity.getSections()))
                     .replaceAll("\"", "\"\"");
             lines.add(String.format("\"%s\",\"%s\",\"%s\"", description, regex, sections));
         });
@@ -70,7 +70,7 @@ public class FileUtils {
             obj.addProperty("description", regexEntity.getDescription());
             obj.addProperty("regex", regexEntity.getRegex());
             JsonArray sections = new JsonArray();
-            ProxyItemSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
+            HttpSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
             obj.add("sections", sections);
             lines.add(obj);
         });
@@ -109,7 +109,7 @@ public class FileUtils {
                     description,
                     regex,
                     true,
-                    hasSections ? ProxyItemSection.deserializeSections(sections) : ProxyItemSection.ALL
+                    hasSections ? HttpSection.deserializeSections(sections) : HttpSection.ALL
             );
 
             if (!ctx.getRegexEntities().contains(newRegexEntity)) {
@@ -142,7 +142,7 @@ public class FileUtils {
                         element.getDescription(),
                         element.getRegex(),
                         true,
-                        ProxyItemSection.deserializeSections(element.getSections())))
+                        HttpSection.deserializeSections(element.getSections())))
                 .forEachOrdered(regexEntity -> {
                     if (!ctx.getRegexEntities().contains(regexEntity)) {
                         ctx.getRegexEntities().add(regexEntity);

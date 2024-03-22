@@ -5,7 +5,7 @@ import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
 import com.cys4.sensitivediscoverer.mock.ProxyHttpRequestResponseMock;
 import com.cys4.sensitivediscoverer.mock.ProxyMock;
 import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.HttpSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +72,7 @@ class RegexScannerTest {
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
-                        new RegexEntity("Match test string", "test", true, ProxyItemSection.ALL)
+                        new RegexEntity("Match test string", "test", true, HttpSection.ALL)
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
@@ -90,7 +90,7 @@ class RegexScannerTest {
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
-                        new RegexEntity("Match test string", "test", true, ProxyItemSection.ALL)
+                        new RegexEntity("Match test string", "test", true, HttpSection.ALL)
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
@@ -107,7 +107,7 @@ class RegexScannerTest {
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
-                        new RegexEntity("Match random string", "random", true, ProxyItemSection.ALL)
+                        new RegexEntity("Match random string", "random", true, HttpSection.ALL)
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);

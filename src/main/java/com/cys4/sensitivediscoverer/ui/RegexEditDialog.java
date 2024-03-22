@@ -4,7 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
 
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.HttpSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
 import javax.swing.*;
@@ -132,29 +132,29 @@ public class RegexEditDialog {
             regexTextField.setText(this.regexEntity.getRegex());
             descriptionTextField.setText(this.regexEntity.getDescription());
 
-            sectionReqURL.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.REQ_URL));
-            sectionReqHeaders.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.REQ_HEADERS));
-            sectionReqBody.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.REQ_BODY));
-            sectionResHeaders.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.RES_HEADERS));
-            sectionResBody.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.RES_BODY));
+            sectionReqURL.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_URL));
+            sectionReqHeaders.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_HEADERS));
+            sectionReqBody.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_BODY));
+            sectionResHeaders.setSelected(this.regexEntity.getSections().contains(HttpSection.RES_HEADERS));
+            sectionResBody.setSelected(this.regexEntity.getSections().contains(HttpSection.RES_BODY));
         } else {
-            EnumSet<ProxyItemSection> defaults = ProxyItemSection.getDefault();
-            sectionReqURL.setSelected(defaults.contains(ProxyItemSection.REQ_URL));
-            sectionReqHeaders.setSelected(defaults.contains(ProxyItemSection.REQ_HEADERS));
-            sectionReqBody.setSelected(defaults.contains(ProxyItemSection.REQ_BODY));
-            sectionResHeaders.setSelected(defaults.contains(ProxyItemSection.RES_HEADERS));
-            sectionResBody.setSelected(defaults.contains(ProxyItemSection.RES_BODY));
+            EnumSet<HttpSection> defaults = HttpSection.getDefault();
+            sectionReqURL.setSelected(defaults.contains(HttpSection.REQ_URL));
+            sectionReqHeaders.setSelected(defaults.contains(HttpSection.REQ_HEADERS));
+            sectionReqBody.setSelected(defaults.contains(HttpSection.REQ_BODY));
+            sectionResHeaders.setSelected(defaults.contains(HttpSection.RES_HEADERS));
+            sectionResBody.setSelected(defaults.contains(HttpSection.RES_BODY));
         }
 
         int returnValue = JOptionPane.showConfirmDialog(parentComponent, mainPanel, dialogTitle, JOptionPane.OK_CANCEL_OPTION);
         if (returnValue != JOptionPane.OK_OPTION) return false;
 
-        List<ProxyItemSection> sections = Arrays.asList(
-                sectionReqURL.getModel().isSelected() ? ProxyItemSection.REQ_URL : null,
-                sectionReqHeaders.getModel().isSelected() ? ProxyItemSection.REQ_HEADERS : null,
-                sectionReqBody.getModel().isSelected() ? ProxyItemSection.REQ_BODY : null,
-                sectionResHeaders.getModel().isSelected() ? ProxyItemSection.RES_HEADERS : null,
-                sectionResBody.getModel().isSelected() ? ProxyItemSection.RES_BODY : null);
+        List<HttpSection> sections = Arrays.asList(
+                sectionReqURL.getModel().isSelected() ? HttpSection.REQ_URL : null,
+                sectionReqHeaders.getModel().isSelected() ? HttpSection.REQ_HEADERS : null,
+                sectionReqBody.getModel().isSelected() ? HttpSection.REQ_BODY : null,
+                sectionResHeaders.getModel().isSelected() ? HttpSection.RES_HEADERS : null,
+                sectionResBody.getModel().isSelected() ? HttpSection.RES_BODY : null);
         this.regexEntity = new RegexEntity(
                 descriptionTextField.getText(),
                 regexTextField.getText(),
