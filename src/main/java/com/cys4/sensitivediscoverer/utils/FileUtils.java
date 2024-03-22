@@ -98,7 +98,7 @@ public class FileUtils {
                         unescapeCsvQuotes(match.group(1)),
                         unescapeCsvQuotes(match.group(2)),
                         true,
-                        match.groupCount() == 4
+                        Objects.nonNull(match.group(3))
                                 ? HttpSection.deserializeSections(List.of(unescapeCsvQuotes(match.group(3)).split("\\|")))
                                 : HttpSection.ALL,
                         unescapeCsvQuotes(match.group(4))))

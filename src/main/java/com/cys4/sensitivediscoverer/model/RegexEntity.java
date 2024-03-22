@@ -73,7 +73,7 @@ public class RegexEntity {
      * <ul><li>the extended: {@code "...","...","...","..."}</li><li>the simple: {@code "...","..."}</li></ul>
      *
      * @param input CSV line to match against one of the formats
-     * @return An Optional that may contain the successful result of the match. When there's a result, it has 4 or 2 groups depending on the matched format.
+     * @return An Optional that may contain the successful result of the match. When there's a result, it always has 4 groups but the 3rd and 4th are null when the simple format is matched.
      */
     public static Optional<MatchResult> checkRegexEntityFromCSV(String input) {
         return Pattern
