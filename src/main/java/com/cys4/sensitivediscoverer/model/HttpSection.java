@@ -68,10 +68,10 @@ public enum HttpSection {
                 .stream()
                 .flatMap(section -> switch (section) {
                     case REQ_URL -> Stream.of("req_url");
-                    case REQ_BODY -> Stream.of("req_headers");
-                    case REQ_HEADERS -> Stream.of("req_body");
-                    case RES_BODY -> Stream.of("res_headers");
-                    case RES_HEADERS -> Stream.of("res_body");
+                    case REQ_HEADERS -> Stream.of("req_headers");
+                    case REQ_BODY -> Stream.of("req_body");
+                    case RES_HEADERS -> Stream.of("res_headers");
+                    case RES_BODY -> Stream.of("res_body");
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.<String>toList());
