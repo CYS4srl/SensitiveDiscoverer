@@ -3,7 +3,8 @@ package com.cys4.sensitivediscoverer.model;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
-import java.util.regex.Matcher;
+import java.util.Optional;
+import java.util.regex.MatchResult;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -15,23 +16,36 @@ class RegexEntityTest {
                 .isThrownBy(() -> new RegexEntity("desc", ""));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> new RegexEntity("desc", null));
-        assertThatNoException().isThrownBy(() -> new RegexEntity("desc", "^regex$"));
+        assertThatNoException()
+                .isThrownBy(() -> new RegexEntity("desc", "^regex$"));
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new RegexEntity("desc", "", false));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new RegexEntity("desc", null, false));
+        assertThatNoException()
+                .isThrownBy(() -> new RegexEntity("desc", "^regex$", false));
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new RegexEntity("desc", "", false, HttpSection.ALL, ""));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new RegexEntity("desc", null, false, HttpSection.ALL, ""));
+        assertThatNoException()
+                .isThrownBy(() -> new RegexEntity("desc", "^regex$", false, HttpSection.ALL, ""));
     }
 
     @Test
     void testInvalidSectionsConstructor() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() ->
-                        new RegexEntity("desc", "^regex$", true, null));
+                .isThrownBy(() -> new RegexEntity("desc", "^regex$", true, null, null));
         assertThatNoException()
-                .isThrownBy(() ->
-                        new RegexEntity("desc", "^regex$", true, EnumSet.of(ProxyItemSection.RES_BODY, ProxyItemSection.REQ_BODY)));
+                .isThrownBy(() -> new RegexEntity("desc", "^regex$", true, EnumSet.of(HttpSection.RES_BODY, HttpSection.REQ_BODY), null));
     }
 
     @Test
     void testDefaultRegexIsActive() {
-        RegexEntity entity = new RegexEntity("desc", "regex");
-        assertThat(entity.isActive()).isTrue();
+        RegexEntity regex = new RegexEntity("desc", "regex");
+        assertThat(regex.isActive()).isTrue();
     }
 
     @Test
@@ -40,25 +54,37 @@ class RegexEntityTest {
 
         entity = new RegexEntity("desc", "regex", true);
         assertThat(entity.isActive()).isTrue();
-
-        entity = new RegexEntity("desc", "regex", false);
-        assertThat(entity.isActive()).isFalse();
-
-        entity = new RegexEntity("desc", "regex", true);
         entity.setActive(false);
         assertThat(entity.isActive()).isFalse();
         entity.setActive(true);
         assertThat(entity.isActive()).isTrue();
+
+        entity = new RegexEntity("desc", "regex", false);
+        assertThat(entity.isActive()).isFalse();
     }
 
     @Test
-    void checkRegexEntityFromCSVNoSections() {
-        Matcher csvMatcher = RegexEntity.checkRegexEntityFromCSV("\"description\",\"regex\"");
-        assertThat(csvMatcher.find()).isTrue();
-        assertThat(csvMatcher.groupCount()).isEqualTo(3);
-        assertThat(csvMatcher.group(1)).isEqualTo("description");
-        assertThat(csvMatcher.group(2)).isEqualTo("regex");
-        assertThat(csvMatcher.group(3)).isNullOrEmpty();
+    void testCheckRegexEntityFromCSV() {
+        Optional<MatchResult> matchResult;
+        MatchResult match;
+
+        matchResult = RegexEntity.checkRegexEntityFromCSV("\"description\",\"^test$\",\"SECTION_1|SECTION_2\",\"test$\"");
+        assertThat(matchResult).isNotEmpty();
+        match = matchResult.get();
+        assertThat(match.groupCount()).isEqualTo(4);
+        assertThat(match.group(1)).isEqualTo("description");
+        assertThat(match.group(2)).isEqualTo("^test$");
+        assertThat(match.group(3)).isEqualTo("SECTION_1|SECTION_2");
+        assertThat(match.group(4)).isEqualTo("test$");
+
+        matchResult = RegexEntity.checkRegexEntityFromCSV("\"description\",\"^test$\"");
+        assertThat(matchResult).isNotEmpty();
+        match = matchResult.get();
+        assertThat(match.groupCount()).isEqualTo(4);
+        assertThat(match.group(1)).isEqualTo("description");
+        assertThat(match.group(2)).isEqualTo("^test$");
+        assertThat(match.group(3)).isNull();
+        assertThat(match.group(4)).isNull();
     }
 
     @Test
@@ -72,20 +98,20 @@ class RegexEntityTest {
     }
 
     @Test
-    void getSectionsHumanReadable() {
+    void testGetSectionsHumanReadable() {
         RegexEntity entity;
-        EnumSet<ProxyItemSection> sections;
+        EnumSet<HttpSection> sections;
 
-        sections = ProxyItemSection.ALL;
-        entity = new RegexEntity("desc", "regex", true, sections);
+        sections = HttpSection.ALL;
+        entity = new RegexEntity("desc", "regex", true, sections, "");
         assertThat(entity.getSectionsHumanReadable()).isEqualTo("REQ[URL, Headers, Body], RES[Headers, Body]");
 
-        sections = EnumSet.of(ProxyItemSection.RES_BODY);
-        entity = new RegexEntity("desc", "regex", true, sections);
+        sections = EnumSet.of(HttpSection.RES_BODY);
+        entity = new RegexEntity("desc", "regex", true, sections, "");
         assertThat(entity.getSectionsHumanReadable()).isEqualTo("RES[Body]");
 
-        sections = EnumSet.of(ProxyItemSection.REQ_HEADERS, ProxyItemSection.REQ_BODY);
-        entity = new RegexEntity("desc", "regex", true, sections);
+        sections = EnumSet.of(HttpSection.REQ_HEADERS, HttpSection.REQ_BODY);
+        entity = new RegexEntity("desc", "regex", true, sections, "");
         assertThat(entity.getSectionsHumanReadable()).isEqualTo("REQ[Headers, Body]");
     }
 }

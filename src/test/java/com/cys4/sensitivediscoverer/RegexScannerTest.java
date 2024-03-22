@@ -72,11 +72,11 @@ class RegexScannerTest {
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
-                        new RegexEntity("Match test string", "test", true, HttpSection.ALL)
+                        new RegexEntity("Match test string", "test", true, HttpSection.ALL, "")
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
-        assertThat(logEntries).as("Check count of entries found").hasSize(2);
+        assertThat(logEntries).as("Check count of entries found").hasSize(10);
     }
 
     @Test
@@ -90,12 +90,12 @@ class RegexScannerTest {
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
-                        new RegexEntity("Match test string", "test", true, HttpSection.ALL)
+                        new RegexEntity("Match test string", "test", true, HttpSection.ALL, "")
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
-        assertThat(logEntries).as("Check duplicates aren't inserted more than once").hasSize(2);
+        assertThat(logEntries).as("Check duplicates aren't inserted more than once").hasSize(10);
     }
 
     @Test
@@ -107,7 +107,7 @@ class RegexScannerTest {
 
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 List.of(
-                        new RegexEntity("Match random string", "random", true, HttpSection.ALL)
+                        new RegexEntity("Match random string", "random", true, HttpSection.ALL, "")
                 ),
                 List.of());
         regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
