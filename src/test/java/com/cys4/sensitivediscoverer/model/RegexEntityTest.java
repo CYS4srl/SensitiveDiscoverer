@@ -64,7 +64,19 @@ class RegexEntityTest {
     }
 
     @Test
-    void testCheckRegexEntityFromCSV() {
+    void testCheckRegexEntityFromCSV_simpleFormat() {
+        Optional<MatchResult> matchResult = RegexEntity.checkRegexEntityFromCSV("\"description\",\"^test$\"");
+        assertThat(matchResult).isNotEmpty();
+        MatchResult match = matchResult.get();
+        assertThat(match.groupCount()).isEqualTo(4);
+        assertThat(match.group(1)).isEqualTo("description");
+        assertThat(match.group(2)).isEqualTo("^test$");
+        assertThat(match.group(3)).isNull();
+        assertThat(match.group(4)).isNull();
+    }
+
+    @Test
+    void testCheckRegexEntityFromCSV_extendedFormat() {
         Optional<MatchResult> matchResult;
         MatchResult match;
 
@@ -77,14 +89,14 @@ class RegexEntityTest {
         assertThat(match.group(3)).isEqualTo("SECTION_1|SECTION_2");
         assertThat(match.group(4)).isEqualTo("test$");
 
-        matchResult = RegexEntity.checkRegexEntityFromCSV("\"description\",\"^test$\"");
+        matchResult = RegexEntity.checkRegexEntityFromCSV("\"description\",\"^test$\",\"\",\"\"");
         assertThat(matchResult).isNotEmpty();
         match = matchResult.get();
         assertThat(match.groupCount()).isEqualTo(4);
         assertThat(match.group(1)).isEqualTo("description");
         assertThat(match.group(2)).isEqualTo("^test$");
-        assertThat(match.group(3)).isNull();
-        assertThat(match.group(4)).isNull();
+        assertThat(match.group(3)).isEqualTo("");
+        assertThat(match.group(4)).isEqualTo("");
     }
 
     @Test
