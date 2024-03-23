@@ -13,6 +13,7 @@ class RegexSeederTest {
 
     /**
      * Assert that each regex in the list has at least one test string and also assert that each test string matches correctly
+     *
      * @param regexList The regex list
      */
     private void testRegexList(List<RegexEntity> regexList) {

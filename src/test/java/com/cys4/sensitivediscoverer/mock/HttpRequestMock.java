@@ -28,6 +28,7 @@ public class HttpRequestMock implements HttpRequest {
 
     /**
      * mock with a single default header: "Host: test.com", and url="https://test.com"
+     *
      * @param httpService
      * @param body
      */

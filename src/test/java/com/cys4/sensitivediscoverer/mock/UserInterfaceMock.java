@@ -18,10 +18,12 @@ public class UserInterfaceMock implements UserInterface {
     @Override
     public void applyThemeToComponent(Component component) {
     }
+
     @Override
     public Registration registerSuiteTab(String s, Component component) {
         return null;
     }
+
     @Override
     public HttpRequestEditor createHttpRequestEditor(EditorOptions... editorOptions) {
         return new HttpRequestEditorMock();

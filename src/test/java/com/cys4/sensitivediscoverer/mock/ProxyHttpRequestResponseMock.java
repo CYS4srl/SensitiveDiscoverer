@@ -21,6 +21,7 @@ public class ProxyHttpRequestResponseMock implements ProxyHttpRequestResponse {
 
     /**
      * mock with requestUrl="https://test.com", requestHeaders=["Host: test.com"], responseHeaders=["Host: test.com","Date: $responseDate"]
+     *
      * @param requestBody
      * @param responseBody
      * @param responseDate
@@ -38,6 +39,7 @@ public class ProxyHttpRequestResponseMock implements ProxyHttpRequestResponse {
 
     /**
      * mock with url="https://test.com" and mimetype=MimeType.UNRECOGNIZED
+     *
      * @param request
      * @param response
      * @param responseDate
@@ -48,6 +50,7 @@ public class ProxyHttpRequestResponseMock implements ProxyHttpRequestResponse {
 
     /**
      * mock with date="Mon, 01 Jan 1990 00:00:00 GMT", url="https://test.com" and mimetype=MimeType.UNRECOGNIZED
+     *
      * @param request
      * @param response
      */
