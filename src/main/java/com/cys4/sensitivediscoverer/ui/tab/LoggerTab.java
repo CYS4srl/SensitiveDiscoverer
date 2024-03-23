@@ -16,6 +16,7 @@ import com.cys4.sensitivediscoverer.ui.LogsTable;
 import com.cys4.sensitivediscoverer.ui.LogsTableContextMenu;
 import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
 import com.cys4.sensitivediscoverer.utils.FileUtils;
+import com.cys4.sensitivediscoverer.utils.LoggerUtils;
 import com.cys4.sensitivediscoverer.utils.SwingUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,6 +31,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -271,7 +274,8 @@ public class LoggerTab implements ApplicationTab {
             }
 
             private void startScan() {
-                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, LoggerTab.this::addLogEntry);
+                Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntries, loggerLock, Optional.of(logsTableModel));
+                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, addLogEntryCallback);
             }
 
             private void finalizeScan() {
@@ -413,17 +417,6 @@ public class LoggerTab implements ApplicationTab {
         gbc.weighty = weighty;
         gbc.fill = fill;
         return gbc;
-    }
-
-    public void addLogEntry(LogEntity logEntry) {
-        synchronized (loggerLock) {
-            int row = logEntries.size();
-
-            if (!logEntries.contains(logEntry)) {
-                logEntries.add(logEntry);
-                logsTableModel.addNewRow(row);
-            }
-        }
     }
 
     @Override
