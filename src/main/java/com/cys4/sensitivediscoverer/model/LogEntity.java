@@ -115,7 +115,6 @@ public class LogEntity {
      */
     @Override
     public boolean equals(Object o) {
-        //TODO when LogEntity will keep track of matched section, equals should consider different two Entities with different sections matched
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LogEntity logEntity = (LogEntity) o;
