@@ -37,6 +37,7 @@ class RegexScannerTest {
         scannerOptions = new ScannerOptions();
         scannerOptions.setConfigMaxResponseSize(10000000);
         scannerOptions.setConfigNumberOfThreads(1);
+        scannerOptions.setConfigRefineContextSize(64);
         scannerOptions.setFilterInScopeCheckbox(false);
         scannerOptions.setFilterSkipMaxSizeCheckbox(false);
         scannerOptions.setFilterSkipMediaTypeCheckbox(false);

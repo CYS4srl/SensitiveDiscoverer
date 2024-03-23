@@ -48,6 +48,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
 
         return switch (Column.getById(columnIndex)) {
             case ACTIVE -> regexEntry.isActive();
+            //TODO: evaluate if there's a better way to display the refinerRegex.
             case REGEX -> regexEntry.getRefinerRegex().orElse("") + regexEntry.getRegex();
             case DESCRIPTION -> regexEntry.getDescription();
             case SECTIONS -> regexEntry.getSectionsHumanReadable();

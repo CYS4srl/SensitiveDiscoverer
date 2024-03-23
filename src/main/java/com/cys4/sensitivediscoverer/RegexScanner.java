@@ -141,11 +141,15 @@ public class RegexScanner {
             if (!regex.isActive()) continue;
 
             Consumer<HttpMatchResult> logMatchCallback = match -> logEntriesCallback.accept(new LogEntity(request, response, regex, match.section, match.match));
-            performMatchingOnMessage(regex, logMatchCallback, new HttpRecord(requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded));
+            HttpRecord requestResponse = new HttpRecord(requestUrl, requestHeaders, requestBodyDecoded, responseHeaders, responseBodyDecoded);
+            performMatchingOnMessage(regex, scannerOptions, requestResponse, logMatchCallback);
         }
     }
 
-    private void performMatchingOnMessage(RegexEntity regex, Consumer<HttpMatchResult> logMatchCallback, HttpRecord requestResponse) {
+    private void performMatchingOnMessage(RegexEntity regex,
+                                          ScannerOptions scannerOptions,
+                                          HttpRecord requestResponse,
+                                          Consumer<HttpMatchResult> logMatchCallback) {
         Pattern regexCompiled = regex.getRegexCompiled();
         Optional<Pattern> refinerRegexCompiled = regex.getRefinerRegexCompiled();
 
@@ -159,7 +163,7 @@ public class RegexScanner {
                         if (refinerRegexCompiled.isPresent()) {
                             int startIndex = result.start();
                             Matcher preMatch = refinerRegexCompiled.get().matcher(sectionRecord.text());
-                            preMatch.region(Math.max(startIndex - 64, 0), startIndex); //todo: just 64?
+                            preMatch.region(Math.max(startIndex - scannerOptions.getConfigRefineContextSize(), 0), startIndex);
                             if (preMatch.find())
                                 match = preMatch.group() + match;
                         }

@@ -39,6 +39,16 @@ public class RegexEntity {
         this(description, regex, active, sections, refinerRegex, null);
     }
 
+    /**
+     * @param description
+     * @param regex
+     * @param active
+     * @param sections
+     * @param refinerRegex regex to refine the match. It is used only after the main regex matches, and it's applied to
+     *                     a defined range before the match. This regex always ends with a "$" (dollar sign) to ensure
+     *                     the result can be prepended to the match. If the final "$" is missing, it's added automatically.
+     * @param tests
+     */
     public RegexEntity(String description, String regex, boolean active, EnumSet<HttpSection> sections, String refinerRegex, List<String> tests) {
         if (regex == null || regex.isBlank()) {
             throw new IllegalArgumentException(getLocaleString("exception-invalidRegex"));
