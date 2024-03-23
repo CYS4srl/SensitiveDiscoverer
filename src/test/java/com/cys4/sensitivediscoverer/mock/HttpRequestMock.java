@@ -26,6 +26,11 @@ public class HttpRequestMock implements HttpRequest {
         this.headers = headers;
     }
 
+    /**
+     * mock with a single default header: "Host: test.com", and url="https://test.com"
+     * @param httpService
+     * @param body
+     */
     public HttpRequestMock(HttpService httpService, String body) {
         this(httpService, body, List.of(new HttpHeaderMock("Host", "test.com")));
     }
