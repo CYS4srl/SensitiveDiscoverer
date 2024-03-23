@@ -26,6 +26,7 @@ public class LogsTable extends JTable {
     public LogsTable(LogsTableModel logsTableModel, List<LogEntity> logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
         super(logsTableModel);
 
+        this.setAutoCreateRowSorter(false);
         this.logEntries = logEntries;
         this.requestViewer = requestViewer;
         this.responseViewer = responseViewer;
