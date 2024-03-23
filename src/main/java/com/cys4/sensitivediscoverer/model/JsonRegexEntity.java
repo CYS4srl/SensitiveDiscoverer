@@ -12,6 +12,7 @@ import java.util.List;
 public class JsonRegexEntity {
     private boolean active;
     private String regex;
+    private String refinerRegex;
     private String description;
     private List<String> sections;
     private List<String> tests;
@@ -25,6 +26,10 @@ public class JsonRegexEntity {
 
     public String getRegex() {
         return regex;
+    }
+
+    public String getRefinerRegex() {
+        return refinerRegex;
     }
 
     public String getDescription() {

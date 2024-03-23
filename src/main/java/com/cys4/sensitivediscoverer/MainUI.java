@@ -37,6 +37,7 @@ public class MainUI {
         scannerOptions = new ScannerOptions();
         scannerOptions.setConfigMaxResponseSize(Integer.parseInt(configProperties.getProperty("config.max_response_size")));
         scannerOptions.setConfigNumberOfThreads(Integer.parseInt(configProperties.getProperty("config.number_of_threads")));
+        scannerOptions.setConfigRefineContextSize(Integer.parseInt(configProperties.getProperty("config.scanner.refine_context_size")));
         scannerOptions.setFilterInScopeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.in_scope")));
         scannerOptions.setFilterSkipMaxSizeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_max_size")));
         scannerOptions.setFilterSkipMediaTypeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_media_type")));

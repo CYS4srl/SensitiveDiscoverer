@@ -1,7 +1,7 @@
 package com.cys4.sensitivediscoverer.utils;
 
+import com.cys4.sensitivediscoverer.model.HttpSection;
 import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.google.gson.Gson;
@@ -16,11 +16,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Matcher;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
@@ -46,95 +43,110 @@ public class FileUtils {
         }
     }
 
-    public static void exportRegexListToCSV(String csvFile, List<RegexEntity> regexEntities) {
+    public static void exportRegexListToFileCSV(String csvFile, List<RegexEntity> regexEntities) {
+        writeLinesToFile(csvFile, exportRegexListToCSV(regexEntities));
+    }
+
+    public static List<String> exportRegexListToCSV(List<RegexEntity> regexEntities) {
         List<String> lines = new ArrayList<>();
 
-        lines.add("\"description\",\"regex\",\"sections\"");
+        lines.add("\"description\",\"regex\",\"refinerRegex\",\"sections\"");
         regexEntities.forEach(regexEntity -> {
             String description = regexEntity.getDescription().replaceAll("\"", "\"\"");
             String regex = regexEntity.getRegex().replaceAll("\"", "\"\"");
+            String refinerRegex = regexEntity.getRefinerRegex().orElse("");
             String sections = String
-                    .join("|", ProxyItemSection.serializeSections(regexEntity.getSections()))
+                    .join("|", HttpSection.serializeSections(regexEntity.getSections()))
                     .replaceAll("\"", "\"\"");
-            lines.add(String.format("\"%s\",\"%s\",\"%s\"", description, regex, sections));
+            lines.add(String.format("\"%s\",\"%s\",\"%s\",\"%s\"", description, regex, refinerRegex, sections));
         });
-
-        writeLinesToFile(csvFile, lines);
+        return lines;
     }
 
-    public static void exportRegexListToJSON(String jsonFile, List<RegexEntity> regexEntities) {
-        List<JsonObject> lines = new ArrayList<>();
+    public static void exportRegexListToFileJSON(String jsonFile, List<RegexEntity> regexEntities) {
+        writeLinesToFile(jsonFile, List.of(exportRegexListToJson(regexEntities)));
+    }
 
-        regexEntities.forEach(regexEntity -> {
-            JsonObject obj = new JsonObject();
-            obj.addProperty("description", regexEntity.getDescription());
-            obj.addProperty("regex", regexEntity.getRegex());
-            JsonArray sections = new JsonArray();
-            ProxyItemSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
-            obj.add("sections", sections);
-            lines.add(obj);
-        });
+    public static String exportRegexListToJson(List<RegexEntity> regexEntities) {
+        List<JsonObject> lines;
+        lines = regexEntities
+                .stream()
+                .map(regexEntity -> {
+                    JsonObject json = new JsonObject();
+                    json.addProperty("description", regexEntity.getDescription());
+                    json.addProperty("regex", regexEntity.getRegex());
+                    regexEntity.getRefinerRegex().ifPresent(s -> json.addProperty("refinerRegex", s));
+                    JsonArray sections = new JsonArray();
+                    HttpSection.serializeSections(regexEntity.getSections()).forEach(sections::add);
+                    json.add("sections", sections);
+                    return json;
+                })
+                .collect(Collectors.toList());
 
-        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
-        Gson gson = builder.create();
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
-
-        writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
+        return new GsonBuilder()
+                .disableHtmlEscaping()
+                .create()
+                .toJson(lines, tListEntries);
     }
 
-    public static void importRegexListFromCSV(String csvFile, RegexListContext ctx) {
-        StringBuilder alreadyAddedMsg = new StringBuilder();
-
-        List<String> lines = readLinesFromFile(csvFile);
+    public static void importRegexListFromFileCSV(String csvFilepath, RegexListContext ctx) {
+        List<String> lines = readLinesFromFile(csvFilepath);
         if (Objects.isNull(lines)) return;
 
-        //Skip header line if present
-        int startRow = (lines.get(0).contains("\"description\",\"regex\"")) ? 1 : 0;
-
-        lines.subList(startRow, lines.size()).forEach(line -> {
-            Matcher matcher = RegexEntity.checkRegexEntityFromCSV(line);
-
-            if (!matcher.find())
-                return;
-
-            //load sections if presents, otherwise set all sections
-            boolean hasSections = !(matcher.group(3) == null || matcher.group(3).isBlank());
-
-            String description = matcher.group(1).replaceAll("\"\"", "\"");
-            String regex = matcher.group(2).replaceAll("\"\"", "\"");
-            List<String> sections = hasSections ? List.of(matcher.group(3).replaceAll("\"\"", "\"").split("\\|")) : null;
-
-            RegexEntity newRegexEntity = new RegexEntity(
-                    description,
-                    regex,
-                    true,
-                    hasSections ? ProxyItemSection.deserializeSections(sections) : ProxyItemSection.ALL
-            );
-
-            if (!ctx.getRegexEntities().contains(newRegexEntity)) {
-                ctx.getRegexEntities().add(newRegexEntity);
-            } else {
-                alreadyAddedMsg.append(String.format("%s - %s\n", newRegexEntity.getDescription(), newRegexEntity.getRegex()));
-            }
-        });
+        String alreadyAddedMsg = importRegexListFromCSV(lines, ctx);
 
         SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
                 getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg.toString());
+                alreadyAddedMsg);
     }
 
-    public static void importRegexListFromJSON(String jsonFile, RegexListContext ctx) {
-        Gson gson = new Gson();
+    public static String importRegexListFromCSV(List<String> csvLines, RegexListContext ctx) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
 
-        List<String> lines = readLinesFromFile(jsonFile);
+        // skip header line if present
+        int startRow = csvLines.get(0).startsWith("\"description\",\"regex\"") ? 1 : 0;
+        csvLines.subList(startRow, csvLines.size())
+                .stream()
+                .map(RegexEntity::checkRegexEntityFromCSV)
+                .flatMap(Optional::stream)
+                .map(match -> new RegexEntity(
+                        unescapeCsvQuotes(match.group(1)),
+                        unescapeCsvQuotes(match.group(2)),
+                        true,
+                        HttpSection.deserializeSections(decodeSectionListFromCSV(match.group(4))),
+                        unescapeCsvQuotes(match.group(3))))
+                .forEachOrdered(newRegex -> {
+                    if (!ctx.regexEntities().contains(newRegex)) {
+                        ctx.regexEntities().add(newRegex);
+                    } else {
+                        alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
+                    }
+                });
+        return alreadyAddedMsg.toString();
+    }
+
+    public static void importRegexListFromFileJSON(String jsonFilepath, RegexListContext ctx) {
+        List<String> lines = readLinesFromFile(jsonFilepath);
         if (Objects.isNull(lines)) return;
 
+        String alreadyAddedMsg = importRegexListFromJSON(String.join("", lines), ctx);
+
+        SwingUtils.showMessageDialog(
+                getLocaleString("options-list-open-alreadyPresentTitle"),
+                getLocaleString("options-list-open-alreadyPresentWarn"),
+                alreadyAddedMsg);
+    }
+
+    public static String importRegexListFromJSON(String json, RegexListContext ctx) {
+        Gson gson = new Gson();
+        StringBuilder alreadyAddedMsg = new StringBuilder();
         Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
         }.getType();
-        Stream.of(String.join("", lines))
+
+        Stream.of(json)
                 .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
                 .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
@@ -142,22 +154,32 @@ public class FileUtils {
                         element.getDescription(),
                         element.getRegex(),
                         true,
-                        ProxyItemSection.deserializeSections(element.getSections())))
-                .forEachOrdered(regexEntity -> {
-                    if (!ctx.getRegexEntities().contains(regexEntity)) {
-                        ctx.getRegexEntities().add(regexEntity);
+                        HttpSection.deserializeSections(element.getSections()),
+                        element.getRefinerRegex()))
+                .forEachOrdered(newRegex -> {
+                    if (!ctx.regexEntities().contains(newRegex)) {
+                        ctx.regexEntities().add(newRegex);
                     } else {
-                        alreadyAddedMsg
-                                .append(regexEntity.getDescription())
-                                .append(" - ")
-                                .append(regexEntity.getRegex())
-                                .append("\n");
+                        alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
                     }
                 });
+        return alreadyAddedMsg.toString();
+    }
 
-        SwingUtils.showMessageDialog(
-                getLocaleString("options-list-open-alreadyPresentTitle"),
-                getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg.toString());
+    /**
+     * @param encodedSections
+     * @return
+     */
+    private static List<String> decodeSectionListFromCSV(String encodedSections) {
+        return Objects.isNull(encodedSections) ? null : List.of(unescapeCsvQuotes(encodedSections).split("\\|"));
+    }
+
+
+    /**
+     * @param input The text to unescape
+     * @return the input with "" converted to ", or an empty string if input is null
+     */
+    public static String unescapeCsvQuotes(String input) {
+        return Objects.nonNull(input) ? input.replaceAll("\"\"", "\"") : "";
     }
 }

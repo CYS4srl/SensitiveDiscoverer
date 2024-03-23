@@ -8,6 +8,7 @@
     * [Features](#features)
     * [Screenshots](#screenshots)
     * [About the used regexes](#about-the-used-regexes)
+    * [Multi-step regex matching](#multi-step-regex-matching)
   * [Installation](#installation)
     * [Using the BApp Store](#using-the-bapp-store)
     * [Manual install](#manual-install)
@@ -40,6 +41,7 @@ The extension is available with a pre-defined set of Regular Expressions divided
 - Customizable regexes lists
 - Export findings to CSV/JSON files
 - Import/Export regexes lists from CSV/JSON files
+- Multi-step regex matching
 
 ### Screenshots
 
@@ -55,9 +57,9 @@ The **Options tab** where to configure options and filters for the scanner:
 
 We aim to provide a default set of regexes that can be used in as many cases as possible without numerous false positives.
 
-As the source, many regexes are written by us. Any other should have the appropriate mention in the [References](#references) section.
+We write and refine many regexes directly. If external sources are to be credited, they will be mentioned appropriately in the [References](#references) section or directly in the regex lists.
 
-To improve the matching results and reduce the scans time, each HTTP Proxy's message is divided into sections that can be matched independently.
+To improve the matching results and reduce the scan time, each HTTP Proxy's message is divided into sections that can be matched independently.
 As of now, there are five sections:
 
 - Request
@@ -69,8 +71,24 @@ As of now, there are five sections:
   - Response Body
 
 The extension works with two lists of regexes.
-One list is for general regexes, which only match within the Response sections;
-The other is for filename extensions and only match against the Request URL.
+One list is for general regexes, which, by default, only match within the Response sections;
+The other is for filename extensions and, by default, only matches against the Request URL.
+
+### Multi-step regex matching
+
+This extension supports adding a second regex to refine the match without degrading performances.
+Suppose we want to match all bucket URLs of some object storage provider, such as AWS S3 Buckets.
+These URLs all have a common suffix, for example, "s3.amazonaws.com", and an arbitrary bucket name in front.
+
+With a single regex, you can't first match the suffix and only then the bucket name.
+You can write a fast regex that only matches the suffix or a really slow one that matches everything, such as with `\w+\.s3\.amazonaws\.com`.
+The problem is in matching from left to right. When `\w+` comes first, almost everything is matched, resulting in a really slow regex.
+The alternative of matching only the suffix is fast, but doesn't show us the bucket name in the results.
+
+Our approach introduces a "Refiner Regex" that's only applied after the main regex has matched.
+This refiner regex is applied on a small region before the match. By default, this region size is set to 64 bytes.
+With this feature, we can trivially solve the previous problem using `s3\.amazonaws\.com` as the main regex and
+`\w*\.` as the refiner regex. This feature reduces scan times while also producing valuable matches.
 
 ## Installation
 
@@ -131,11 +149,18 @@ Both `CSV` and `JSON` files with their respective extensions are supported.
   ]
   ```
 
-Regexes must be compliant with the Java's Regexes Style. If in doubt, use [regex101](https://regex101.com/) with the `Java 8` flavour to test regexes.
+> [!IMPORTANT]  
+> Regexes must be compliant with Java's Regexes Style. If in doubt, use [regex101](https://regex101.com/) with the `Java 8` flavour to test regexes.
+
+> [!NOTE]
+> Importing a regex list in this limited format will result in the default section of `res` to be used for all regexes.
+Additionally, there will be no refiner regex. 
 
 ### Importing Lists - Advanced
 
-In the lists it's also possible to specify the sections that the regexes should match. If no section is specified, by default `all` sections are used.
+In the lists, it's also possible to specify the refiner regex and the sections the regexes should match.
+If no section is specified, no sections are going to be enabled.
+If no refiner regex is specified, no refiner regex will be used.
 
 Each HTTP item composed of a request and a response is divided into the following matchable sections:
 
@@ -156,8 +181,8 @@ To specify the sections to match use the following format:
 - For **CSV** files, add a `sections` column and for each row add the list of sections to be matched as a string with sections delimited by the character `|`:
 
   ```csv
-  "description","regex","sections"
-  "Google e-mail","\w+@gmail.com","req|res_body"
+  "description","regex","refinerRegex","sections"
+  "Google e-mail","@gmail\.com","\w+$","req|res_body"
   ```
   
 - For **JSON** files, add a `sections` field containing the array of sections to be matched as strings:
@@ -166,7 +191,8 @@ To specify the sections to match use the following format:
   [
     {
       "description": "Google e-mail",
-      "regex": "\\w+@gmail.com",
+      "regex": "@gmail\\.com",
+      "refinerRegex": "\\w+$",
       "sections": [ "req", "res_body" ]
     }
   ]
@@ -196,3 +222,5 @@ The following is a list of sources for some regexes used in this extension. Many
 
 - https://github.com/eth0izzle/shhgit
 - https://github.com/streaak/keyhacks
+
+Additional references are kept directly in the regexes lists files.

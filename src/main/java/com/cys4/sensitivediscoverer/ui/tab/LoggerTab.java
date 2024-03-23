@@ -16,6 +16,7 @@ import com.cys4.sensitivediscoverer.ui.LogsTable;
 import com.cys4.sensitivediscoverer.ui.LogsTableContextMenu;
 import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
 import com.cys4.sensitivediscoverer.utils.FileUtils;
+import com.cys4.sensitivediscoverer.utils.LoggerUtils;
 import com.cys4.sensitivediscoverer.utils.SwingUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,6 +31,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 
@@ -269,7 +274,8 @@ public class LoggerTab implements ApplicationTab {
             }
 
             private void startScan() {
-                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, LoggerTab.this::addLogEntry);
+                Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntries, loggerLock, Optional.of(logsTableModel));
+                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, addLogEntryCallback);
             }
 
             private void finalizeScan() {
@@ -341,10 +347,9 @@ public class LoggerTab implements ApplicationTab {
                     LogsTableModel.Column.REGEX.getNameFormatted(),
                     LogsTableModel.Column.MATCH.getNameFormatted()));
 
-            // values
             for (int i = 0; i < logsTableModel.getRowCount(); i++) {
                 String url = logsTableModel.getValueAt(i, LogsTableModel.Column.URL.getIndex()).toString();
-                String description = logsTableModel.getValueAt(i, LogsTableModel.Column.REGEX.getIndex()).toString().split(" - ")[0];
+                String description = logsTableModel.getValueAt(i, LogsTableModel.Column.REGEX.getIndex()).toString();
                 String matchEscaped = logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString().replaceAll("\"", "\"\"");
                 lines.add(String.format("\"%s\",\"%s\",\"%s\"", url, description, matchEscaped));
             }
@@ -358,23 +363,18 @@ public class LoggerTab implements ApplicationTab {
             String jsonFile = SwingUtils.selectFile(List.of("JSON"), false);
             if (jsonFile.isBlank()) return;
 
-            java.util.List<JsonObject> lines = new ArrayList<>();
+            List<LogsTableModel.Column> fields = List.of(LogsTableModel.Column.URL, LogsTableModel.Column.REGEX, LogsTableModel.Column.MATCH);
+            List<JsonObject> lines = IntStream
+                    .range(0, logsTableModel.getRowCount())
+                    .mapToObj(rowIndex -> {
+                        JsonObject json = new JsonObject();
+                        fields.forEach(column -> {
+                            json.addProperty(column.getNameFormatted(), logsTableModel.getValueAt(rowIndex, column.getIndex()).toString());
+                        });
+                        return json;
+                    }).collect(Collectors.toList());
 
-            String prop1 = LogsTableModel.Column.URL.getNameFormatted();
-            String prop2 = LogsTableModel.Column.REGEX.getNameFormatted();
-            String prop3 = LogsTableModel.Column.MATCH.getNameFormatted();
-
-            // values
-            for (int i = 0; i < logsTableModel.getRowCount(); i++) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty(prop1, logsTableModel.getValueAt(i, LogsTableModel.Column.URL.getIndex()).toString());
-                obj.addProperty(prop2, logsTableModel.getValueAt(i, LogsTableModel.Column.REGEX.getIndex()).toString().split(" - ")[0]);
-                obj.addProperty(prop3, logsTableModel.getValueAt(i, LogsTableModel.Column.MATCH.getIndex()).toString());
-                lines.add(obj);
-            }
-
-            GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
-            Gson gson = builder.create();
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {
             }.getType();
 
@@ -417,17 +417,6 @@ public class LoggerTab implements ApplicationTab {
         gbc.weighty = weighty;
         gbc.fill = fill;
         return gbc;
-    }
-
-    public void addLogEntry(LogEntity logEntry) {
-        synchronized (loggerLock) {
-            int row = logEntries.size();
-
-            if (!logEntries.contains(logEntry)) {
-                logEntries.add(logEntry);
-                logsTableModel.addNewRow(row);
-            }
-        }
     }
 
     @Override

@@ -19,19 +19,43 @@ public class ProxyHttpRequestResponseMock implements ProxyHttpRequestResponse {
     HttpService httpService;
     MimeType mimeType;
 
-    public ProxyHttpRequestResponseMock(String request, String response, String responseDate, String host, int port, boolean secure, MimeType mimeType) {
+    /**
+     * mock with requestUrl="https://test.com", requestHeaders=["Host: test.com"], responseHeaders=["Host: test.com","Date: $responseDate"]
+     *
+     * @param requestBody
+     * @param responseBody
+     * @param responseDate
+     * @param host
+     * @param port
+     * @param secure
+     * @param mimeType
+     */
+    public ProxyHttpRequestResponseMock(String requestBody, String responseBody, String responseDate, String host, int port, boolean secure, MimeType mimeType) {
         this.httpService = new HttpServiceMock(host, port, secure);
-        this.request = new HttpRequestMock(this.httpService, request);
-        this.response = new HttpResponseMock(response, List.of(new HttpHeaderMock("Host", "test.com"), new HttpHeaderMock("Date", responseDate)));
+        this.request = new HttpRequestMock(this.httpService, requestBody);
+        this.response = new HttpResponseMock(responseBody, List.of(new HttpHeaderMock("Host", "test.com"), new HttpHeaderMock("Date", responseDate)));
         this.mimeType = mimeType;
     }
 
+    /**
+     * mock with url="https://test.com" and mimetype=MimeType.UNRECOGNIZED
+     *
+     * @param request
+     * @param response
+     * @param responseDate
+     */
     public ProxyHttpRequestResponseMock(String request, String response, String responseDate) {
         this(request, response, responseDate, "https://test.com", 443, true, MimeType.UNRECOGNIZED);
     }
 
+    /**
+     * mock with date="Mon, 01 Jan 1990 00:00:00 GMT", url="https://test.com" and mimetype=MimeType.UNRECOGNIZED
+     *
+     * @param request
+     * @param response
+     */
     public ProxyHttpRequestResponseMock(String request, String response) {
-        this(request, response, "Mon, 01 Jan 1990 00:00:00 GMT");
+        this(request, response, "Mon, 01 Jan 1990 00:00:00 GMT", "https://test.com", 443, true, MimeType.UNRECOGNIZED);
     }
 
     @Override

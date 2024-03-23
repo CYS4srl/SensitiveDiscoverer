@@ -4,7 +4,7 @@ See the file 'LICENSE' for copying permission
 */
 package com.cys4.sensitivediscoverer.ui;
 
-import com.cys4.sensitivediscoverer.model.ProxyItemSection;
+import com.cys4.sensitivediscoverer.model.HttpSection;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
 import javax.swing.*;
@@ -79,12 +79,32 @@ public class RegexEditDialog {
         gbc.fill = GridBagConstraints.BOTH;
         contentPanel.add(regexTextField, gbc);
 
+        // refinerRegex
+        JLabel refinerRegexLabel = new JLabel("%s: ".formatted(getLocaleString("common-refinerRegex")));
+        refinerRegexLabel.setVerticalTextPosition(SwingConstants.CENTER);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 6, 0);
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        contentPanel.add(refinerRegexLabel, gbc);
+        JTextField refinerRegexTextField = new JTextField(12);
+        refinerRegexLabel.setLabelFor(refinerRegexTextField);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 2, 6, 0);
+        gbc.fill = GridBagConstraints.BOTH;
+        contentPanel.add(refinerRegexTextField, gbc);
+
         // description
         JLabel descriptionLabel = new JLabel("%s: ".formatted(getLocaleString("common-description")));
         descriptionLabel.setVerticalTextPosition(SwingConstants.CENTER);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.VERTICAL;
         contentPanel.add(descriptionLabel, gbc);
@@ -92,7 +112,7 @@ public class RegexEditDialog {
         descriptionLabel.setLabelFor(descriptionTextField);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0, 2, 0, 0);
@@ -104,14 +124,14 @@ public class RegexEditDialog {
         sectionsLabel.setVerticalAlignment(SwingConstants.TOP);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(10, 0, 0, 0);
         contentPanel.add(sectionsLabel, gbc);
         JPanel sectionsPanel = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(10, 2, 0, 0);
@@ -130,36 +150,38 @@ public class RegexEditDialog {
         // set defaults
         if (Objects.nonNull(this.regexEntity)) {
             regexTextField.setText(this.regexEntity.getRegex());
+            this.regexEntity.getRefinerRegex().ifPresent(refinerRegexTextField::setText);
             descriptionTextField.setText(this.regexEntity.getDescription());
 
-            sectionReqURL.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.REQ_URL));
-            sectionReqHeaders.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.REQ_HEADERS));
-            sectionReqBody.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.REQ_BODY));
-            sectionResHeaders.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.RES_HEADERS));
-            sectionResBody.setSelected(this.regexEntity.getSections().contains(ProxyItemSection.RES_BODY));
+            sectionReqURL.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_URL));
+            sectionReqHeaders.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_HEADERS));
+            sectionReqBody.setSelected(this.regexEntity.getSections().contains(HttpSection.REQ_BODY));
+            sectionResHeaders.setSelected(this.regexEntity.getSections().contains(HttpSection.RES_HEADERS));
+            sectionResBody.setSelected(this.regexEntity.getSections().contains(HttpSection.RES_BODY));
         } else {
-            EnumSet<ProxyItemSection> defaults = ProxyItemSection.getDefault();
-            sectionReqURL.setSelected(defaults.contains(ProxyItemSection.REQ_URL));
-            sectionReqHeaders.setSelected(defaults.contains(ProxyItemSection.REQ_HEADERS));
-            sectionReqBody.setSelected(defaults.contains(ProxyItemSection.REQ_BODY));
-            sectionResHeaders.setSelected(defaults.contains(ProxyItemSection.RES_HEADERS));
-            sectionResBody.setSelected(defaults.contains(ProxyItemSection.RES_BODY));
+            EnumSet<HttpSection> defaults = HttpSection.getDefault();
+            sectionReqURL.setSelected(defaults.contains(HttpSection.REQ_URL));
+            sectionReqHeaders.setSelected(defaults.contains(HttpSection.REQ_HEADERS));
+            sectionReqBody.setSelected(defaults.contains(HttpSection.REQ_BODY));
+            sectionResHeaders.setSelected(defaults.contains(HttpSection.RES_HEADERS));
+            sectionResBody.setSelected(defaults.contains(HttpSection.RES_BODY));
         }
 
         int returnValue = JOptionPane.showConfirmDialog(parentComponent, mainPanel, dialogTitle, JOptionPane.OK_CANCEL_OPTION);
         if (returnValue != JOptionPane.OK_OPTION) return false;
 
-        List<ProxyItemSection> sections = Arrays.asList(
-                sectionReqURL.getModel().isSelected() ? ProxyItemSection.REQ_URL : null,
-                sectionReqHeaders.getModel().isSelected() ? ProxyItemSection.REQ_HEADERS : null,
-                sectionReqBody.getModel().isSelected() ? ProxyItemSection.REQ_BODY : null,
-                sectionResHeaders.getModel().isSelected() ? ProxyItemSection.RES_HEADERS : null,
-                sectionResBody.getModel().isSelected() ? ProxyItemSection.RES_BODY : null);
+        List<HttpSection> sections = Arrays.asList(
+                sectionReqURL.getModel().isSelected() ? HttpSection.REQ_URL : null,
+                sectionReqHeaders.getModel().isSelected() ? HttpSection.REQ_HEADERS : null,
+                sectionReqBody.getModel().isSelected() ? HttpSection.REQ_BODY : null,
+                sectionResHeaders.getModel().isSelected() ? HttpSection.RES_HEADERS : null,
+                sectionResBody.getModel().isSelected() ? HttpSection.RES_BODY : null);
         this.regexEntity = new RegexEntity(
                 descriptionTextField.getText(),
                 regexTextField.getText(),
                 Objects.isNull(this.regexEntity) || this.regexEntity.isActive(),
-                sections.stream().filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(ProxyItemSection.class)))
+                sections.stream().filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(HttpSection.class))),
+                refinerRegexTextField.getText()
         );
         return true;
     }

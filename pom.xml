@@ -58,6 +58,7 @@
     </dependencies>
 
     <build>
+        <finalName>SensitiveDiscoverer-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>
@@ -103,7 +104,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>SensitiveDiscoverer-${project.version}</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>

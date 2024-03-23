@@ -27,6 +27,10 @@ public class ScannerOptions {
      * Number of threads to use to scan items
      */
     private int configNumberOfThreads;
+    /**
+     * The size, in bytes, of the region before the match where the refinerRegex is applied
+     */
+    private int configRefineContextSize;
 
     public boolean isFilterInScopeCheckbox() {
         return filterInScopeCheckbox;
@@ -66,5 +70,13 @@ public class ScannerOptions {
 
     public void setConfigNumberOfThreads(int configNumberOfThreads) {
         this.configNumberOfThreads = configNumberOfThreads;
+    }
+
+    public int getConfigRefineContextSize() {
+        return configRefineContextSize;
+    }
+
+    public void setConfigRefineContextSize(int configRefineContextSize) {
+        this.configRefineContextSize = configRefineContextSize;
     }
 }
