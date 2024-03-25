@@ -1,7 +1,4 @@
-/*
-Copyright (C) 2023 CYS4 Srl
-See the file 'LICENSE' for copying permission
-*/
+
 package burp;
 
 import burp.api.montoya.BurpExtension;

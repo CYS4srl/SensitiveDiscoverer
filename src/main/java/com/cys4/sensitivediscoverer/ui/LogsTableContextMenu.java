@@ -1,7 +1,3 @@
-/*
-Copyright (C) 2023 CYS4 Srl
-See the file 'LICENSE' for copying permission
-*/
 package com.cys4.sensitivediscoverer.ui;
 
 import burp.api.montoya.MontoyaApi;
