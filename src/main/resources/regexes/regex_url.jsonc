@@ -22,10 +22,28 @@
   },
   {
     "active": true,
-    "description": "Outlook Teams 1",
-    "regex": "outlook\\.office\\.com/webhook/[\\w\\-]+",
+    "description": "Microsoft Teams/Office 365 Connector - webhook",
+    "regex": "outlook\\.office(365)?\\.com/webhook/[\\w\\-@]{1,128}",
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/outlook_team_webhook"
+    ],
     "tests": [
-      "https://outlook.office.com/webhook/5348781d-52a8-490f-b75b-a720702114d1@b662313f-14fc-43a3-9a7a-d0e27f4f3470/IncomingWebhook/f280f53c0d244ebdba7fea00035f35df/eff4cd50-1bb8-4899-94de-795f65600a18"
+      "https://outlook.office.com/webhook/5348781d-52a8-490f-b75b-a720702114d1@b662313f-14fc-43a3-9a7a-d0e27f4f3470/IncomingWebhook/f280f53c0d244ebdba7fea00035f35df/eff4cd50-1bb8-4899-94de-795f65600a18",
+      "https://outlook.office365.com/webhook/01234567-abcd-4444-abcd-1234567890ab@98765432-dddd-5555-8888-777777777777/IncomingWebhook/1234567890abcdefedcba09876544321/ffffffff-3333-4444-5555-bbbbbbbbbbbb"
+    ]
+  },
+  {
+    "active": true,
+    "description": "Microsoft Teams - Incoming webhook",
+    "regex": "\\.webhook\\.office\\.com",
+    "refinerRegex": "\\w+$",
+    "urls": [
+      "https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook",
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/outlook_team_webhook"
+    ],
+    "tests": [
+      "https://example.webhook.office.com/webhookb2/325b9962-d380-4003-9fe3-a1c246cbafa4@7f28634d-dced-4d04-bc25-b8373a972720/appId/fd92f39d3f37573e2ba95a3df72dcdb2/b5cb79af-3d26-4a56-9d17-52d1b5cd78d7",
+      "https://fabulousinc.webhook.office.com/webhookb2/6ee4efaa-986e-4b8e-8d6b-ccf77c29e0b0@87ba1f9a-44cd-43a6-b008-6fdb45a5204e/TravisCI/9ad1eb07cda7411db33e74c3d676774e/0ad415e3-d66a-425c-9914-e9e52f2b81e1"
     ]
   }
 ]
