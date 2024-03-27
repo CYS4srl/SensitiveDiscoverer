@@ -1,6 +1,7 @@
 package com.cys4.sensitivediscoverer.ui;
 
 import com.cys4.sensitivediscoverer.MainUI;
+import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
@@ -10,6 +11,10 @@ import com.cys4.sensitivediscoverer.utils.SwingUtils;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -136,6 +141,9 @@ public class RegexListViewer {
         gbc.fill = GridBagConstraints.BOTH;
         containerCenter.add(scrollPane, gbc);
 
+        //Add Regex Popup Menu
+        regexTable.addMouseListener(createRegexPopupMenu(ctx, regexTable, containerCenter, tableModel));
+
         // buttons
         JButton enableAllButton = createSetEnabledButton(ctx, true, containerCenter, tableModel);
         containerRight.add(enableAllButton, createButtonGridConstraints(0, 0));
@@ -160,6 +168,46 @@ public class RegexListViewer {
         return container;
     }
 
+    /**
+     * Create a popup menu over the selected regexTable entry and show edit and delete buttons.
+     *
+     * @param ctx
+     * @param regexTable
+     * @param tabPaneOptions
+     * @param tableModel
+     */
+    private MouseListener createRegexPopupMenu(RegexListContext ctx, JTable regexTable, JPanel tabPaneOptions, RegexListViewerTableModel tableModel) {
+        return new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                onMouseEvent(e);
+            }
+
+            private void onMouseEvent(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int row = regexTable.getSelectedRow();
+                    if (row == -1) return;
+                    if (e.getComponent() instanceof JTable) {
+                        JPopupMenu regexMenu = new JPopupMenu();
+                        regexMenu.add(new JMenuItem(new AbstractAction(getLocaleString("options-list-edit")) {
+                            @Override
+                            public void actionPerformed(final ActionEvent e) {
+                                editSelectedRegex(ctx, regexTable, tabPaneOptions, tableModel);
+                            }
+                        }));
+                        regexMenu.add(new JMenuItem(new AbstractAction(getLocaleString("options-list-delete")) {
+                            @Override
+                            public void actionPerformed(final ActionEvent e) {
+                                deleteSelectedRegex(ctx, regexTable, tabPaneOptions, tableModel);
+                            }
+                        }));
+                        regexMenu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+        };
+    }
+
     private JMenuItem createEditRegexMenuItem(RegexListContext ctx,
                                               JTable optionsRegexTable,
                                               JPanel tabPaneOptions,
@@ -167,32 +215,47 @@ public class RegexListViewer {
         JMenuItem btnEditRegex = new JMenuItem(getLocaleString("options-list-edit"));
         btnEditRegex.setEnabled(false);
         btnEditRegex.addActionListener(actionEvent -> {
-            int rowIndex;
-            int realRow;
-
-            rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-
-            RegexEntity previousRegex = ctx.regexEntities().get(realRow);
-            RegexEditDialog dialog = new RegexEditDialog(previousRegex);
-            if (!dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"))) return;
-
-            RegexEntity newRegex = dialog.getRegexEntity();
-            if (newRegex.getRegex().isEmpty() && newRegex.getDescription().isEmpty()) return;
-            if (previousRegex.equals(newRegex)) return;
-
-            ctx.regexEntities().set(realRow, newRegex);
-
-            tableModel.fireTableRowsUpdated(realRow, realRow);
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
+            editSelectedRegex(ctx, optionsRegexTable, tabPaneOptions, tableModel);
         });
         optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
             int viewRow = optionsRegexTable.getSelectedRow();
             btnEditRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
         });
         return btnEditRegex;
+    }
+
+    /**
+     * Open the edit regex dialog of the selected regex.
+     *
+     * @param ctx
+     * @param optionsRegexTable
+     * @param tabPaneOptions
+     * @param tableModel
+     */
+    private void editSelectedRegex(RegexListContext ctx,
+                          JTable optionsRegexTable,
+                          JPanel tabPaneOptions,
+                          RegexListViewerTableModel tableModel) {
+        int rowIndex;
+        int realRow;
+
+        rowIndex = optionsRegexTable.getSelectedRow();
+        if (rowIndex == -1) return;
+        realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+
+        RegexEntity previousRegex = ctx.regexEntities().get(realRow);
+        RegexEditDialog dialog = new RegexEditDialog(previousRegex);
+        if (!dialog.showDialog(tabPaneOptions, getLocaleString("options-list-edit-dialogTitle"))) return;
+
+        RegexEntity newRegex = dialog.getRegexEntity();
+        if (newRegex.getRegex().isEmpty() && newRegex.getDescription().isEmpty()) return;
+        if (previousRegex.equals(newRegex)) return;
+
+        ctx.regexEntities().set(realRow, newRegex);
+
+        tableModel.fireTableRowsUpdated(realRow, realRow);
+        tabPaneOptions.validate();
+        tabPaneOptions.repaint();
     }
 
     private JMenuItem createDeleteRegexMenuItem(RegexListContext ctx,
@@ -202,21 +265,36 @@ public class RegexListViewer {
         JMenuItem btnDeleteRegex = new JMenuItem(getLocaleString("options-list-delete"));
         btnDeleteRegex.setEnabled(false);
         btnDeleteRegex.addActionListener(actionEvent -> {
-            int rowIndex = optionsRegexTable.getSelectedRow();
-            if (rowIndex == -1) return;
-            int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
-            ctx.regexEntities().remove(realRow);
-
-            tableModel.fireTableRowsDeleted(realRow, realRow);
-
-            tabPaneOptions.validate();
-            tabPaneOptions.repaint();
+            deleteSelectedRegex(ctx, optionsRegexTable, tabPaneOptions, tableModel);
         });
         optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
             int viewRow = optionsRegexTable.getSelectedRow();
             btnDeleteRegex.setEnabled(!event.getValueIsAdjusting() && viewRow >= 0);
         });
         return btnDeleteRegex;
+    }
+
+    /**
+     * Delete the selected regex from the table.
+     *
+     * @param ctx
+     * @param optionsRegexTable
+     * @param tabPaneOptions
+     * @param tableModel
+     */
+    private void deleteSelectedRegex(RegexListContext ctx,
+                            JTable optionsRegexTable,
+                            JPanel tabPaneOptions,
+                            RegexListViewerTableModel tableModel) {
+        int rowIndex = optionsRegexTable.getSelectedRow();
+        if (rowIndex == -1) return;
+        int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
+        ctx.regexEntities().remove(realRow);
+
+        tableModel.fireTableRowsDeleted(realRow, realRow);
+
+        tabPaneOptions.validate();
+        tabPaneOptions.repaint();
     }
 
     private JMenuItem createNewRegexMenuItem(RegexListContext ctx,
