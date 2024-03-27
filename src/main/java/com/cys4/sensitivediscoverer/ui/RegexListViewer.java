@@ -177,10 +177,10 @@ public class RegexListViewer {
      *
      * @param ctx
      * @param regexTable
-     * @param containerCenter
+     * @param tabPaneOptions
      * @param tableModel
      */
-    private MouseListener createRegexPopupMenu(RegexListContext ctx, JTable regexTable, JPanel containerCenter, RegexListViewerTableModel tableModel) {
+    private MouseListener createRegexPopupMenu(RegexListContext ctx, JTable regexTable, JPanel tabPaneOptions, RegexListViewerTableModel tableModel) {
         return new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -196,13 +196,13 @@ public class RegexListViewer {
                         regexMenu.add(new JMenuItem(new AbstractAction(getLocaleString("options-list-edit")) {
                             @Override
                             public void actionPerformed(final ActionEvent e) {
-                                editRegex(ctx, regexTable, containerCenter, tableModel);
+                                editSelectedRegex(ctx, regexTable, tabPaneOptions, tableModel);
                             }
                         }));
                         regexMenu.add(new JMenuItem(new AbstractAction(getLocaleString("options-list-delete")) {
                             @Override
                             public void actionPerformed(final ActionEvent e) {
-                                deleteRegex(ctx, regexTable, containerCenter, tableModel);
+                                deleteSelectedRegex(ctx, regexTable, tabPaneOptions, tableModel);
                             }
                         }));
                         regexMenu.show(e.getComponent(), e.getX(), e.getY());
@@ -219,7 +219,7 @@ public class RegexListViewer {
         JMenuItem btnEditRegex = new JMenuItem(getLocaleString("options-list-edit"));
         btnEditRegex.setEnabled(false);
         btnEditRegex.addActionListener(actionEvent -> {
-            editRegex(ctx, optionsRegexTable, tabPaneOptions, tableModel);
+            editSelectedRegex(ctx, optionsRegexTable, tabPaneOptions, tableModel);
         });
         optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
             int viewRow = optionsRegexTable.getSelectedRow();
@@ -236,7 +236,7 @@ public class RegexListViewer {
      * @param tabPaneOptions
      * @param tableModel
      */
-    public void editRegex(RegexListContext ctx,
+    private void editSelectedRegex(RegexListContext ctx,
                           JTable optionsRegexTable,
                           JPanel tabPaneOptions,
                           RegexListViewerTableModel tableModel) {
@@ -269,7 +269,7 @@ public class RegexListViewer {
         JMenuItem btnDeleteRegex = new JMenuItem(getLocaleString("options-list-delete"));
         btnDeleteRegex.setEnabled(false);
         btnDeleteRegex.addActionListener(actionEvent -> {
-            deleteRegex(ctx, optionsRegexTable, tabPaneOptions, tableModel);
+            deleteSelectedRegex(ctx, optionsRegexTable, tabPaneOptions, tableModel);
         });
         optionsRegexTable.getSelectionModel().addListSelectionListener(event -> {
             int viewRow = optionsRegexTable.getSelectedRow();
@@ -286,7 +286,7 @@ public class RegexListViewer {
      * @param tabPaneOptions
      * @param tableModel
      */
-    public void deleteRegex(RegexListContext ctx,
+    private void deleteSelectedRegex(RegexListContext ctx,
                             JTable optionsRegexTable,
                             JPanel tabPaneOptions,
                             RegexListViewerTableModel tableModel) {
