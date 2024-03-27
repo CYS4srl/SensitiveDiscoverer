@@ -283,7 +283,7 @@
   {
     "active": true,
     "description": "Twilio Account SID",
-    "regex": "SK[0-9a-zA-Z]{32}(?![a-zA-Z0-9+/=])",
+    "regex": "SK[0-9a-zA-Z]{32}(?![a-zA-Z0-9+/=?_%)])",
     "urls": [
       "https://www.twilio.com/docs/iam/api-keys/api-key",
       "https://www.twilio.com/docs/glossary/what-is-a-sid"
