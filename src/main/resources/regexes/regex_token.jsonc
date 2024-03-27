@@ -15,25 +15,42 @@
     AROA    | Role
     ASCA    | Certificate
     ASIA    | Temporary (AWS STS) access key IDs use this prefix, but are unique only in combination with the secret access key and the session token.
+    //TODO find sources on keys starting with "A3T[A-Z0-9]"
     */
     "active": true,
     "description": "AWS Access Key ID",
-    //TODO length should be {16}, but some examples have {17}
-    //TODO what is A3T. ?
-    "regex": "(?i)(A3T[A-Z0-9]|ABIA|ACCA|AGPA|AIDA|AIPA|AKIA|ANPA|ANVA|APKA|AROA|ASCA|ASIA)[a-zA-Z0-9]{14,20}(?![a-zA-Z0-9+/=])",
+    "regex": "A(BIA|CCA|GPA|I(DA|PA)|KIA|N(PA|VA)|PKA|ROA|S(CA|IA))[a-zA-Z0-9]{16,17}(?![a-zA-Z0-9+/=])",
     "tests": [
+      // check all prefixes
+      "ABIA000000000EXAMPLE",
+      "ACCA000000000EXAMPLE",
+      "AGPA000000000EXAMPLE",
+      "AIDA000000000EXAMPLE",
+      "AIPA000000000EXAMPLE",
+      "AKIA000000000EXAMPLE",
+      "ANPA000000000EXAMPLE",
+      "ANVA000000000EXAMPLE",
+      "APKA000000000EXAMPLE",
+      "AROA000000000EXAMPLE",
+      "ASCA000000000EXAMPLE",
+      "ASIA000000000EXAMPLE",
+      // key samples with different lengths
       "AKIAIOSFODNN7EXAMPLE",
       "ASIAIOSFODNN7EXAMPLE",
       "AIDACKCEVSQ6C2EXAMPLE",
       "AROADBQP57FF2AEXAMPLE",
       "AIDAJQABLZS4A3QDU576Q",
       "AKIAIU5C4FEZYEXAMPLE",
-      "AKIA2EKLCMMJCE6KTO42"
+      "AKIA2EKLCMMJCE6KTO42",
+      // check false positives
+      "\"AKIAIOSFODNN7EXAMPLE\"",
+      "!AKIAIOSFODNN7EXAMPLE="
     ],
     "urls": [
-      "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html",
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html", // token length 16-17
       "https://docs.aws.amazon.com/IAM/latest/UserGuide/security-creds.html",
-      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/aws_ses_keys"
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/aws_ses_keys",
+      "https://docs.aws.amazon.com/STS/latest/APIReference/API_GetAccessKeyInfo.html" // AKIA tokens
     ]
   },
   {
