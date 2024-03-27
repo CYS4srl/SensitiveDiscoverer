@@ -201,7 +201,8 @@
     */
     "active": true,
     "description": "Slack Token",
-    "regex": "(xoxe\\.)?x(ox[psboare]|app)(-[a-zA-Z0-9]{1,64}){1,5}",
+    "regex": "x(ox[psboare]|app)(-[a-zA-Z0-9]{1,64}){1,5}",
+    "refinerRegex": "xoxe\\.$",
     "urls": [
       "https://api.slack.com/authentication/token-types",
       "https://learn.microsoft.com/en-us/purview/sit-defn-slack-access-token",
