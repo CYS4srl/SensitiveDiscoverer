@@ -27,6 +27,7 @@ public class LogsTable extends JTable {
         super(logsTableModel);
 
         this.setAutoCreateRowSorter(false);
+        this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.logEntries = logEntries;
         this.requestViewer = requestViewer;
         this.responseViewer = responseViewer;

@@ -311,15 +311,12 @@ public class LoggerTab implements ApplicationTab {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int row = logsTable.getSelectedRow();
                     if (row == -1) return;
-                    logsTable.setRowSelectionInterval(row, row);
-                    if (logsTable.getSelectedRowCount() == 1) {
-                        int realRow = logsTable.convertRowIndexToModel(row);
-                        LogEntity logEntry = logEntries.get(realRow);
+                    int realRow = logsTable.convertRowIndexToModel(row);
+                    LogEntity logEntry = logEntries.get(realRow);
 
-                        if (e.getComponent() instanceof LogsTable) {
-                            new LogsTableContextMenu(logEntry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
-                                    .show(e.getComponent(), e.getX(), e.getY());
-                        }
+                    if (e.getComponent() instanceof LogsTable) {
+                        new LogsTableContextMenu(logEntry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
+                                .show(e.getComponent(), e.getX(), e.getY());
                     }
                 }
             }
