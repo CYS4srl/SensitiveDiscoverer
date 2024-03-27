@@ -4,23 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Sensitive Discoverer</name>
-    <organization>
-        <name>CYS4</name>
-        <url>https://cys4.com/</url>
-    </organization>
-
     <groupId>com.cys4.sensitivediscoverer</groupId>
     <artifactId>sensitivediscoverer</artifactId>
     <version>4.0.0</version>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>net.portswigger.burp.extensions</groupId>
@@ -56,6 +42,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
 
     <build>
         <finalName>SensitiveDiscoverer-${project.version}</finalName>
@@ -122,4 +114,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <name>Sensitive Discoverer</name>
+    <description>Sensitive Discoverer, a Burp extension to discovers sensitive information inside HTTP messages.
+    </description>
+    <url>https://github.com/CYS4srl/SensitiveDiscoverer</url>
+    <inceptionYear>2021</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>CYS4</name>
+        <url>https://cys4.com</url>
+    </organization>
 </project>
