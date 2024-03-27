@@ -27,6 +27,21 @@
     "tests": [
       "https://outlook.office.com/webhook/5348781d-52a8-490f-b75b-a720702114d1@b662313f-14fc-43a3-9a7a-d0e27f4f3470/IncomingWebhook/f280f53c0d244ebdba7fea00035f35df/eff4cd50-1bb8-4899-94de-795f65600a18"
     ]
+  },
+  {
+    "active": true,
+    "description": "AWS S3 Bucket",
+    "regex": "s3(:?\\.dualstack|-accelerate|-accesspoint)?\\.(:?[a-z]{1,8}-[a-z]{1,16}-\\d{1,3}\\.)?amazonaws\\.com",
+    "refinerRegex": "[a-z\\d\\-]{3,63}\\.$",
+    "urls": [
+      "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html",
+      "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+    ],
+    "tests": [
+      "https://huge-logistics-website.s3.amazonaws.com/static/index.html",
+      "https://huge-logistics-dashboard.s3.eu-north-1.amazonaws.com/static/js/api.js",
+      "https://huge-logistics-media.s3.dualstack.us-west-1.amazonaws.com/customers.m4v"
+    ]
   }
 //  {
 //    "active": true,
