@@ -28,18 +28,6 @@
       "{'my_super_secret' : 'ABCDEFGH-12'}"
     ]
   },
-//  {
-//    // Try to match only IPs and not section numbers of js libraries
-//    "active": true,
-//    "description": "IP Address",
-//    "regex": "(?<![\\.\\da-zA-Z%\\-])(?<!\\/\\s{0,8})((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?![\\.\\da-zA-Z\\-])",
-//    "tests":[
-//      "0.0.0.0",
-//      "10.255.255.255",
-//      "127.0.0.1",
-//      "192.168.0.254/24"
-//    ]
-//  },
   {
     "active": true,
     "description": "Environment configuration file",
