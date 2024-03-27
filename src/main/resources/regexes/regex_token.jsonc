@@ -111,7 +111,8 @@
   {
     "active": true,
     "description": "Google OAuth Client ID",
-    "regex": "\\d{1,20}-\\w{32}\\.apps\\.googleusercontent\\.com",
+    "regex": "\\.apps\\.googleusercontent\\.com",
+    "refinerRegex": "\\d{1,20}-\\w{32}$",
     "tests": [
       "462858740426-tkpv8n03opijg7erd3s9ccued2pfllsd.apps.googleusercontent.com",
       "332292536747-zbepioq1127w4lv5r6dbbddd0jdbdchl.apps.googleusercontent.com",

@@ -51,3 +51,4 @@ src/build/
 .vscode
 todo
 src/main/java/com/cys4/sensitivediscoverer/tests
+/tests

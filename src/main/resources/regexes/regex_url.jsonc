@@ -50,7 +50,7 @@
     "active": true,
     "description": "Firebase database URL",
     "regex": "\\.(firebaseio\\.com|firebasedatabase\\.app)",
-    "refinerRegex": "[0-9a-zA-Z\\.\\-]{1,64}",
+    "refinerRegex": "[0-9a-zA-Z\\.\\-]{1,64}$",
     "urls": [
       "https://firebase.google.com/docs/database/web/start#create_a_database",
       "https://firebase.google.com/docs/projects/locations#rtdb-locations"
