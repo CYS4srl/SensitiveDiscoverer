@@ -45,5 +45,21 @@
       "https://example.webhook.office.com/webhookb2/325b9962-d380-4003-9fe3-a1c246cbafa4@7f28634d-dced-4d04-bc25-b8373a972720/appId/fd92f39d3f37573e2ba95a3df72dcdb2/b5cb79af-3d26-4a56-9d17-52d1b5cd78d7",
       "https://fabulousinc.webhook.office.com/webhookb2/6ee4efaa-986e-4b8e-8d6b-ccf77c29e0b0@87ba1f9a-44cd-43a6-b008-6fdb45a5204e/TravisCI/9ad1eb07cda7411db33e74c3d676774e/0ad415e3-d66a-425c-9914-e9e52f2b81e1"
     ]
+  },
+  {
+    "active": true,
+    "description": "Firebase database URL",
+    "regex": "\\.(firebaseio\\.com|firebasedatabase\\.app)",
+    "refinerRegex": "[0-9a-zA-Z\\.\\-]{1,64}",
+    "urls": [
+      "https://firebase.google.com/docs/database/web/start#create_a_database",
+      "https://firebase.google.com/docs/projects/locations#rtdb-locations"
+    ],
+    "tests": [
+      "example.us-central1.firebasedatabase.app",
+      "example.europe-west1.firebasedatabase.app",
+      "example.asia-southeast1.firebasedatabase.app",
+      "Example1.firebaseio.com"
+    ]
   }
 ]
