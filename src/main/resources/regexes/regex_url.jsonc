@@ -90,6 +90,20 @@
       "username@domain.com",
       "sean+newsletter@contoso.com"
     ]
+  },
+  {
+    "active": true,
+    "description": "Amazon ARN",
+    "regex": "arn:aws(-(cn|us-gov|iso-b|iso-c|iso-d))?:[A-Za-z0-9][A-Za-z0-9_/.-]{0,62}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]{0,1023}",
+    "urls": [
+      "https://docs.aws.amazon.com/license-manager/latest/APIReference/API_CreateToken.html",
+      "https://docs.aws.amazon.com/it_it/IAM/latest/UserGuide/reference-arns.html",
+      "https://docs.aws.amazon.com/clouddirectory/latest/APIReference/arns.html"
+    ],
+    "tests": [
+      "arn:aws:iam::123456789012:user/Development/product_1234/*",
+      "arn:aws:clouddirectory:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI"
+    ]
   }
 //  {
 //    "active": true,
