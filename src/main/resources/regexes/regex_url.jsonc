@@ -65,7 +65,19 @@
     "tests": [
       "https://storage.cloud.google.com/example-maps/london.jpg"
     ]
-  }
+  },
+  {
+    "active": true,
+    "description": "OpenAI API Key",
+    "regex": "sk-[a-zA-Z0-9]{40,}",
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/openai_apikey"
+    ],
+    "tests": [
+      "sk-4dF6gH8jK9lM0nO1pQ2rS4tU6vW8xY0zA2C3E4G5I6J7K8L9M",
+      "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"
+    ]
+  },
 //  {
 //    "active": true,
 //    "description": "Outlook Teams 2",
