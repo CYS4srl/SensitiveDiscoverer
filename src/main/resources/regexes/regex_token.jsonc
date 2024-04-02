@@ -136,18 +136,18 @@
       "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/google_oauth2_keys"
     ]
   },
-  {
-    //todo: improve regex, now it's too slow with the initial "[0-9a-f]{32}",
-    "active": false,
-    "description": "MailChimp API Key",
-    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)",
-    "tests": [
-      "ae54fcc23ade65fa404a65e78c56f898-us1"
-    ],
-    "urls": [
-      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/mailchimp_api_key"
-    ]
-  },
+//  {
+//    //todo: improve regex, now it's too slow with the initial "[0-9a-f]{32}",
+//    "active": false,
+//    "description": "MailChimp API Key",
+//    "regex": "[0-9a-f]{32}-us[0-9]{1,2}(?!\\d)",
+//    "tests": [
+//      "ae54fcc23ade65fa404a65e78c56f898-us1"
+//    ],
+//    "urls": [
+//      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/mailchimp_api_key"
+//    ]
+//  },
   {
     "active": true,
     "description": "MailGun API Key",
