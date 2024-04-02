@@ -77,6 +77,19 @@
       "sk-4dF6gH8jK9lM0nO1pQ2rS4tU6vW8xY0zA2C3E4G5I6J7K8L9M",
       "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"
     ]
+  },
+  {
+    "active": true,
+    "description": "Email",
+    "regex": "[\\w\\.-]+(\\+[\\w\\.-]+)?@([\\w-]+\\.)+[\\w-]{2,4}",
+    "urls": [
+      "https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online",
+      "https://regexr.com/3e48o"
+    ],
+    "tests": [
+      "username@domain.com",
+      "sean+newsletter@contoso.com"
+    ]
   }
 //  {
 //    "active": true,
