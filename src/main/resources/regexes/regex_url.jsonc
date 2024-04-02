@@ -42,6 +42,18 @@
       "https://huge-logistics-dashboard.s3.eu-north-1.amazonaws.com/static/js/api.js",
       "https://huge-logistics-media.s3.dualstack.us-west-1.amazonaws.com/customers.m4v"
     ]
+  },
+  {
+    "active": true,
+    "description": "Azure Blob Storage",
+    "regex": "blob\\.core\\.windows\\.net",
+    "refinerRegex": "[a-z\\d\\-]{3,63}\\.$",
+    "urls": [
+      "https://learn.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata#resource-uri-syntax"
+    ],
+    "tests": [
+      "https://myaccount.blob.core.windows.net/myblob"
+    ]
   }
 //  {
 //    "active": true,
