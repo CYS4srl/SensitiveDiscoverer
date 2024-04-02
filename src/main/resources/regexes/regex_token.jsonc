@@ -331,5 +331,17 @@
     "tests": [
       "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"
     ]
+  },
+  {
+    "active": true,
+    "description": "OpenAI API Key",
+    "regex": "sk-[a-zA-Z0-9]{40,128}(?![a-zA-Z0-9])",
+    "urls": [
+      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/openai_apikey"
+    ],
+    "tests": [
+      "sk-4dF6gH8jK9lM0nO1pQ2rS4tU6vW8xY0zA2C3E4G5I6J7K8L9M",
+      "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"
+    ]
   }
 ]

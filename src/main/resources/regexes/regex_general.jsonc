@@ -61,5 +61,24 @@
         "!10.255.255.2550",
         "!10.999.999.999"
       ]
+  },
+  {
+    "active": true,
+    "description": "Email",
+    "regex": "[a-zA-Z0-9]@[a-zA-Z0-9\\-\\.]{3,128}\\.[a-zA-Z0-9]{2,32}(?![\\w\\\\])",
+    "refinerRegex": "[\\w\\-\\.+]{1,128}$",
+    "urls": [
+      "https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online"
+    ],
+    "tests": [
+      "username@domain.com",
+      "user-nam_e@domain.com",
+      "user-nam_e+user-nam_e@domain.com",
+      "sean+newsletter@contoso.com",
+      "test2+x@a.b.s23",
+      "1@domain.mail",
+      "!username@domain.com\\",
+      "!@domain.com"
+    ]
   }
 ]
