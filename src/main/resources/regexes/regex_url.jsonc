@@ -54,6 +54,17 @@
     "tests": [
       "https://myaccount.blob.core.windows.net/myblob"
     ]
+  },
+  {
+    "active": true,
+    "description": "Google Cloud Storage",
+    "regex": "storage\\.googleapis\\.com",
+    "urls": [
+      "https://cloud.google.com/storage/docs/request-endpoints"
+    ],
+    "tests": [
+      "https://storage.cloud.google.com/example-maps/london.jpg"
+    ]
   }
 //  {
 //    "active": true,
