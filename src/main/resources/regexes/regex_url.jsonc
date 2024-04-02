@@ -31,7 +31,7 @@
   {
     "active": true,
     "description": "AWS S3 Bucket",
-    "regex": "s3(:?\\.dualstack|-accelerate|-accesspoint)?\\.(:?[a-z]{1,8}-[a-z]{1,16}-\\d{1,3}\\.)?amazonaws\\.com",
+    "regex": "s3(\\.dualstack|-acce(lerate|sspoint))?\\.([a-z]{1,8}-[a-z]{1,16}-\\d{1,3}\\.)?amazonaws\\.com",
     "refinerRegex": "[a-z\\d\\-]{3,63}\\.$",
     "urls": [
       "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html",
@@ -40,7 +40,9 @@
     "tests": [
       "https://huge-logistics-website.s3.amazonaws.com/static/index.html",
       "https://huge-logistics-dashboard.s3.eu-north-1.amazonaws.com/static/js/api.js",
-      "https://huge-logistics-media.s3.dualstack.us-west-1.amazonaws.com/customers.m4v"
+      "https://huge-logistics-media.s3.dualstack.us-west-1.amazonaws.com/customers.m4v",
+      "https://huge-logistics-media.s3-accelerate.us-west-1.amazonaws.com/customers.m4v",
+      "https://huge-logistics-media.s3-accesspoint.us-west-1.amazonaws.com/customers.m4v"
     ]
   },
   {
@@ -58,51 +60,38 @@
   {
     "active": true,
     "description": "Google Cloud Storage",
-    "regex": "storage\\.googleapis\\.com",
+    "regex": "gs://[a-z\\d\\-]{3,63}",
     "urls": [
       "https://cloud.google.com/storage/docs/request-endpoints"
     ],
     "tests": [
-      "https://storage.cloud.google.com/example-maps/london.jpg"
-    ]
-  },
-  {
-    "active": true,
-    "description": "OpenAI API Key",
-    "regex": "sk-[a-zA-Z0-9]{40,}",
-    "urls": [
-      "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/openai_apikey"
-    ],
-    "tests": [
-      "sk-4dF6gH8jK9lM0nO1pQ2rS4tU6vW8xY0zA2C3E4G5I6J7K8L9M",
-      "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"
-    ]
-  },
-  {
-    "active": true,
-    "description": "Email",
-    "regex": "[\\w\\.-]+(\\+[\\w\\.-]+)?@([\\w-]+\\.)+[\\w-]{2,4}",
-    "urls": [
-      "https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online",
-      "https://regexr.com/3e48o"
-    ],
-    "tests": [
-      "username@domain.com",
-      "sean+newsletter@contoso.com"
+      "gs://te2t-bucket/example-maps/london.jpg",
+      "gs://test/test"
     ]
   },
   {
     "active": true,
     "description": "Amazon ARN",
-    "regex": "arn:aws(-(cn|us-gov|iso-b|iso-c|iso-d))?:[A-Za-z0-9][A-Za-z0-9_/.-]{0,62}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]{0,1023}",
+    "regex": "arn:aws(-(cn|us-gov|iso-[bcd]))?:[\\w/.\\-]{1,63}:([\\w/.\\-]{0,63}:){2}([\\w:/.\\-]{0,1023})",
     "urls": [
       "https://docs.aws.amazon.com/license-manager/latest/APIReference/API_CreateToken.html",
-      "https://docs.aws.amazon.com/it_it/IAM/latest/UserGuide/reference-arns.html",
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html",
       "https://docs.aws.amazon.com/clouddirectory/latest/APIReference/arns.html"
     ],
     "tests": [
       "arn:aws:iam::123456789012:user/Development/product_1234/*",
-      "arn:aws:clouddirectory:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI"
+      "arn:aws:iam:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI",
+      "arn:aws:clouddirectory:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI",
+      "arn:aws:service:region:account-id:resource-id",
+      "arn:aws:service:region:account-id:resource-type/resource-id",
+      "arn:aws:service:region:account-id:resource-type:resource-id",
+      "arn:aws:service:::resource-type:resource-id",
+      "arn:aws:iam:::user/Development/product_1234/*",
+      "arn:aws-cn:iam:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI",
+      "arn:aws-us-gov:iam:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI",
+      "arn:aws-iso-b:iam:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI",
+      "arn:aws-iso-c:iam:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI",
+      "arn:aws-iso-d:iam:us-west-2:12345678910:directory/ARIqk1HD-UjdtmcIrJHEvPI"
     ]
   }
 //  {
