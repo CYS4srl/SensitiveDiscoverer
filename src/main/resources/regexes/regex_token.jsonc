@@ -335,7 +335,7 @@
   {
     "active": true,
     "description": "OpenAI API Key",
-    "regex": "sk-[a-zA-Z0-9]{40,128}(?![a-zA-Z0-9])",
+    "regex": "sk-[a-zA-Z0-9]{40,128}(?![\\w\\-])",
     "urls": [
       "https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/specifics/openai_apikey"
     ],
