@@ -24,6 +24,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Type;
@@ -235,42 +236,56 @@ public class LoggerTab implements ApplicationTab {
         gbc.insets = new Insets(0, 10, 0, 0);
         searchBarPanel.add(URLCheckBox, gbc);
 
+        ActionListener commonListener = e -> {
+            updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
+        };
+        regexCheckBox.addActionListener(commonListener);
+        matchCheckBox.addActionListener(commonListener);
+        URLCheckBox.addActionListener(commonListener);
+
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent documentEvent) {
-                updateRowFilter();
+                updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
             }
 
             @Override
             public void removeUpdate(DocumentEvent documentEvent) {
-                updateRowFilter();
+                updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
             }
 
             @Override
             public void changedUpdate(DocumentEvent documentEvent) {
-                updateRowFilter();
-            }
-
-            private void updateRowFilter() {
-                String text = searchField.getText();
-                if (text.isBlank()) {
-                    logsTableRowSorter.setRowFilter(null);
-                } else {
-                    logsTableRowSorter.setRowFilter(new RowFilter<>() {
-                        @Override
-                        public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
-                            List<LogsTableModel.Column> places = List.of(
-                                    LogsTableModel.Column.REGEX,
-                                    LogsTableModel.Column.MATCH,
-                                    LogsTableModel.Column.URL);
-                            return places.stream().anyMatch(column -> entry.getStringValue(column.getIndex()).toLowerCase().contains(text.toLowerCase()));
-                        }
-                    });
-                }
+                updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
             }
         });
 
         return boxHeader;
+    }
+
+    /**
+     * Filter rows of LogsTable that contains text string
+     *
+     * @param text
+     * @param includeRegex To search also in Regex column
+     * @param includeMatch To search also in Match column
+     * @param includeURL To search also in URL column
+     */
+    private void updateRowFilter(String text, boolean includeRegex, boolean includeMatch, boolean includeURL) {
+        if (text.isBlank()) {
+            logsTableRowSorter.setRowFilter(null);
+        } else {
+            logsTableRowSorter.setRowFilter(new RowFilter<>() {
+                @Override
+                public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
+                    List<LogsTableModel.Column> places = new ArrayList<>(List.of());
+                    if (includeRegex) places.add(LogsTableModel.Column.REGEX);
+                    if (includeMatch) places.add(LogsTableModel.Column.MATCH);
+                    if (includeURL) places.add(LogsTableModel.Column.URL);
+                    return places.stream().anyMatch(column -> entry.getStringValue(column.getIndex()).toLowerCase().contains(text.toLowerCase()));
+                }
+            });
+        }
     }
 
     /**
