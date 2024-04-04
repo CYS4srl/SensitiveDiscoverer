@@ -59,7 +59,7 @@ public class LogsTableModel extends AbstractTableModel {
      */
     public enum Column {
         URL("common-url", "url", String.class),
-        REGEX("common-regex", "regex", String.class),
+        REGEX("common-description", "description", String.class),
         SECTION("common-section", "section", String.class),
         MATCH("common-match", "match", String.class);
 
