@@ -220,18 +220,21 @@ public class LoggerTab implements ApplicationTab {
 
         JCheckBox regexCheckBox = new JCheckBox();
         regexCheckBox.setText("Regex");
+        regexCheckBox.setSelected(true);
         gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 0);
         searchBarPanel.add(regexCheckBox, gbc);
 
         JCheckBox matchCheckBox = new JCheckBox();
         matchCheckBox.setText("Match");
+        matchCheckBox.setSelected(true);
         gbc = createGridConstraints(3, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 0);
         searchBarPanel.add(matchCheckBox, gbc);
 
         JCheckBox URLCheckBox = new JCheckBox();
         URLCheckBox.setText("URL");
+        URLCheckBox.setSelected(true);
         gbc = createGridConstraints(4, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 0);
         searchBarPanel.add(URLCheckBox, gbc);
@@ -266,7 +269,7 @@ public class LoggerTab implements ApplicationTab {
     /**
      * Filter rows of LogsTable that contains text string
      *
-     * @param text
+     * @param text To search
      * @param includeRegex To search also in Regex column
      * @param includeMatch To search also in Match column
      * @param includeURL To search also in URL column
