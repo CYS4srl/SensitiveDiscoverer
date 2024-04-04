@@ -30,7 +30,7 @@ public class FileUtils {
             lines.forEach(pwt::println);
             pwt.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -38,8 +38,7 @@ public class FileUtils {
         try {
             return Files.readAllLines(Path.of(fileName));
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

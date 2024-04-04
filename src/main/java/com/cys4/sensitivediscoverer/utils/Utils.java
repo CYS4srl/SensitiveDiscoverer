@@ -29,9 +29,8 @@ public class Utils {
             BufferedReader reader = new BufferedReader(isr);
 
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

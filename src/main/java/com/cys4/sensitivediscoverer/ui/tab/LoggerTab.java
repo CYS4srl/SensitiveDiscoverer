@@ -239,12 +239,12 @@ public class LoggerTab implements ApplicationTab {
         gbc.insets = new Insets(0, 10, 0, 0);
         searchBarPanel.add(URLCheckBox, gbc);
 
-        ActionListener commonListener = e -> {
+        ActionListener checkBoxListener = e -> {
             updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
         };
-        regexCheckBox.addActionListener(commonListener);
-        matchCheckBox.addActionListener(commonListener);
-        URLCheckBox.addActionListener(commonListener);
+        regexCheckBox.addActionListener(checkBoxListener);
+        matchCheckBox.addActionListener(checkBoxListener);
+        URLCheckBox.addActionListener(checkBoxListener);
 
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -324,7 +324,7 @@ public class LoggerTab implements ApplicationTab {
                 analyzeProxyHistoryThread.join();
                 regexScanner.setInterruptScan(false);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
             analysisButton.setEnabled(true);
             analysisButton.setText(getLocaleString("logger-analysis-start"));
