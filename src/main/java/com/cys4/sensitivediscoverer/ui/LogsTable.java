@@ -4,22 +4,22 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
+import com.cys4.sensitivediscoverer.LogEntriesManager;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
 
 import javax.swing.*;
-import java.util.List;
 
 /**
  * JTable for Viewing Logs
  */
 public class LogsTable extends JTable {
 
-    private final List<LogEntity> logEntries;
+    private final LogEntriesManager logEntries;
     private final HttpRequestEditor requestViewer;
     private final HttpResponseEditor responseViewer;
 
-    public LogsTable(LogsTableModel logsTableModel, List<LogEntity> logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
+    public LogsTable(LogsTableModel logsTableModel, LogEntriesManager logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
         super(logsTableModel);
 
         this.setAutoCreateRowSorter(false);

@@ -4,6 +4,7 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
+import com.cys4.sensitivediscoverer.LogEntriesManager;
 import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.RegexScanner;
 import com.cys4.sensitivediscoverer.model.LogEntity;
@@ -44,13 +45,13 @@ public class LoggerTab implements ApplicationTab {
     private final MainUI mainUI;
     private final JPanel panel;
     /**
-     * List containing the findings history (log entries).
+     * Manager for the list containing the findings history (log entries).
      * <br><br>
      * When running multiple analysis on the same RegexScanner instance,
      * this list remains the same unless manually cleared.
      * This is required for not logging the same finding twice.
      */
-    private final List<LogEntity> logEntries;
+    private final LogEntriesManager logEntriesManager;
     private final Object analyzeLock = new Object();
     private final Object loggerLock = new Object();
     private final RegexScanner regexScanner;
@@ -70,7 +71,7 @@ public class LoggerTab implements ApplicationTab {
         this.mainUI = mainUI;
         this.isAnalysisRunning = false;
         this.analyzeProxyHistoryThread = null;
-        this.logEntries = new ArrayList<>();
+        this.logEntriesManager = new LogEntriesManager();
         this.regexScanner = new RegexScanner(
                 this.mainUI.getBurpApi(),
                 this.mainUI.getScannerOptions(),
@@ -167,16 +168,18 @@ public class LoggerTab implements ApplicationTab {
 
     private JPanel createHeaderBox(JScrollPane logEntriesPane) {
         JPanel headerBox;
+        JPanel analysisBar;
+        JPanel resultsFilterBar;
         GridBagConstraints gbc;
 
         headerBox = new JPanel();
         headerBox.setLayout(new GridBagLayout());
 
-        JPanel analysisBar = createAnalysisBar(logEntriesPane);
+        analysisBar = createAnalysisBar(logEntriesPane);
         gbc = createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
         headerBox.add(analysisBar, gbc);
 
-        JPanel resultsFilterBar = createResultsFilterBar();
+        resultsFilterBar = createResultsFilterBar();
         gbc = createGridConstraints(0, 1, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(2, 10, 5, 10);
         headerBox.add(resultsFilterBar, gbc);
@@ -191,30 +194,50 @@ public class LoggerTab implements ApplicationTab {
         resultsFilterBar = new JPanel();
         resultsFilterBar.setLayout(new GridBagLayout());
 
-        JLabel searchLabel = new JLabel(getLocaleString("logger-searchBar-label"));
+        JLabel resultsCountLabel = new JLabel(getLocaleString("logger-resultsCount-label"));
         gbc = createGridConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 0, 0, 5);
+        resultsFilterBar.add(resultsCountLabel, gbc);
+        JLabel filteredCountValueLabel = new JLabel("0");
+        gbc = createGridConstraints(1, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        logsTableRowSorter.addRowSorterListener(rowSorterEvent -> filteredCountValueLabel.setText(String.valueOf(logsTable.getRowSorter().getViewRowCount())));
+        resultsFilterBar.add(filteredCountValueLabel, gbc);
+        JLabel totalCountValueLabel = new JLabel("/0");
+        logEntriesManager.subscribeChangeListener(entriesCount -> {
+            filteredCountValueLabel.setText(String.valueOf(Math.min(entriesCount, logsTable.getRowSorter().getViewRowCount())));
+            totalCountValueLabel.setText("/" + entriesCount);
+        });
+        gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        resultsFilterBar.add(totalCountValueLabel, gbc);
+        JLabel resultsCountSeparator = new JLabel("│");
+        gbc = createGridConstraints(3, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 10, 0, 10);
+        resultsFilterBar.add(resultsCountSeparator, gbc);
+
+        JLabel searchLabel = new JLabel(getLocaleString("logger-searchBar-label"));
+        gbc = createGridConstraints(4, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 0, 0, 5);
         resultsFilterBar.add(searchLabel, gbc);
 
         JTextField searchField = new JTextField();
-        gbc = createGridConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL);
+        gbc = createGridConstraints(5, 0, 1, 0, GridBagConstraints.HORIZONTAL);
         resultsFilterBar.add(searchField, gbc);
 
         JCheckBox regexCheckbox = new JCheckBox(getLocaleString(LogsTableModel.Column.REGEX.getLocaleKey()));
         regexCheckbox.setSelected(true);
-        gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc = createGridConstraints(6, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 0);
         resultsFilterBar.add(regexCheckbox, gbc);
 
         JCheckBox matchCheckbox = new JCheckBox(getLocaleString(LogsTableModel.Column.MATCH.getLocaleKey()));
         matchCheckbox.setSelected(true);
-        gbc = createGridConstraints(3, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc = createGridConstraints(7, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 0);
         resultsFilterBar.add(matchCheckbox, gbc);
 
         JCheckBox URLCheckbox = new JCheckBox(getLocaleString(LogsTableModel.Column.URL.getLocaleKey()));
         URLCheckbox.setSelected(true);
-        gbc = createGridConstraints(4, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc = createGridConstraints(8, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 0);
         resultsFilterBar.add(URLCheckbox, gbc);
 
@@ -371,19 +394,17 @@ public class LoggerTab implements ApplicationTab {
 
             private void setupScan() {
                 analysisButton.setText(getLocaleString("logger-analysis-stop"));
-//todo                logsTable.setAutoCreateRowSorter(false);
                 LoggerTab.this.analyzedItems = 0;
                 progressBar.setValue(LoggerTab.this.analyzedItems);
             }
 
             private void startScan() {
-                Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntries, loggerLock, Optional.of(logsTableModel));
+                Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, Optional.of(logsTableModel));
                 regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, addLogEntryCallback);
             }
 
             private void finalizeScan() {
                 analysisButton.setText((String) analysisButton.getClientProperty("initialText"));
-//todo                logsTable.setAutoCreateRowSorter(true);
                 analyzeProxyHistoryThread = null;
                 isAnalysisRunning = false;
                 LoggerTab.this.postAnalysisOperations();
@@ -396,10 +417,10 @@ public class LoggerTab implements ApplicationTab {
     }
 
     private JScrollPane createLogEntriesTable() {
-        logsTableModel = new LogsTableModel(logEntries);
+        logsTableModel = new LogsTableModel(logEntriesManager);
         this.originalRequestViewer = this.mainUI.getBurpApi().userInterface().createHttpRequestEditor();
         this.originalResponseViewer = this.mainUI.getBurpApi().userInterface().createHttpResponseEditor();
-        this.logsTable = new LogsTable(logsTableModel, logEntries, this.originalRequestViewer, this.originalResponseViewer);
+        this.logsTable = new LogsTable(logsTableModel, logEntriesManager, this.originalRequestViewer, this.originalResponseViewer);
         // disable sorting on columns while scanning. This helps to prevent Swing exceptions.
         logsTable.getTableHeader().putClientProperty("analysisDependent", "1");
         logsTable.setAutoCreateRowSorter(false);
@@ -418,10 +439,10 @@ public class LoggerTab implements ApplicationTab {
                     int row = logsTable.getSelectedRow();
                     if (row == -1) return;
                     int realRow = logsTable.convertRowIndexToModel(row);
-                    LogEntity logEntry = logEntries.get(realRow);
+                    LogEntity logEntry = logEntriesManager.get(realRow);
 
                     if (e.getComponent() instanceof LogsTable) {
-                        new LogsTableContextMenu(logEntry, logEntries, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
+                        new LogsTableContextMenu(logEntry, logEntriesManager, originalRequestViewer, originalResponseViewer, logsTableModel, logsTable, mainUI.getBurpApi(), isAnalysisRunning)
                                 .show(e.getComponent(), e.getX(), e.getY());
                     }
                 }
@@ -496,7 +517,7 @@ public class LoggerTab implements ApplicationTab {
         btnClearLogs.addActionListener(e -> {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("logger-clearLogs-confirm"));
             if (dialog == JOptionPane.YES_OPTION) {
-                logEntries.clear();
+                logEntriesManager.clear();
                 logsTableModel.clear();
 
                 originalResponseViewer.setResponse(HttpResponse.httpResponse(""));

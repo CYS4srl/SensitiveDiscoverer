@@ -1,5 +1,7 @@
 package com.cys4.sensitivediscoverer.model;
 
+import com.cys4.sensitivediscoverer.LogEntriesManager;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -8,9 +10,9 @@ import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
 public class LogsTableModel extends AbstractTableModel {
 
     // get the reference of the array of entries
-    private final List<LogEntity> logEntries;
+    private final LogEntriesManager logEntries;
 
-    public LogsTableModel(List<LogEntity> logEntries) {
+    public LogsTableModel(LogEntriesManager logEntries) {
         this.logEntries = logEntries;
     }
 
