@@ -1,4 +1,3 @@
-
 package burp;
 
 import burp.api.montoya.BurpExtension;

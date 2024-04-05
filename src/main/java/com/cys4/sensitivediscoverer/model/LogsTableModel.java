@@ -88,6 +88,10 @@ public class LogsTableModel extends AbstractTableModel {
             return columns.size();
         }
 
+        public String getLocaleKey() {
+            return localeKey;
+        }
+
         public String getNameFormatted() {
             return formattedName;
         }

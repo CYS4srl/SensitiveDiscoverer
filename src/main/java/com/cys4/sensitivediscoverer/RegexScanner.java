@@ -80,9 +80,7 @@ public class RegexScanner {
         // removing items from the list allows the GC to clean up just after the task is executed
         // instead of waiting until the whole analysis finishes.
         List<ProxyHttpRequestResponse> proxyEntries = this.burpApi.proxy().history();
-
-        if (proxyEntries.isEmpty())
-            return;
+        if (proxyEntries.isEmpty()) return;
 
         Runnable itemAnalyzedCallback = progressBarCallbackSetup.apply(proxyEntries.size());
         for (int entryIndex = proxyEntries.size() - 1; entryIndex >= 0; entryIndex--) {

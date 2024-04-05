@@ -1,7 +1,6 @@
 package com.cys4.sensitivediscoverer.ui;
 
 import com.cys4.sensitivediscoverer.MainUI;
-import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
@@ -233,9 +232,9 @@ public class RegexListViewer {
      * @param tableModel
      */
     private void editSelectedRegex(RegexListContext ctx,
-                          JTable optionsRegexTable,
-                          JPanel tabPaneOptions,
-                          RegexListViewerTableModel tableModel) {
+                                   JTable optionsRegexTable,
+                                   JPanel tabPaneOptions,
+                                   RegexListViewerTableModel tableModel) {
         int rowIndex;
         int realRow;
 
@@ -283,9 +282,9 @@ public class RegexListViewer {
      * @param tableModel
      */
     private void deleteSelectedRegex(RegexListContext ctx,
-                            JTable optionsRegexTable,
-                            JPanel tabPaneOptions,
-                            RegexListViewerTableModel tableModel) {
+                                     JTable optionsRegexTable,
+                                     JPanel tabPaneOptions,
+                                     RegexListViewerTableModel tableModel) {
         int rowIndex = optionsRegexTable.getSelectedRow();
         if (rowIndex == -1) return;
         int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);

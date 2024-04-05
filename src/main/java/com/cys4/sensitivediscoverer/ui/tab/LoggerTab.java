@@ -91,7 +91,7 @@ public class LoggerTab implements ApplicationTab {
 
         box = new JPanel();
         box.setLayout(new BorderLayout(0, 0));
-        boxHeader = createHeaderBar(logEntriesPane);
+        boxHeader = createHeaderBox(logEntriesPane);
         box.add(boxHeader, BorderLayout.NORTH);
         boxCenter = createCenterBox(logEntriesPane);
         box.add(boxCenter, BorderLayout.CENTER);
@@ -165,26 +165,103 @@ public class LoggerTab implements ApplicationTab {
         return boxCenter;
     }
 
-    private JPanel createHeaderBar(JScrollPane logEntriesPane) {
-        JPanel rightSidePanel;
-        JPanel boxHeader;
-        JPanel leftSidePanel;
-        JPanel searchBarPanel;
+    private JPanel createHeaderBox(JScrollPane logEntriesPane) {
+        JPanel headerBox;
         GridBagConstraints gbc;
 
-        boxHeader = new JPanel();
-        boxHeader.setLayout(new GridBagLayout());
+        headerBox = new JPanel();
+        headerBox.setLayout(new GridBagLayout());
+
+        JPanel analysisBar = createAnalysisBar(logEntriesPane);
+        gbc = createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
+        headerBox.add(analysisBar, gbc);
+
+        JPanel resultsFilterBar = createResultsFilterBar();
+        gbc = createGridConstraints(0, 1, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(2, 10, 5, 10);
+        headerBox.add(resultsFilterBar, gbc);
+
+        return headerBox;
+    }
+
+    private JPanel createResultsFilterBar() {
+        JPanel resultsFilterBar;
+        GridBagConstraints gbc;
+
+        resultsFilterBar = new JPanel();
+        resultsFilterBar.setLayout(new GridBagLayout());
+
+        JLabel searchLabel = new JLabel(getLocaleString("logger-searchBar-label"));
+        gbc = createGridConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 0, 0, 5);
+        resultsFilterBar.add(searchLabel, gbc);
+
+        JTextField searchField = new JTextField();
+        gbc = createGridConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL);
+        resultsFilterBar.add(searchField, gbc);
+
+        JCheckBox regexCheckbox = new JCheckBox(getLocaleString(LogsTableModel.Column.REGEX.getLocaleKey()));
+        regexCheckbox.setSelected(true);
+        gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 10, 0, 0);
+        resultsFilterBar.add(regexCheckbox, gbc);
+
+        JCheckBox matchCheckbox = new JCheckBox(getLocaleString(LogsTableModel.Column.MATCH.getLocaleKey()));
+        matchCheckbox.setSelected(true);
+        gbc = createGridConstraints(3, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 10, 0, 0);
+        resultsFilterBar.add(matchCheckbox, gbc);
+
+        JCheckBox URLCheckbox = new JCheckBox(getLocaleString(LogsTableModel.Column.URL.getLocaleKey()));
+        URLCheckbox.setSelected(true);
+        gbc = createGridConstraints(4, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 10, 0, 0);
+        resultsFilterBar.add(URLCheckbox, gbc);
+
+        ActionListener checkBoxListener = e -> updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+        regexCheckbox.addActionListener(checkBoxListener);
+        matchCheckbox.addActionListener(checkBoxListener);
+        URLCheckbox.addActionListener(checkBoxListener);
+
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent documentEvent) {
+                updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent documentEvent) {
+                updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent documentEvent) {
+                updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+            }
+        });
+
+        return resultsFilterBar;
+    }
+
+    private JPanel createAnalysisBar(JScrollPane logEntriesPane) {
+        JPanel leftSidePanel;
+        JPanel rightSidePanel;
+        JPanel analysisBar;
+        GridBagConstraints gbc;
+
+        analysisBar = new JPanel();
+        analysisBar.setLayout(new GridBagLayout());
 
         JProgressBar progressBar = new JProgressBar(0, 1);
         progressBar.setStringPainted(true);
         gbc = createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 10);
-        boxHeader.add(progressBar, gbc);
+        analysisBar.add(progressBar, gbc);
 
         leftSidePanel = new JPanel();
         leftSidePanel.setLayout(new GridBagLayout());
         leftSidePanel.setPreferredSize(new Dimension(0, 40));
-        boxHeader.add(leftSidePanel, createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.BOTH));
+        analysisBar.add(leftSidePanel, createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.BOTH));
         JButton analysisButton = createAnalysisButton(progressBar);
         leftSidePanel.add(analysisButton, createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL));
         final JPanel spacer2 = new JPanel();
@@ -193,7 +270,7 @@ public class LoggerTab implements ApplicationTab {
         rightSidePanel = new JPanel();
         rightSidePanel.setLayout(new GridBagLayout());
         rightSidePanel.setPreferredSize(new Dimension(0, 40));
-        boxHeader.add(rightSidePanel, createGridConstraints(2, 0, 1.0, 0.0, GridBagConstraints.BOTH));
+        analysisBar.add(rightSidePanel, createGridConstraints(2, 0, 1.0, 0.0, GridBagConstraints.BOTH));
         JButton clearLogsButton = createClearLogsButton(logEntriesPane);
         gbc = createGridConstraints(0, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 0, 0, 5);
@@ -203,76 +280,16 @@ public class LoggerTab implements ApplicationTab {
         JToggleButton exportLogsButton = createExportLogsButton();
         rightSidePanel.add(exportLogsButton, createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL));
 
-        searchBarPanel = new JPanel();
-        searchBarPanel.setLayout(new GridBagLayout());
-        gbc = createGridConstraints(0, 1, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
-        gbc.insets = new Insets(2, 10, 5, 10);
-        gbc.gridwidth = 3;
-        boxHeader.add(searchBarPanel, gbc);
-        JLabel searchLabel = new JLabel(getLocaleString("logger-searchBar-label"));
-        gbc = createGridConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL);
-        gbc.insets = new Insets(0, 0, 0, 5);
-        searchBarPanel.add(searchLabel, gbc);
-
-        JTextField searchField = new JTextField();
-        gbc = createGridConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL);
-        searchBarPanel.add(searchField, gbc);
-
-        JCheckBox regexCheckBox = new JCheckBox();
-        regexCheckBox.setText("Regex");
-        regexCheckBox.setSelected(true);
-        gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
-        gbc.insets = new Insets(0, 10, 0, 0);
-        searchBarPanel.add(regexCheckBox, gbc);
-
-        JCheckBox matchCheckBox = new JCheckBox();
-        matchCheckBox.setText("Match");
-        matchCheckBox.setSelected(true);
-        gbc = createGridConstraints(3, 0, 0, 0, GridBagConstraints.HORIZONTAL);
-        gbc.insets = new Insets(0, 10, 0, 0);
-        searchBarPanel.add(matchCheckBox, gbc);
-
-        JCheckBox URLCheckBox = new JCheckBox();
-        URLCheckBox.setText("URL");
-        URLCheckBox.setSelected(true);
-        gbc = createGridConstraints(4, 0, 0, 0, GridBagConstraints.HORIZONTAL);
-        gbc.insets = new Insets(0, 10, 0, 0);
-        searchBarPanel.add(URLCheckBox, gbc);
-
-        ActionListener checkBoxListener = e -> {
-            updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
-        };
-        regexCheckBox.addActionListener(checkBoxListener);
-        matchCheckBox.addActionListener(checkBoxListener);
-        URLCheckBox.addActionListener(checkBoxListener);
-
-        searchField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent documentEvent) {
-                updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent documentEvent) {
-                updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent documentEvent) {
-                updateRowFilter(searchField.getText(), regexCheckBox.isSelected(), matchCheckBox.isSelected(), URLCheckBox.isSelected());
-            }
-        });
-
-        return boxHeader;
+        return analysisBar;
     }
 
     /**
      * Filter rows of LogsTable that contains text string
      *
-     * @param text To search
-     * @param includeRegex To search also in Regex column
-     * @param includeMatch To search also in Match column
-     * @param includeURL To search also in URL column
+     * @param text         text to search
+     * @param includeRegex if true, also search in Regex column
+     * @param includeMatch if true, also search in Match column
+     * @param includeURL   if true, also search in URL column
      */
     private void updateRowFilter(String text, boolean includeRegex, boolean includeMatch, boolean includeURL) {
         if (text.isBlank()) {
@@ -281,7 +298,7 @@ public class LoggerTab implements ApplicationTab {
             logsTableRowSorter.setRowFilter(new RowFilter<>() {
                 @Override
                 public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
-                    List<LogsTableModel.Column> places = new ArrayList<>(List.of());
+                    List<LogsTableModel.Column> places = new ArrayList<>();
                     if (includeRegex) places.add(LogsTableModel.Column.REGEX);
                     if (includeMatch) places.add(LogsTableModel.Column.MATCH);
                     if (includeURL) places.add(LogsTableModel.Column.URL);

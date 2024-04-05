@@ -1,4 +1,3 @@
-
 package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.MontoyaApi;
