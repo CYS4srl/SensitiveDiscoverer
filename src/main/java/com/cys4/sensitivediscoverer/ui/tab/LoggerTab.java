@@ -52,7 +52,6 @@ public class LoggerTab implements ApplicationTab {
      * This is required for not logging the same finding twice.
      */
     private final LogEntriesManager logEntriesManager;
-    private final Object analyzeLock = new Object();
     private final Object loggerLock = new Object();
     private final RegexScanner regexScanner;
     private HttpRequestEditor originalRequestViewer;
@@ -62,10 +61,6 @@ public class LoggerTab implements ApplicationTab {
     private TableRowSorter<LogsTableModel> logsTableRowSorter;
     private boolean isAnalysisRunning;
     private Thread analyzeProxyHistoryThread;
-    /**
-     * Counter of analyzed items. Used mainly for the progress bar
-     */
-    private int analyzedItems = 0;
 
     public LoggerTab(MainUI mainUI) {
         this.mainUI = mainUI;
@@ -277,6 +272,7 @@ public class LoggerTab implements ApplicationTab {
 
         JProgressBar progressBar = new JProgressBar(0, 1);
         progressBar.setStringPainted(true);
+        regexScanner.setProgressBar(progressBar);
         gbc = createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 10);
         analysisBar.add(progressBar, gbc);
@@ -285,7 +281,7 @@ public class LoggerTab implements ApplicationTab {
         leftSidePanel.setLayout(new GridBagLayout());
         leftSidePanel.setPreferredSize(new Dimension(0, 40));
         analysisBar.add(leftSidePanel, createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.BOTH));
-        JButton analysisButton = createAnalysisButton(progressBar);
+        JButton analysisButton = createAnalysisButton();
         leftSidePanel.add(analysisButton, createGridConstraints(1, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL));
         final JPanel spacer2 = new JPanel();
         leftSidePanel.add(spacer2, createGridConstraints(0, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL));
@@ -334,17 +330,16 @@ public class LoggerTab implements ApplicationTab {
     /**
      * Creates a button that handles the analysis of the burp's http history
      *
-     * @param progressBar the progress bar to update with the analysis status
      * @return the analysis button
      */
-    private JButton createAnalysisButton(JProgressBar progressBar) {
+    private JButton createAnalysisButton() {
         JButton analysisButton = new JButton();
         String startAnalysisText = getLocaleString("logger-analysis-start");
         analysisButton.putClientProperty("initialText", startAnalysisText);
         analysisButton.setText(startAnalysisText);
         analysisButton.addActionListener(actionEvent -> {
             if (!isAnalysisRunning) {
-                startAnalysisAction(progressBar, analysisButton);
+                startAnalysisAction(analysisButton);
             } else {
                 stopAnalysisAction(analysisButton);
             }
@@ -371,7 +366,7 @@ public class LoggerTab implements ApplicationTab {
         }).start();
     }
 
-    private void startAnalysisAction(JProgressBar progressBar, JButton analysisButton) {
+    private void startAnalysisAction(JButton analysisButton) {
         this.preAnalysisOperations();
         isAnalysisRunning = true;
         analyzeProxyHistoryThread = new Thread(new Runnable() {
@@ -382,25 +377,13 @@ public class LoggerTab implements ApplicationTab {
                 finalizeScan();
             }
 
-            private Runnable setupProgressBarCallback(int maxItems) {
-                progressBar.setMaximum(maxItems);
-                return () -> {
-                    synchronized (analyzeLock) {
-                        LoggerTab.this.analyzedItems++;
-                    }
-                    progressBar.setValue(LoggerTab.this.analyzedItems);
-                };
-            }
-
             private void setupScan() {
                 analysisButton.setText(getLocaleString("logger-analysis-stop"));
-                LoggerTab.this.analyzedItems = 0;
-                progressBar.setValue(LoggerTab.this.analyzedItems);
             }
 
             private void startScan() {
                 Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, Optional.of(logsTableModel));
-                regexScanner.analyzeProxyHistory(this::setupProgressBarCallback, addLogEntryCallback);
+                regexScanner.analyzeProxyHistory(addLogEntryCallback);
             }
 
             private void finalizeScan() {

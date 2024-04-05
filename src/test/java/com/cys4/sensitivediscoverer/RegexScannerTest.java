@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,7 +25,6 @@ class RegexScannerTest {
     private BurpMontoyaApiMock burpApi;
     private ScannerOptions scannerOptions;
     private LogEntriesManager logEntriesManager;
-    private Function<Integer, Runnable> progressBarCallbackSetupMock;
     private Consumer<LogEntity> logEntityConsumer;
 
     @BeforeEach
@@ -48,8 +46,6 @@ class RegexScannerTest {
         this.logEntriesManager = new LogEntriesManager();
         final Object loggerLock = new Object();
 
-        progressBarCallbackSetupMock = (maxItems) -> () -> {
-        };
         logEntityConsumer = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, Optional.empty());
     }
 
@@ -66,7 +62,7 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(10);
         assertThat(logEntriesManager.getAll()).containsExactly(
@@ -101,8 +97,8 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check duplicates aren't inserted more than once").isEqualTo(10);
         assertThat(logEntriesManager.getAll()).containsExactly(
@@ -134,7 +130,7 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(0);
     }
@@ -156,7 +152,7 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(2);
         assertThat(logEntriesManager.getAll()).containsExactly(

@@ -10,17 +10,23 @@ import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.BurpUtils;
 import com.cys4.sensitivediscoverer.utils.ScannerUtils;
 
+import javax.swing.JProgressBar;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ * Class to perform scans of HTTP items using regexes.
+ * <br><br>
+ * <b>Warning</b>: this class doesn't support concurrent scans within a single instance.
+ */
 public class RegexScanner {
     /**
      * List of MIME types to ignore while scanning when the relevant option is enabled
@@ -50,6 +56,15 @@ public class RegexScanner {
      * Used to interrupt scan before completion.
      */
     private boolean interruptScan;
+    /**
+     * Counter of analyzed items. Used mainly for the progress bar
+     */
+    private int analyzedItems;
+    private final Object analyzeLock = new Object();
+    /**
+     * Reference to a progress bar to update during the scan
+     */
+    private JProgressBar progressBar;
 
     public RegexScanner(MontoyaApi burpApi,
                         ScannerOptions scannerOptions,
@@ -60,15 +75,23 @@ public class RegexScanner {
         this.generalRegexList = generalRegexList;
         this.extensionsRegexList = extensionsRegexList;
         this.interruptScan = false;
+        this.progressBar = null;
+    }
+
+    private void setupAnalysis(int maxItems) {
+        this.analyzedItems = 0;
+        if (Objects.nonNull(progressBar)) {
+            progressBar.setMaximum(maxItems);
+            progressBar.setValue(0);
+        }
     }
 
     /**
      * Method for analyzing the elements in Burp > Proxy > HTTP history
      *
-     * @param progressBarCallbackSetup A setup function that given the number of items to analyze, returns a Runnable to be called after analysing each item.
-     * @param logEntriesCallback       A callback that's called for every new finding, with a LogEntity as the only argument
+     * @param logEntriesCallback A callback that's called for every new finding, with a LogEntity as the only argument
      */
-    public void analyzeProxyHistory(Function<Integer, Runnable> progressBarCallbackSetup, Consumer<LogEntity> logEntriesCallback) {
+    public void analyzeProxyHistory(Consumer<LogEntity> logEntriesCallback) {
         // create a copy of the regex list to protect from changes while scanning
         List<RegexEntity> allRegexListCopy = Stream
                 .concat(generalRegexList.stream(), extensionsRegexList.stream())
@@ -81,14 +104,19 @@ public class RegexScanner {
         // instead of waiting until the whole analysis finishes.
         List<ProxyHttpRequestResponse> proxyEntries = this.burpApi.proxy().history();
         if (proxyEntries.isEmpty()) return;
+        this.setupAnalysis(proxyEntries.size());
 
-        Runnable itemAnalyzedCallback = progressBarCallbackSetup.apply(proxyEntries.size());
         for (int entryIndex = proxyEntries.size() - 1; entryIndex >= 0; entryIndex--) {
             ProxyHttpRequestResponse proxyEntry = proxyEntries.remove(entryIndex);
             executor.execute(() -> {
                 if (interruptScan) return;
+
                 analyzeSingleMessage(allRegexListCopy, scannerOptions, proxyEntry, logEntriesCallback);
-                itemAnalyzedCallback.run();
+
+                synchronized (analyzeLock) {
+                    this.analyzedItems++;
+                }
+                if (Objects.nonNull(progressBar)) progressBar.setValue(this.analyzedItems);
             });
         }
 
@@ -178,6 +206,10 @@ public class RegexScanner {
      */
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
+    }
+
+    public void setProgressBar(JProgressBar progressBar) {
+        this.progressBar = progressBar;
     }
 
     private record HttpMatchResult(HttpSection section, String match) {
