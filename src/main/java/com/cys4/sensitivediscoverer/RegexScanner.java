@@ -51,6 +51,7 @@ public class RegexScanner {
     private final ScannerOptions scannerOptions;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
+    private final Object analyzeLock = new Object();
     /**
      * Flag that indicates if the scan must be interrupted.
      * Used to interrupt scan before completion.
@@ -60,7 +61,6 @@ public class RegexScanner {
      * Counter of analyzed items. Used mainly for the progress bar
      */
     private int analyzedItems;
-    private final Object analyzeLock = new Object();
     /**
      * Reference to a progress bar to update during the scan
      */

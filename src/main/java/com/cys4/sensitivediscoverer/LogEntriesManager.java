@@ -39,6 +39,7 @@ public class LogEntriesManager {
 
     /**
      * Returns an unmodifiable List containing all the log entries.
+     *
      * @return a <code>List</code> containing the log entries.
      */
     public List<LogEntity> getAll() {
