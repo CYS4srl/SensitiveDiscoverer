@@ -252,9 +252,11 @@ public class RegexListViewer {
 
         ctx.regexEntities().set(realRow, newRegex);
 
-        tableModel.fireTableRowsUpdated(realRow, realRow);
-        tabPaneOptions.validate();
-        tabPaneOptions.repaint();
+        SwingUtilities.invokeLater(() -> {
+            tableModel.fireTableRowsUpdated(realRow, realRow);
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
     }
 
     private JMenuItem createDeleteRegexMenuItem(RegexListContext ctx,
@@ -290,10 +292,11 @@ public class RegexListViewer {
         int realRow = optionsRegexTable.convertRowIndexToModel(rowIndex);
         ctx.regexEntities().remove(realRow);
 
-        tableModel.fireTableRowsDeleted(realRow, realRow);
-
-        tabPaneOptions.validate();
-        tabPaneOptions.repaint();
+        SwingUtilities.invokeLater(() -> {
+            tableModel.fireTableRowsDeleted(realRow, realRow);
+            tabPaneOptions.validate();
+            tabPaneOptions.repaint();
+        });
     }
 
     private JMenuItem createNewRegexMenuItem(RegexListContext ctx,

@@ -1,5 +1,6 @@
 package com.cys4.sensitivediscoverer.model;
 
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         RegexEntity regexEntry = regexList.get(rowIndex);
         regexEntry.setActive((Boolean) value);
-        fireTableCellUpdated(rowIndex, columnIndex);
+        SwingUtilities.invokeLater(() -> fireTableCellUpdated(rowIndex, columnIndex));
     }
 
     /**

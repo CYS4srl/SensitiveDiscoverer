@@ -46,7 +46,7 @@ class RegexScannerTest {
         this.logEntriesManager = new LogEntriesManager();
         final Object loggerLock = new Object();
 
-        logEntityConsumer = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, Optional.empty());
+        logEntityConsumer = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, null);
     }
 
     @Test

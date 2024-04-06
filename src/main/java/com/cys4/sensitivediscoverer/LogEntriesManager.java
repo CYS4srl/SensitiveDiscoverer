@@ -49,6 +49,10 @@ public class LogEntriesManager {
         return logEntries.contains(entry);
     }
 
+    public int indexOf(LogEntity entry) {
+        return logEntries.indexOf(entry);
+    }
+
     public void subscribeChangeListener(LogEntriesListener listener) {
         listeners.add(listener);
     }

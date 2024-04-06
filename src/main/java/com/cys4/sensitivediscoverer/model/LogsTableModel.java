@@ -48,14 +48,6 @@ public class LogsTableModel extends AbstractTableModel {
         };
     }
 
-    public void addNewRow(int row) {
-        fireTableRowsInserted(row, row);
-    }
-
-    public void clear() {
-        fireTableDataChanged();
-    }
-
     /**
      * Enum representing the columns of the table model for logs
      */

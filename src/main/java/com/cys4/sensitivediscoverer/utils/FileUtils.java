@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -93,10 +94,10 @@ public class FileUtils {
 
         String alreadyAddedMsg = importRegexListFromCSV(lines, ctx);
 
-        SwingUtils.showMessageDialog(
+        SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
                 getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg);
+                alreadyAddedMsg));
     }
 
     public static String importRegexListFromCSV(List<String> csvLines, RegexListContext ctx) {
@@ -130,10 +131,10 @@ public class FileUtils {
 
         String alreadyAddedMsg = importRegexListFromJSON(String.join("", lines), ctx);
 
-        SwingUtils.showMessageDialog(
+        SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
                 getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg);
+                alreadyAddedMsg));
     }
 
     public static String importRegexListFromJSON(String json, RegexListContext ctx) {

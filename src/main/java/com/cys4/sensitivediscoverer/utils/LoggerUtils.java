@@ -4,20 +4,23 @@ import com.cys4.sensitivediscoverer.LogEntriesManager;
 import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogsTableModel;
 
-import java.util.Optional;
+import javax.swing.*;
 import java.util.function.Consumer;
 
 public class LoggerUtils {
-    public static Consumer<LogEntity> createAddLogEntryCallback(LogEntriesManager logEntries, Object logEntriesLock, Optional<LogsTableModel> logsTableModel) {
-        return (LogEntity logEntry) -> {
+    public static Consumer<LogEntity> createAddLogEntryCallback(LogEntriesManager logEntries,
+                                                                Object logEntriesLock,
+                                                                LogsTableModel logsTableModel) {
+        return (LogEntity logEntry) -> SwingUtilities.invokeLater(() -> {
             synchronized (logEntriesLock) {
-                int row = logEntries.size();
-
                 if (!logEntries.contains(logEntry)) {
                     logEntries.add(logEntry);
-                    logsTableModel.ifPresent(logsTable -> logsTable.addNewRow(row));
+
+                    if (logsTableModel == null) return;
+                    int row = (logEntries.indexOf(logEntry));
+                    logsTableModel.fireTableRowsInserted(row, row);
                 }
             }
-        };
+        });
     }
 }

@@ -15,8 +15,6 @@ import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
 import com.cys4.sensitivediscoverer.utils.FileUtils;
 import com.cys4.sensitivediscoverer.utils.LoggerUtils;
 import com.cys4.sensitivediscoverer.utils.SwingUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
@@ -25,19 +23,16 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Utils.createGsonBuilder;
 
 public class LoggerTab implements ApplicationTab {
     private static final String TAB_NAME = getLocaleString("tab-logger");
@@ -101,7 +96,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private void preAnalysisOperations() {
         // disable components that shouldn't be used while scanning
-        SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent");
+        SwingUtilities.invokeLater(() -> SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent"));
     }
 
     /**
@@ -110,7 +105,7 @@ public class LoggerTab implements ApplicationTab {
      */
     private void postAnalysisOperations() {
         // re-enable components not usable while scanning
-        SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), true, "analysisDependent");
+        SwingUtilities.invokeLater(() -> SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), true, "analysisDependent"));
     }
 
     private JPanel createCenterBox(JScrollPane logEntriesPane) {
@@ -195,13 +190,15 @@ public class LoggerTab implements ApplicationTab {
         resultsFilterBar.add(resultsCountLabel, gbc);
         JLabel filteredCountValueLabel = new JLabel("0");
         gbc = createGridConstraints(1, 0, 0, 0, GridBagConstraints.HORIZONTAL);
-        logsTableRowSorter.addRowSorterListener(rowSorterEvent -> filteredCountValueLabel.setText(String.valueOf(logsTable.getRowSorter().getViewRowCount())));
+        logsTableRowSorter.addRowSorterListener(rowSorterEvent -> SwingUtilities.invokeLater(() -> {
+            filteredCountValueLabel.setText(String.valueOf(logsTable.getRowSorter().getViewRowCount()));
+        }));
         resultsFilterBar.add(filteredCountValueLabel, gbc);
         JLabel totalCountValueLabel = new JLabel("/0");
-        logEntriesManager.subscribeChangeListener(entriesCount -> {
+        logEntriesManager.subscribeChangeListener(entriesCount -> SwingUtilities.invokeLater(() -> {
             filteredCountValueLabel.setText(String.valueOf(Math.min(entriesCount, logsTable.getRowSorter().getViewRowCount())));
             totalCountValueLabel.setText("/" + entriesCount);
-        });
+        }));
         gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         resultsFilterBar.add(totalCountValueLabel, gbc);
         JLabel resultsCountSeparator = new JLabel("│");
@@ -310,20 +307,22 @@ public class LoggerTab implements ApplicationTab {
      * @param includeURL   if true, also search in URL column
      */
     private void updateRowFilter(String text, boolean includeRegex, boolean includeMatch, boolean includeURL) {
-        if (text.isBlank()) {
-            logsTableRowSorter.setRowFilter(null);
-        } else {
-            logsTableRowSorter.setRowFilter(new RowFilter<>() {
-                @Override
-                public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
-                    List<LogsTableModel.Column> places = new ArrayList<>();
-                    if (includeRegex) places.add(LogsTableModel.Column.REGEX);
-                    if (includeMatch) places.add(LogsTableModel.Column.MATCH);
-                    if (includeURL) places.add(LogsTableModel.Column.URL);
-                    return places.stream().anyMatch(column -> entry.getStringValue(column.getIndex()).toLowerCase().contains(text.toLowerCase()));
-                }
-            });
-        }
+        SwingUtilities.invokeLater(() -> {
+            if (text.isBlank()) {
+                logsTableRowSorter.setRowFilter(null);
+            } else {
+                logsTableRowSorter.setRowFilter(new RowFilter<>() {
+                    @Override
+                    public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
+                        List<LogsTableModel.Column> places = new ArrayList<>();
+                        if (includeRegex) places.add(LogsTableModel.Column.REGEX);
+                        if (includeMatch) places.add(LogsTableModel.Column.MATCH);
+                        if (includeURL) places.add(LogsTableModel.Column.URL);
+                        return places.stream().anyMatch(column -> entry.getStringValue(column.getIndex()).toLowerCase().contains(text.toLowerCase()));
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -349,8 +348,10 @@ public class LoggerTab implements ApplicationTab {
     private void stopAnalysisAction(JButton analysisButton) {
         if (Objects.isNull(analyzeProxyHistoryThread)) return;
 
-        analysisButton.setEnabled(false);
-        analysisButton.setText(getLocaleString("logger-analysis-stopping"));
+        SwingUtilities.invokeLater(() -> {
+            analysisButton.setEnabled(false);
+            analysisButton.setText(getLocaleString("logger-analysis-stopping"));
+        });
         regexScanner.setInterruptScan(true);
 
         new Thread(() -> {
@@ -360,8 +361,10 @@ public class LoggerTab implements ApplicationTab {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            analysisButton.setEnabled(true);
-            analysisButton.setText(getLocaleString("logger-analysis-start"));
+            SwingUtilities.invokeLater(() -> {
+                analysisButton.setEnabled(true);
+                analysisButton.setText(getLocaleString("logger-analysis-start"));
+            });
         }).start();
     }
 
@@ -377,16 +380,16 @@ public class LoggerTab implements ApplicationTab {
             }
 
             private void setupScan() {
-                analysisButton.setText(getLocaleString("logger-analysis-stop"));
+                SwingUtilities.invokeLater(() -> analysisButton.setText(getLocaleString("logger-analysis-stop")));
             }
 
             private void startScan() {
-                Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, Optional.of(logsTableModel));
+                Consumer<LogEntity> addLogEntryCallback = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, logsTableModel);
                 regexScanner.analyzeProxyHistory(addLogEntryCallback);
             }
 
             private void finalizeScan() {
-                analysisButton.setText((String) analysisButton.getClientProperty("initialText"));
+                SwingUtilities.invokeLater(() -> analysisButton.setText((String) analysisButton.getClientProperty("initialText")));
                 analyzeProxyHistoryThread = null;
                 isAnalysisRunning = false;
                 LoggerTab.this.postAnalysisOperations();
@@ -394,8 +397,10 @@ public class LoggerTab implements ApplicationTab {
         });
         analyzeProxyHistoryThread.start();
 
-        logsTable.validate();
-        logsTable.repaint();
+        SwingUtilities.invokeLater(() -> {
+            logsTable.validate();
+            logsTable.repaint();
+        });
     }
 
     private JScrollPane createLogEntriesTable() {
@@ -509,7 +514,7 @@ public class LoggerTab implements ApplicationTab {
             int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("logger-clearLogs-confirm"));
             if (dialog == JOptionPane.YES_OPTION) {
                 logEntriesManager.clear();
-                logsTableModel.clear();
+                logsTableModel.fireTableDataChanged();
 
                 originalResponseViewer.setResponse(HttpResponse.httpResponse(""));
                 originalResponseViewer.setSearchExpression("");

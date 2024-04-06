@@ -10,7 +10,7 @@ import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.BurpUtils;
 import com.cys4.sensitivediscoverer.utils.ScannerUtils;
 
-import javax.swing.JProgressBar;
+import javax.swing.*;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -80,10 +80,10 @@ public class RegexScanner {
 
     private void setupAnalysis(int maxItems) {
         this.analyzedItems = 0;
-        if (Objects.nonNull(progressBar)) {
+        if (Objects.nonNull(progressBar)) SwingUtilities.invokeLater(() -> {
             progressBar.setMaximum(maxItems);
             progressBar.setValue(0);
-        }
+        });
     }
 
     /**
@@ -116,7 +116,8 @@ public class RegexScanner {
                 synchronized (analyzeLock) {
                     this.analyzedItems++;
                 }
-                if (Objects.nonNull(progressBar)) progressBar.setValue(this.analyzedItems);
+                if (Objects.nonNull(progressBar))
+                    SwingUtilities.invokeLater(() -> progressBar.setValue(this.analyzedItems));
             });
         }
 

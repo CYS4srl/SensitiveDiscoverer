@@ -7,6 +7,7 @@ import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
 import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
 import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.ui.tab.OptionsTab;
+import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,7 +58,12 @@ public class MainUI {
         SwingUtilities.invokeLater(this::_initializeUI);
     }
 
+    /**
+     * UI initialization logic that must run in the EDT
+     */
     private void _initializeUI() {
+        SwingUtils.assertIsEDT();
+
         mainPanel = new JTabbedPane();
         LoggerTab loggerTab = new LoggerTab(this);
         mainPanel.addTab(loggerTab.getTabName(), loggerTab.getPanel());

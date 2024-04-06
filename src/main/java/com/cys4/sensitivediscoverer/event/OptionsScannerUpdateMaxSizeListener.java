@@ -2,6 +2,7 @@ package com.cys4.sensitivediscoverer.event;
 
 import com.cys4.sensitivediscoverer.model.ScannerOptions;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
@@ -20,7 +21,7 @@ public class OptionsScannerUpdateMaxSizeListener extends OptionsScannerUpdateLis
                 throw new NumberFormatException(getLocaleString("exception-sizeMustBeGreaterEqualThanOne"));
 
             scannerOptions.setConfigMaxResponseSize(newMaxSizeValue);
-            currentValueLabel.setText(String.valueOf(scannerOptions.getConfigMaxResponseSize()));
+            SwingUtilities.invokeLater(() -> currentValueLabel.setText(String.valueOf(newMaxSizeValue)));
         } catch (NumberFormatException ignored) {
         }
     }
