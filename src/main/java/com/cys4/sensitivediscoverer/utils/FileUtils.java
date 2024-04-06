@@ -5,7 +5,6 @@ import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexListContext;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Utils.createGsonBuilder;
 
 public class FileUtils {
 
@@ -84,10 +84,7 @@ public class FileUtils {
 
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
-        return new GsonBuilder()
-                .disableHtmlEscaping()
-                .create()
-                .toJson(lines, tListEntries);
+        return createGsonBuilder().toJson(lines, tListEntries);
     }
 
     public static void importRegexListFromFileCSV(String csvFilepath, RegexListContext ctx) {

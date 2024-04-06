@@ -439,6 +439,14 @@ public class LoggerTab implements ApplicationTab {
         return new JScrollPane(logsTable);
     }
 
+    private List<LogsTableModel.Column> getExportableColumns() {
+        return List.of(
+                LogsTableModel.Column.MATCH,
+                LogsTableModel.Column.REGEX,
+                LogsTableModel.Column.URL
+        );
+    }
+
     private JToggleButton createExportLogsButton() {
         JPopupMenu menu = new JPopupMenu();
 
@@ -449,16 +457,22 @@ public class LoggerTab implements ApplicationTab {
 
             java.util.List<String> lines = new ArrayList<>();
 
-            lines.add(String.format("\"%s\",\"%s\",\"%s\"",
-                    LogsTableModel.Column.URL.getNameFormatted(),
-                    LogsTableModel.Column.REGEX.getNameFormatted(),
-                    LogsTableModel.Column.MATCH.getNameFormatted()));
+            List<LogsTableModel.Column> columns = getExportableColumns();
+            String header = columns.stream()
+                    .map(LogsTableModel.Column::getNameFormatted)
+                    .map(s -> '"' + s + '"')
+                    .collect(Collectors.joining(","));
+            lines.add(header);
 
             for (int i = 0; i < logsTable.getRowCount(); i++) {
-                String url = logsTableModel.getValueAt(logsTable.convertRowIndexToModel(i), LogsTableModel.Column.URL.getIndex()).toString();
-                String description = logsTableModel.getValueAt(logsTable.convertRowIndexToModel(i), LogsTableModel.Column.REGEX.getIndex()).toString();
-                String matchEscaped = logsTableModel.getValueAt(logsTable.convertRowIndexToModel(i), LogsTableModel.Column.MATCH.getIndex()).toString().replaceAll("\"", "\"\"");
-                lines.add(String.format("\"%s\",\"%s\",\"%s\"", url, description, matchEscaped));
+                final int rowIndex = i;
+                String line = columns.stream()
+                        .map(LogsTableModel.Column::getIndex)
+                        .map(columnIdx -> logsTableModel.getValueAt(logsTable.convertRowIndexToModel(rowIndex), columnIdx))
+                        .map(cellValue -> cellValue.toString().replaceAll("\"", "\"\""))
+                        .map(s -> '"' + s + '"')
+                        .collect(Collectors.joining(","));
+                lines.add(line);
             }
 
             FileUtils.writeLinesToFile(csvFile, lines);
@@ -470,22 +484,20 @@ public class LoggerTab implements ApplicationTab {
             String jsonFile = SwingUtils.selectFile(List.of("JSON"), false);
             if (jsonFile.isBlank()) return;
 
-            List<LogsTableModel.Column> fields = List.of(LogsTableModel.Column.URL, LogsTableModel.Column.REGEX, LogsTableModel.Column.MATCH);
-            List<JsonObject> lines = IntStream
-                    .range(0, logsTableModel.getRowCount())
-                    .mapToObj(rowIndex -> {
-                        JsonObject json = new JsonObject();
-                        fields.forEach(column -> {
-                            json.addProperty(column.getNameFormatted(), logsTableModel.getValueAt(rowIndex, column.getIndex()).toString());
-                        });
-                        return json;
-                    }).collect(Collectors.toList());
+            List<LogsTableModel.Column> fields = getExportableColumns();
+            List<JsonObject> lines = new ArrayList<>();
 
-            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            Type tListEntries = new TypeToken<ArrayList<JsonObject>>() {
-            }.getType();
+            for (int i = 0; i < logsTable.getRowCount(); i++) {
+                JsonObject json = new JsonObject();
+                for (LogsTableModel.Column column : fields) {
+                    json.addProperty(column.getNameFormatted(), logsTableModel.getValueAt(logsTable.convertRowIndexToModel(i), column.getIndex()).toString());
+                }
+                lines.add(json);
+            }
 
-            FileUtils.writeLinesToFile(jsonFile, List.of(gson.toJson(lines, tListEntries)));
+            String json = createGsonBuilder().toJson(lines, (new TypeToken<ArrayList<JsonObject>>() {
+            }).getType());
+            FileUtils.writeLinesToFile(jsonFile, List.of(json));
         });
         menu.add(itemToJSON);
 
