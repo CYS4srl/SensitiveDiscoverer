@@ -310,7 +310,6 @@ public class RegexListViewer {
             int row = ctx.regexEntities().size();
             ctx.regexEntities().add(newRegex);
             tableModel.fireTableRowsInserted(row, row);
-
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
@@ -370,7 +369,6 @@ public class RegexListViewer {
             if (!ctx.regexEntities().isEmpty()) {
                 ctx.regexEntities().subList(0, ctx.regexEntities().size()).clear();
                 tableModel.fireTableDataChanged();
-
                 tabPaneOptions.validate();
                 tabPaneOptions.repaint();
             }
@@ -397,8 +395,8 @@ public class RegexListViewer {
 
             ctx.regexEntities().clear();
             ctx.regexEntities().addAll(resetRegexSeeder.get());
-            tableModel.fireTableDataChanged();
 
+            tableModel.fireTableDataChanged();
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });
@@ -415,7 +413,6 @@ public class RegexListViewer {
             ctx.regexEntities().forEach(regex -> regex.setActive(isEnabled));
 
             tableModel.fireTableDataChanged();
-
             tabPaneOptions.validate();
             tabPaneOptions.repaint();
         });

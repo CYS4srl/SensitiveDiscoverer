@@ -32,10 +32,6 @@ public class LogsTable extends JTable {
     @Override
     public void changeSelection(int row, int col, boolean toggle, boolean extend) {
         super.changeSelection(row, col, toggle, extend);
-        /*
-          show the log entry for the selected row; convertRowIndexToModel is used because otherwise the
-          selected row is wrong in case the column is sorted somehow
-         */
         int realRow = this.convertRowIndexToModel(row);
         LogEntity logEntry = logEntries.get(realRow);
 

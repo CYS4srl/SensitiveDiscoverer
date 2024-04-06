@@ -118,9 +118,7 @@ public class LogEntity {
         return Objects.equals(
                 this.getMatch(),
                 logEntity.getMatch()) &&
-                Objects.equals(
-                        this.getMatchedSection(),
-                        logEntity.getMatchedSection()) &&
+                this.getMatchedSection() == logEntity.getMatchedSection() &&
                 Objects.equals(
                         this.getRegexEntity(),
                         logEntity.getRegexEntity()) &&

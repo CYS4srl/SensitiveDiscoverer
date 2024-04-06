@@ -236,25 +236,24 @@ public class LoggerTab implements ApplicationTab {
         gbc.insets = new Insets(0, 10, 0, 0);
         resultsFilterBar.add(URLCheckbox, gbc);
 
-        ActionListener checkBoxListener = e -> updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
-        regexCheckbox.addActionListener(checkBoxListener);
-        matchCheckbox.addActionListener(checkBoxListener);
-        URLCheckbox.addActionListener(checkBoxListener);
-
+        Runnable doUpdateRowFilter = () -> updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+        regexCheckbox.addActionListener(event -> doUpdateRowFilter.run());
+        matchCheckbox.addActionListener(event -> doUpdateRowFilter.run());
+        URLCheckbox.addActionListener(event -> doUpdateRowFilter.run());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent documentEvent) {
-                updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+                doUpdateRowFilter.run();
             }
 
             @Override
             public void removeUpdate(DocumentEvent documentEvent) {
-                updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+                doUpdateRowFilter.run();
             }
 
             @Override
             public void changedUpdate(DocumentEvent documentEvent) {
-                updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+                doUpdateRowFilter.run();
             }
         });
 
@@ -432,9 +431,6 @@ public class LoggerTab implements ApplicationTab {
             }
         };
         logsTable.addMouseListener(contextMenu);
-
-        ListSelectionModel listSelectionModel = logsTable.getSelectionModel();
-        logsTable.setSelectionModel(listSelectionModel);
 
         return new JScrollPane(logsTable);
     }

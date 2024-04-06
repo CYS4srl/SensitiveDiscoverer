@@ -99,8 +99,8 @@ public class LogsTableContextMenu extends JPopupMenu {
                 int rowIndex = logsTable.getSelectedRow();
                 if (rowIndex == -1) return;
                 int realRow = logsTable.convertRowIndexToModel(rowIndex);
-                logsTableModel.fireTableRowsDeleted(realRow, realRow);
 
+                logsTableModel.fireTableRowsDeleted(realRow, realRow);
                 originalResponseViewer.setResponse(HttpResponse.httpResponse(""));
                 originalRequestViewer.setRequest(HttpRequest.httpRequest(""));
             }
