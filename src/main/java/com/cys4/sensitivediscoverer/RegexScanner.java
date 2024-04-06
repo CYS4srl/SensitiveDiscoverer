@@ -55,7 +55,7 @@ public class RegexScanner {
      * Flag that indicates if the scan must be interrupted.
      * Used to interrupt scan before completion.
      */
-    private boolean interruptScan;
+    private volatile boolean interruptScan;
     /**
      * Counter of analyzed items. Used mainly for the progress bar
      */
