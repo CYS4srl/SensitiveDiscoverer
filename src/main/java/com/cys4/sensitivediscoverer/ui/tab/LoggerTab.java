@@ -408,8 +408,6 @@ public class LoggerTab implements ApplicationTab {
         this.originalRequestViewer = this.mainUI.getBurpApi().userInterface().createHttpRequestEditor();
         this.originalResponseViewer = this.mainUI.getBurpApi().userInterface().createHttpResponseEditor();
         this.logsTable = new LogsTable(logsTableModel, logEntriesManager, this.originalRequestViewer, this.originalResponseViewer);
-        // disable sorting on columns while scanning. This helps to prevent Swing exceptions.
-        logsTable.getTableHeader().putClientProperty("analysisDependent", "1");
         logsTable.setAutoCreateRowSorter(false);
         logsTableRowSorter = new TableRowSorter<>(logsTableModel);
         logsTable.setRowSorter(logsTableRowSorter);
