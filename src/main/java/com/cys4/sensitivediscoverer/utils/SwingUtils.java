@@ -8,9 +8,14 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class SwingUtils {
+
+    public static void assertIsEDT() throws RuntimeException {
+        if (!SwingUtilities.isEventDispatchThread())
+            throw new RuntimeException("method must be called on EDT");
+    }
 
     /**
      * Shows an information dialog containing a header paragraph, and a message below.
@@ -21,6 +26,7 @@ public class SwingUtils {
      * @param message       The message to show under the headerMessage
      */
     public static void showMessageDialog(String title, String headerMessage, String message) {
+        assertIsEDT();
         if (message.isBlank()) return;
 
         JPanel mainPanel = new JPanel(new BorderLayout(0, 6));
@@ -48,6 +54,7 @@ public class SwingUtils {
      * @return The filename, or empty string if there was an error
      */
     public static String selectFile(List<String> extensionNames, boolean openFile) {
+        assertIsEDT();
         JFrame parentFrame = new JFrame();
         JFileChooser fileChooser = new JFileChooser();
 
@@ -85,6 +92,8 @@ public class SwingUtils {
      * @param enabled   enabled state to set
      */
     public static void setEnabledRecursiveComponentsWithProperty(Component component, boolean enabled, String propertyName) {
+        assertIsEDT();
+
         // if component has the property, stop searching this branch and disable everything
         if (component instanceof JComponent jComponent && Objects.nonNull(jComponent.getClientProperty(propertyName))) {
             setEnabledRecursive(component, enabled);

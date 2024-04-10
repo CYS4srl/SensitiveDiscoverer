@@ -1,8 +1,8 @@
 package com.cys4.sensitivediscoverer;
 
 import com.cys4.sensitivediscoverer.model.HttpSection;
-import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.RegexEntityJsonAdapter;
 import com.cys4.sensitivediscoverer.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,13 +19,13 @@ public class RegexSeeder {
     private static final Gson gson = new Gson();
 
     private static List<RegexEntity> fill(String[] regexFiles) {
-        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
+        Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntityJsonAdapter>>() {
         }.getType();
 
         return Stream.of(regexFiles)
                 .map(Utils::readResourceFile)
                 .filter(Objects::nonNull)
-                .<List<JsonRegexEntity>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
+                .<List<RegexEntityJsonAdapter>>map(regex_file -> gson.fromJson(regex_file, tArrayListRegexEntity))
                 .flatMap(Collection::stream)
                 .map(element -> new RegexEntity(
                         element.getDescription(),

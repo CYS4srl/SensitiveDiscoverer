@@ -1,14 +1,15 @@
 package com.cys4.sensitivediscoverer.event;
 
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class OptionsScannerUpdateNumThreadsListener extends OptionsScannerUpdateListener {
 
-    public OptionsScannerUpdateNumThreadsListener(ScannerOptions scannerOptions) {
+    public OptionsScannerUpdateNumThreadsListener(RegexScannerOptions scannerOptions) {
         super(scannerOptions);
     }
 
@@ -20,7 +21,7 @@ public class OptionsScannerUpdateNumThreadsListener extends OptionsScannerUpdate
                 throw new NumberFormatException(getLocaleString("exception-numberNotInTheExpectedRange"));
 
             scannerOptions.setConfigNumberOfThreads(newThreadNumber);
-            currentValueLabel.setText(String.valueOf(scannerOptions.getConfigNumberOfThreads()));
+            SwingUtilities.invokeLater(() -> currentValueLabel.setText(String.valueOf(newThreadNumber)));
         } catch (NumberFormatException ignored) {
         }
     }

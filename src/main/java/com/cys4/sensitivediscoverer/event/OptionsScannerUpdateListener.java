@@ -1,17 +1,17 @@
 package com.cys4.sensitivediscoverer.event;
 
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
 public abstract class OptionsScannerUpdateListener implements ActionListener {
 
-    protected final ScannerOptions scannerOptions;
+    protected final RegexScannerOptions scannerOptions;
     protected JLabel currentValueLabel;
     protected JTextField updatedStatusField;
 
-    public OptionsScannerUpdateListener(ScannerOptions scannerOptions) {
+    public OptionsScannerUpdateListener(RegexScannerOptions scannerOptions) {
         this.scannerOptions = scannerOptions;
         this.currentValueLabel = null;
         this.updatedStatusField = null;

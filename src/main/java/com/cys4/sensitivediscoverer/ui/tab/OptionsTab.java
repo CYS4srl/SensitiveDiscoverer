@@ -5,20 +5,20 @@ import com.cys4.sensitivediscoverer.RegexSeeder;
 import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateListener;
 import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateMaxSizeListener;
 import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateNumThreadsListener;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
-import com.cys4.sensitivediscoverer.ui.RegexListViewer;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
+import com.cys4.sensitivediscoverer.ui.RegexListPanel;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class OptionsTab implements ApplicationTab {
     private static final String TAB_NAME = getLocaleString("tab-options");
     private final JPanel panel;
     private final MainUI mainUI;
-    private final ScannerOptions scannerOptions;
+    private final RegexScannerOptions scannerOptions;
 
     public OptionsTab(MainUI mainUI) {
         this.mainUI = mainUI;
@@ -85,7 +85,7 @@ public class OptionsTab implements ApplicationTab {
     private void createListsPanels(JPanel boxCenter) {
         GridBagConstraints gbc;
 
-        RegexListViewer generalList = new RegexListViewer(
+        RegexListPanel generalList = new RegexListPanel(
                 getLocaleString("options-generalList-title"),
                 getLocaleString("options-generalList-description"),
                 this.mainUI.getGeneralRegexList(),
@@ -98,7 +98,7 @@ public class OptionsTab implements ApplicationTab {
         gbc.fill = GridBagConstraints.BOTH;
         boxCenter.add(generalList.getPanel(), gbc);
 
-        RegexListViewer extensionsList = new RegexListViewer(
+        RegexListPanel extensionsList = new RegexListPanel(
                 getLocaleString("options-extensionsList-title"),
                 getLocaleString("options-extensionsList-description"),
                 this.mainUI.getExtensionsRegexList(),

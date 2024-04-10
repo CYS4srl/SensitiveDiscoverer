@@ -1,15 +1,18 @@
-package com.cys4.sensitivediscoverer.model;
+package com.cys4.sensitivediscoverer.ui.table;
 
+import com.cys4.sensitivediscoverer.model.RegexEntity;
+
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
-public class RegexListViewerTableModel extends AbstractTableModel {
+public class RegexListTableModel extends AbstractTableModel {
 
     private final List<RegexEntity> regexList;
 
-    public RegexListViewerTableModel(List<RegexEntity> regexList) {
+    public RegexListTableModel(List<RegexEntity> regexList) {
         this.regexList = regexList;
     }
 
@@ -55,7 +58,7 @@ public class RegexListViewerTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         RegexEntity regexEntry = regexList.get(rowIndex);
         regexEntry.setActive((Boolean) value);
-        fireTableCellUpdated(rowIndex, columnIndex);
+        SwingUtilities.invokeLater(() -> fireTableCellUpdated(rowIndex, columnIndex));
     }
 
     /**

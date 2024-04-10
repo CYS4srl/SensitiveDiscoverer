@@ -9,8 +9,12 @@ import java.util.stream.Collectors;
 
 /**
  * A LogEntity represents the results of a successful match of a regex in a request/response.
- * <br><br>
- * Dev notes:<br>
+ * <p>
+ * <b>Note</b>:<br>
+ * LogEntity instance that reference a specific row in a table are usually named logEntry.
+ * </p>
+ * <p>
+ * <b>Dev notes</b>:<br>
  * This entity contains immutable references to:
  * <ul>
  *  <li>the request object</li>
@@ -118,9 +122,7 @@ public class LogEntity {
         return Objects.equals(
                 this.getMatch(),
                 logEntity.getMatch()) &&
-                Objects.equals(
-                        this.getMatchedSection(),
-                        logEntity.getMatchedSection()) &&
+                this.getMatchedSection() == logEntity.getMatchedSection() &&
                 Objects.equals(
                         this.getRegexEntity(),
                         logEntity.getRegexEntity()) &&

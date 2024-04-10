@@ -10,17 +10,23 @@ import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.BurpUtils;
 import com.cys4.sensitivediscoverer.utils.ScannerUtils;
 
+import javax.swing.*;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ * Class to perform scans of HTTP items using regexes.
+ * <br><br>
+ * <b>Warning</b>: this class doesn't support concurrent scans within a single instance.
+ */
 public class RegexScanner {
     /**
      * List of MIME types to ignore while scanning when the relevant option is enabled
@@ -42,17 +48,26 @@ public class RegexScanner {
             MimeType.VIDEO
     );
     private final MontoyaApi burpApi;
-    private final ScannerOptions scannerOptions;
+    private final RegexScannerOptions scannerOptions;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
+    private final Object analyzeLock = new Object();
     /**
      * Flag that indicates if the scan must be interrupted.
      * Used to interrupt scan before completion.
      */
-    private boolean interruptScan;
+    private volatile boolean interruptScan;
+    /**
+     * Counter of analyzed items. Used mainly for the progress bar
+     */
+    private int analyzedItems;
+    /**
+     * Reference to a progress bar to update during the scan
+     */
+    private JProgressBar progressBar;
 
     public RegexScanner(MontoyaApi burpApi,
-                        ScannerOptions scannerOptions,
+                        RegexScannerOptions scannerOptions,
                         List<RegexEntity> generalRegexList,
                         List<RegexEntity> extensionsRegexList) {
         this.burpApi = burpApi;
@@ -60,15 +75,23 @@ public class RegexScanner {
         this.generalRegexList = generalRegexList;
         this.extensionsRegexList = extensionsRegexList;
         this.interruptScan = false;
+        this.progressBar = null;
+    }
+
+    private void setupAnalysis(int maxItems) {
+        this.analyzedItems = 0;
+        if (Objects.nonNull(progressBar)) SwingUtilities.invokeLater(() -> {
+            progressBar.setMaximum(maxItems);
+            progressBar.setValue(0);
+        });
     }
 
     /**
      * Method for analyzing the elements in Burp > Proxy > HTTP history
      *
-     * @param progressBarCallbackSetup A setup function that given the number of items to analyze, returns a Runnable to be called after analysing each item.
-     * @param logEntriesCallback       A callback that's called for every new finding, with a LogEntity as the only argument
+     * @param logEntriesCallback A callback that's called for every new finding, with a LogEntity as the only argument
      */
-    public void analyzeProxyHistory(Function<Integer, Runnable> progressBarCallbackSetup, Consumer<LogEntity> logEntriesCallback) {
+    public void analyzeProxyHistory(Consumer<LogEntity> logEntriesCallback) {
         // create a copy of the regex list to protect from changes while scanning
         List<RegexEntity> allRegexListCopy = Stream
                 .concat(generalRegexList.stream(), extensionsRegexList.stream())
@@ -80,13 +103,21 @@ public class RegexScanner {
         // removing items from the list allows the GC to clean up just after the task is executed
         // instead of waiting until the whole analysis finishes.
         List<ProxyHttpRequestResponse> proxyEntries = this.burpApi.proxy().history();
-        Runnable itemAnalyzedCallback = progressBarCallbackSetup.apply(proxyEntries.size());
+        if (proxyEntries.isEmpty()) return;
+        this.setupAnalysis(proxyEntries.size());
+
         for (int entryIndex = proxyEntries.size() - 1; entryIndex >= 0; entryIndex--) {
             ProxyHttpRequestResponse proxyEntry = proxyEntries.remove(entryIndex);
             executor.execute(() -> {
                 if (interruptScan) return;
+
                 analyzeSingleMessage(allRegexListCopy, scannerOptions, proxyEntry, logEntriesCallback);
-                itemAnalyzedCallback.run();
+
+                synchronized (analyzeLock) {
+                    this.analyzedItems++;
+                }
+                if (Objects.nonNull(progressBar))
+                    SwingUtilities.invokeLater(() -> progressBar.setValue(this.analyzedItems));
             });
         }
 
@@ -112,7 +143,7 @@ public class RegexScanner {
      * @param logEntriesCallback A callback that's called for every new finding, with a LogEntity as the only argument.
      */
     private void analyzeSingleMessage(List<RegexEntity> regexList,
-                                      ScannerOptions scannerOptions,
+                                      RegexScannerOptions scannerOptions,
                                       ProxyHttpRequestResponse proxyEntry,
                                       Consumer<LogEntity> logEntriesCallback) {
         // The initial checks must be kept ordered based on the amount of information required from Burp APIs.
@@ -143,7 +174,7 @@ public class RegexScanner {
     }
 
     private void performMatchingOnMessage(RegexEntity regex,
-                                          ScannerOptions scannerOptions,
+                                          RegexScannerOptions scannerOptions,
                                           HttpRecord requestResponse,
                                           Consumer<HttpMatchResult> logMatchCallback) {
         Pattern regexCompiled = regex.getRegexCompiled();
@@ -151,14 +182,14 @@ public class RegexScanner {
 
         regex.getSections()
                 .stream()
-                .map(httpSection -> ScannerUtils.getSectionText(httpSection, requestResponse))
+                .map(httpSection -> ScannerUtils.getHttpRecordSection(requestResponse, httpSection))
                 .flatMap(sectionRecord -> {
-                    Matcher matcher = regexCompiled.matcher(sectionRecord.text());
+                    Matcher matcher = regexCompiled.matcher(sectionRecord.content());
                     return matcher.results().map(result -> {
                         String match = result.group();
                         if (refinerRegexCompiled.isPresent()) {
                             int startIndex = result.start();
-                            Matcher preMatch = refinerRegexCompiled.get().matcher(sectionRecord.text());
+                            Matcher preMatch = refinerRegexCompiled.get().matcher(sectionRecord.content());
                             preMatch.region(Math.max(startIndex - scannerOptions.getConfigRefineContextSize(), 0), startIndex);
                             if (preMatch.find())
                                 match = preMatch.group() + match;
@@ -176,6 +207,10 @@ public class RegexScanner {
      */
     public void setInterruptScan(boolean interruptScan) {
         this.interruptScan = interruptScan;
+    }
+
+    public void setProgressBar(JProgressBar progressBar) {
+        this.progressBar = progressBar;
     }
 
     private record HttpMatchResult(HttpSection section, String match) {

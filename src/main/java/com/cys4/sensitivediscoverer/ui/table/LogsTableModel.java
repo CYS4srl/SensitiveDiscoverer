@@ -1,16 +1,19 @@
-package com.cys4.sensitivediscoverer.model;
+package com.cys4.sensitivediscoverer.ui.table;
+
+import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.LogEntriesManager;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class LogsTableModel extends AbstractTableModel {
 
     // get the reference of the array of entries
-    private final List<LogEntity> logEntries;
+    private final LogEntriesManager logEntries;
 
-    public LogsTableModel(List<LogEntity> logEntries) {
+    public LogsTableModel(LogEntriesManager logEntries) {
         this.logEntries = logEntries;
     }
 
@@ -46,20 +49,12 @@ public class LogsTableModel extends AbstractTableModel {
         };
     }
 
-    public void addNewRow(int row) {
-        fireTableRowsInserted(row, row);
-    }
-
-    public void clear() {
-        fireTableDataChanged();
-    }
-
     /**
      * Enum representing the columns of the table model for logs
      */
     public enum Column {
         URL("common-url", "url", String.class),
-        REGEX("common-regex", "regex", String.class),
+        REGEX("common-description", "description", String.class),
         SECTION("common-section", "section", String.class),
         MATCH("common-match", "match", String.class);
 
@@ -86,6 +81,10 @@ public class LogsTableModel extends AbstractTableModel {
          */
         public static int getSize() {
             return columns.size();
+        }
+
+        public String getLocaleKey() {
+            return localeKey;
         }
 
         public String getNameFormatted() {

@@ -1,25 +1,24 @@
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.ui.table;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
 import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.LogsTableModel;
+import com.cys4.sensitivediscoverer.model.LogEntriesManager;
 
 import javax.swing.*;
-import java.util.List;
 
 /**
  * JTable for Viewing Logs
  */
 public class LogsTable extends JTable {
 
-    private final List<LogEntity> logEntries;
+    private final LogEntriesManager logEntries;
     private final HttpRequestEditor requestViewer;
     private final HttpResponseEditor responseViewer;
 
-    public LogsTable(LogsTableModel logsTableModel, List<LogEntity> logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
+    public LogsTable(LogsTableModel logsTableModel, LogEntriesManager logEntries, HttpRequestEditor requestViewer, HttpResponseEditor responseViewer) {
         super(logsTableModel);
 
         this.setAutoCreateRowSorter(false);
@@ -32,10 +31,6 @@ public class LogsTable extends JTable {
     @Override
     public void changeSelection(int row, int col, boolean toggle, boolean extend) {
         super.changeSelection(row, col, toggle, extend);
-        /*
-          show the log entry for the selected row; convertRowIndexToModel is used because otherwise the
-          selected row is wrong in case the column is sorted somehow
-         */
         int realRow = this.convertRowIndexToModel(row);
         LogEntity logEntry = logEntries.get(realRow);
 

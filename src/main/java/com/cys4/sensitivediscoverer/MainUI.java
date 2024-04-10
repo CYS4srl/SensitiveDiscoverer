@@ -1,13 +1,13 @@
-
 package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
 import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
 import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.ui.tab.OptionsTab;
+import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +21,7 @@ public class MainUI {
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
     private final Properties configProperties;
-    private final ScannerOptions scannerOptions;
+    private final RegexScannerOptions scannerOptions;
     private JTabbedPane mainPanel;
     private boolean interfaceInitialized;
 
@@ -31,7 +31,7 @@ public class MainUI {
 
         // parse configurations
         this.configProperties = loadConfigFile();
-        scannerOptions = new ScannerOptions();
+        scannerOptions = new RegexScannerOptions();
         scannerOptions.setConfigMaxResponseSize(Integer.parseInt(configProperties.getProperty("config.max_response_size")));
         scannerOptions.setConfigNumberOfThreads(Integer.parseInt(configProperties.getProperty("config.number_of_threads")));
         scannerOptions.setConfigRefineContextSize(Integer.parseInt(configProperties.getProperty("config.scanner.refine_context_size")));
@@ -47,7 +47,7 @@ public class MainUI {
         return interfaceInitialized;
     }
 
-    public ScannerOptions getScannerOptions() {
+    public RegexScannerOptions getScannerOptions() {
         return scannerOptions;
     }
 
@@ -58,7 +58,12 @@ public class MainUI {
         SwingUtilities.invokeLater(this::_initializeUI);
     }
 
+    /**
+     * UI initialization logic that must run in the EDT
+     */
     private void _initializeUI() {
+        SwingUtils.assertIsEDT();
+
         mainPanel = new JTabbedPane();
         LoggerTab loggerTab = new LoggerTab(this);
         mainPanel.addTab(loggerTab.getTabName(), loggerTab.getPanel());

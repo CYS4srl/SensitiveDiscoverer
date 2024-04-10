@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HttpSectionTest {

@@ -1,4 +1,3 @@
-
 package burp;
 
 import burp.api.montoya.BurpExtension;
@@ -14,6 +13,9 @@ public class BurpExtender implements BurpExtension {
             mainUI.initializeUI();
 
             burpApi.extension().setName(mainUI.getExtensionName());
+            Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+                burpApi.logging().logToError(throwable);
+            });
 
             burpApi.logging().logToOutput("Extension loaded successfully!%nVersion loaded: %s".formatted(Utils.getExtensionVersion()));
         } catch (Exception e) {

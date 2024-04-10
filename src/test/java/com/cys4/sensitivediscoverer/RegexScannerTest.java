@@ -4,10 +4,7 @@ import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
 import com.cys4.sensitivediscoverer.mock.ProxyHttpRequestResponseMock;
 import com.cys4.sensitivediscoverer.mock.ProxyMock;
-import com.cys4.sensitivediscoverer.model.HttpSection;
-import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.LoggerUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,18 +12,15 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RegexScannerTest {
     private RegexScanner regexScanner;
     private BurpMontoyaApiMock burpApi;
-    private ScannerOptions scannerOptions;
-    private List<LogEntity> logEntries;
-    private Function<Integer, Runnable> progressBarCallbackSetupMock;
+    private RegexScannerOptions scannerOptions;
+    private LogEntriesManager logEntriesManager;
     private Consumer<LogEntity> logEntityConsumer;
 
     @BeforeEach
@@ -34,7 +28,7 @@ class RegexScannerTest {
         burpApi = new BurpMontoyaApiMock();
 
         //TODO test scanner options
-        scannerOptions = new ScannerOptions();
+        scannerOptions = new RegexScannerOptions();
         scannerOptions.setConfigMaxResponseSize(10000000);
         scannerOptions.setConfigNumberOfThreads(1);
         scannerOptions.setConfigRefineContextSize(64);
@@ -45,12 +39,10 @@ class RegexScannerTest {
 
     @BeforeEach
     void setUpCallbacks() {
-        this.logEntries = new ArrayList<>();
+        this.logEntriesManager = new LogEntriesManager();
         final Object loggerLock = new Object();
 
-        progressBarCallbackSetupMock = (maxItems) -> () -> {
-        };
-        logEntityConsumer = LoggerUtils.createAddLogEntryCallback(logEntries, loggerLock, Optional.empty());
+        logEntityConsumer = LoggerUtils.createAddLogEntryCallback(logEntriesManager, loggerLock, null);
     }
 
     @Test
@@ -66,10 +58,10 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
-        assertThat(logEntries).as("Check count of entries found").hasSize(10);
-        assertThat(logEntries).containsExactly(
+        assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(10);
+        assertThat(logEntriesManager.getAll()).containsExactly(
                 new LogEntity(request2.finalRequest(), request2.response(), generalRegexes.get(0), HttpSection.REQ_URL, "test.com"),
                 new LogEntity(request2.finalRequest(), request2.response(), generalRegexes.get(0), HttpSection.REQ_HEADERS, "test.com"),
                 new LogEntity(request2.finalRequest(), request2.response(), generalRegexes.get(0), HttpSection.REQ_BODY, "testing 2"),
@@ -101,11 +93,11 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
-        assertThat(logEntries).as("Check duplicates aren't inserted more than once").hasSize(10);
-        assertThat(logEntries).containsExactly(
+        assertThat(logEntriesManager.size()).as("Check duplicates aren't inserted more than once").isEqualTo(10);
+        assertThat(logEntriesManager.getAll()).containsExactly(
                 new LogEntity(request2.finalRequest(), request2.response(), generalRegexes.get(0), HttpSection.REQ_URL, "test.com"),
                 new LogEntity(request2.finalRequest(), request2.response(), generalRegexes.get(0), HttpSection.REQ_HEADERS, "test.com"),
                 new LogEntity(request2.finalRequest(), request2.response(), generalRegexes.get(0), HttpSection.REQ_BODY, "testing 2"),
@@ -134,9 +126,9 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
-        assertThat(logEntries).as("Check count of entries found").hasSize(0);
+        assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(0);
     }
 
     private void setProxyHistory(ProxyHttpRequestResponseMock... proxyElements) {
@@ -156,10 +148,10 @@ class RegexScannerTest {
         this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
                 generalRegexes,
                 extensionsRegexes);
-        regexScanner.analyzeProxyHistory(progressBarCallbackSetupMock, logEntityConsumer);
+        regexScanner.analyzeProxyHistory(logEntityConsumer);
 
-        assertThat(logEntries).as("Check count of entries found").hasSize(2);
-        assertThat(logEntries).containsExactly(
+        assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(2);
+        assertThat(logEntriesManager.getAll()).containsExactly(
                 new LogEntity(request.finalRequest(), request.response(), generalRegexes.get(0), HttpSection.REQ_BODY, "randomstring.example.com"),
                 new LogEntity(request.finalRequest(), request.response(), generalRegexes.get(0), HttpSection.RES_BODY, "bucket-name.test.example.com")
         );

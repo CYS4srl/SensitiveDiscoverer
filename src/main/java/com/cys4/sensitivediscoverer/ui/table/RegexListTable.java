@@ -1,15 +1,13 @@
-package com.cys4.sensitivediscoverer.ui;
-
-import com.cys4.sensitivediscoverer.model.RegexListViewerTableModel;
+package com.cys4.sensitivediscoverer.ui.table;
 
 import javax.swing.*;
 
 /**
  * JTable for viewing a list of regexes
  */
-public class RegexListViewerTable extends JTable {
-    public RegexListViewerTable(RegexListViewerTableModel regexListViewerTableModel) {
-        super(regexListViewerTableModel);
+public class RegexListTable extends JTable {
+    public RegexListTable(RegexListTableModel regexListTableModel) {
+        super(regexListTableModel);
         this.setAutoCreateRowSorter(true);
         this.setFillsViewportHeight(true);
         this.setRowSelectionAllowed(true);

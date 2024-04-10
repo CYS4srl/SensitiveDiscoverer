@@ -1,5 +1,8 @@
 package com.cys4.sensitivediscoverer.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,9 +32,8 @@ public class Utils {
             BufferedReader reader = new BufferedReader(isr);
 
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -58,4 +60,14 @@ public class Utils {
         return Utils.class.getClassLoader().getResourceAsStream(name);
     }
 
+    /**
+     * Creates and configures a new {@link Gson} instance for JSON processing.
+     *
+     * @return A new {@link Gson} instance with HTML escaping disabled.
+     */
+    public static Gson createGsonBuilder() {
+        return new GsonBuilder()
+                .disableHtmlEscaping()
+                .create();
+    }
 }
