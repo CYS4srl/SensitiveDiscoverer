@@ -1,9 +1,8 @@
 package com.cys4.sensitivediscoverer.utils;
 
 import com.cys4.sensitivediscoverer.model.HttpSection;
-import com.cys4.sensitivediscoverer.model.JsonRegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.model.RegexListContext;
+import com.cys4.sensitivediscoverer.model.RegexEntityJsonAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -20,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 import static com.cys4.sensitivediscoverer.utils.Utils.createGsonBuilder;
 
 public class FileUtils {
@@ -88,11 +87,11 @@ public class FileUtils {
         return createGsonBuilder().toJson(lines, tListEntries);
     }
 
-    public static void importRegexListFromFileCSV(String csvFilepath, RegexListContext ctx) {
+    public static void importRegexListFromFileCSV(String csvFilepath, List<RegexEntity> regexesList) {
         List<String> lines = readLinesFromFile(csvFilepath);
         if (Objects.isNull(lines)) return;
 
-        String alreadyAddedMsg = importRegexListFromCSV(lines, ctx);
+        String alreadyAddedMsg = importRegexListFromCSV(lines, regexesList);
 
         SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
@@ -100,7 +99,7 @@ public class FileUtils {
                 alreadyAddedMsg));
     }
 
-    public static String importRegexListFromCSV(List<String> csvLines, RegexListContext ctx) {
+    public static String importRegexListFromCSV(List<String> csvLines, List<RegexEntity> regexesList) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
 
         // skip header line if present
@@ -116,8 +115,8 @@ public class FileUtils {
                         HttpSection.deserializeSections(decodeSectionListFromCSV(match.group(4))),
                         unescapeCsvQuotes(match.group(3))))
                 .forEachOrdered(newRegex -> {
-                    if (!ctx.regexEntities().contains(newRegex)) {
-                        ctx.regexEntities().add(newRegex);
+                    if (!regexesList.contains(newRegex)) {
+                        regexesList.add(newRegex);
                     } else {
                         alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
                     }
@@ -125,11 +124,11 @@ public class FileUtils {
         return alreadyAddedMsg.toString();
     }
 
-    public static void importRegexListFromFileJSON(String jsonFilepath, RegexListContext ctx) {
+    public static void importRegexListFromFileJSON(String jsonFilepath, List<RegexEntity> regexesList) {
         List<String> lines = readLinesFromFile(jsonFilepath);
         if (Objects.isNull(lines)) return;
 
-        String alreadyAddedMsg = importRegexListFromJSON(String.join("", lines), ctx);
+        String alreadyAddedMsg = importRegexListFromJSON(String.join("", lines), regexesList);
 
         SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
                 getLocaleString("options-list-open-alreadyPresentTitle"),
@@ -137,14 +136,14 @@ public class FileUtils {
                 alreadyAddedMsg));
     }
 
-    public static String importRegexListFromJSON(String json, RegexListContext ctx) {
+    public static String importRegexListFromJSON(String json, List<RegexEntity> regexesList) {
         Gson gson = new Gson();
         StringBuilder alreadyAddedMsg = new StringBuilder();
-        Type tArrayListRegexEntity = new TypeToken<ArrayList<JsonRegexEntity>>() {
+        Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntityJsonAdapter>>() {
         }.getType();
 
         Stream.of(json)
-                .<List<JsonRegexEntity>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
+                .<List<RegexEntityJsonAdapter>>map(regexList -> gson.fromJson(regexList, tArrayListRegexEntity))
                 .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .map(element -> new RegexEntity(
@@ -154,8 +153,8 @@ public class FileUtils {
                         HttpSection.deserializeSections(element.getSections()),
                         element.getRefinerRegex()))
                 .forEachOrdered(newRegex -> {
-                    if (!ctx.regexEntities().contains(newRegex)) {
-                        ctx.regexEntities().add(newRegex);
+                    if (!regexesList.contains(newRegex)) {
+                        regexesList.add(newRegex);
                     } else {
                         alreadyAddedMsg.append(String.format("%s - %s\n", newRegex.getDescription(), newRegex.getRegex()));
                     }

@@ -1,4 +1,4 @@
-package com.cys4.sensitivediscoverer;
+package com.cys4.sensitivediscoverer.utils;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

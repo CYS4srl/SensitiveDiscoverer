@@ -3,9 +3,9 @@ package com.cys4.sensitivediscoverer.model;
 import java.util.List;
 
 /**
- * Model for deserialization of regexes files
+ * Adapter model for deserializing a list of regexes from a JSON file
  */
-public class JsonRegexEntity {
+public class RegexEntityJsonAdapter {
     private boolean active;
     private String regex;
     private String refinerRegex;
@@ -13,7 +13,7 @@ public class JsonRegexEntity {
     private List<String> sections;
     private List<String> tests;
 
-    public JsonRegexEntity() {
+    public RegexEntityJsonAdapter() {
     }
 
     public boolean isActive() {

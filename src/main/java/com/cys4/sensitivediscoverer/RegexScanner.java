@@ -48,7 +48,7 @@ public class RegexScanner {
             MimeType.VIDEO
     );
     private final MontoyaApi burpApi;
-    private final ScannerOptions scannerOptions;
+    private final RegexScannerOptions scannerOptions;
     private final List<RegexEntity> generalRegexList;
     private final List<RegexEntity> extensionsRegexList;
     private final Object analyzeLock = new Object();
@@ -67,7 +67,7 @@ public class RegexScanner {
     private JProgressBar progressBar;
 
     public RegexScanner(MontoyaApi burpApi,
-                        ScannerOptions scannerOptions,
+                        RegexScannerOptions scannerOptions,
                         List<RegexEntity> generalRegexList,
                         List<RegexEntity> extensionsRegexList) {
         this.burpApi = burpApi;
@@ -143,7 +143,7 @@ public class RegexScanner {
      * @param logEntriesCallback A callback that's called for every new finding, with a LogEntity as the only argument.
      */
     private void analyzeSingleMessage(List<RegexEntity> regexList,
-                                      ScannerOptions scannerOptions,
+                                      RegexScannerOptions scannerOptions,
                                       ProxyHttpRequestResponse proxyEntry,
                                       Consumer<LogEntity> logEntriesCallback) {
         // The initial checks must be kept ordered based on the amount of information required from Burp APIs.
@@ -174,7 +174,7 @@ public class RegexScanner {
     }
 
     private void performMatchingOnMessage(RegexEntity regex,
-                                          ScannerOptions scannerOptions,
+                                          RegexScannerOptions scannerOptions,
                                           HttpRecord requestResponse,
                                           Consumer<HttpMatchResult> logMatchCallback) {
         Pattern regexCompiled = regex.getRegexCompiled();
@@ -182,14 +182,14 @@ public class RegexScanner {
 
         regex.getSections()
                 .stream()
-                .map(httpSection -> ScannerUtils.getSectionText(httpSection, requestResponse))
+                .map(httpSection -> ScannerUtils.getHttpRecordSection(requestResponse, httpSection))
                 .flatMap(sectionRecord -> {
-                    Matcher matcher = regexCompiled.matcher(sectionRecord.text());
+                    Matcher matcher = regexCompiled.matcher(sectionRecord.content());
                     return matcher.results().map(result -> {
                         String match = result.group();
                         if (refinerRegexCompiled.isPresent()) {
                             int startIndex = result.start();
-                            Matcher preMatch = refinerRegexCompiled.get().matcher(sectionRecord.text());
+                            Matcher preMatch = refinerRegexCompiled.get().matcher(sectionRecord.content());
                             preMatch.region(Math.max(startIndex - scannerOptions.getConfigRefineContextSize(), 0), startIndex);
                             if (preMatch.find())
                                 match = preMatch.group() + match;

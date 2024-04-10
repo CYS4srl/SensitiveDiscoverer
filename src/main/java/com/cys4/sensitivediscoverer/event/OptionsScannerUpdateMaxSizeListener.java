@@ -1,15 +1,15 @@
 package com.cys4.sensitivediscoverer.event;
 
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class OptionsScannerUpdateMaxSizeListener extends OptionsScannerUpdateListener {
 
-    public OptionsScannerUpdateMaxSizeListener(ScannerOptions scannerOptions) {
+    public OptionsScannerUpdateMaxSizeListener(RegexScannerOptions scannerOptions) {
         super(scannerOptions);
     }
 

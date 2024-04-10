@@ -4,10 +4,7 @@ import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
 import com.cys4.sensitivediscoverer.mock.ProxyHttpRequestResponseMock;
 import com.cys4.sensitivediscoverer.mock.ProxyMock;
-import com.cys4.sensitivediscoverer.model.HttpSection;
-import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.LoggerUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RegexScannerTest {
     private RegexScanner regexScanner;
     private BurpMontoyaApiMock burpApi;
-    private ScannerOptions scannerOptions;
+    private RegexScannerOptions scannerOptions;
     private LogEntriesManager logEntriesManager;
     private Consumer<LogEntity> logEntityConsumer;
 
@@ -32,7 +28,7 @@ class RegexScannerTest {
         burpApi = new BurpMontoyaApiMock();
 
         //TODO test scanner options
-        scannerOptions = new ScannerOptions();
+        scannerOptions = new RegexScannerOptions();
         scannerOptions.setConfigMaxResponseSize(10000000);
         scannerOptions.setConfigNumberOfThreads(1);
         scannerOptions.setConfigRefineContextSize(64);

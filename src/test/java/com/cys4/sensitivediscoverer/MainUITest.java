@@ -2,7 +2,7 @@ package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
-import com.cys4.sensitivediscoverer.model.ScannerOptions;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ class MainUITest {
     void testGetScannerOptions() {
         assertThat(this.mainUI.getScannerOptions())
                 .isNotNull()
-                .isInstanceOf(ScannerOptions.class);
+                .isInstanceOf(RegexScannerOptions.class);
     }
 
     @Test

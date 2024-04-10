@@ -1,6 +1,6 @@
-package com.cys4.sensitivediscoverer;
+package com.cys4.sensitivediscoverer.model;
 
-import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.event.LogEntriesListener;
 
 import java.util.ArrayList;
 import java.util.List;

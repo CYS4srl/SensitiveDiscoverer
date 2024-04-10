@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class SwingUtils {
 

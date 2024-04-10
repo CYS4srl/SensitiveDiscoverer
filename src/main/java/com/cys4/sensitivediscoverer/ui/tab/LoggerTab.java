@@ -4,12 +4,12 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
-import com.cys4.sensitivediscoverer.LogEntriesManager;
+import com.cys4.sensitivediscoverer.model.LogEntriesManager;
 import com.cys4.sensitivediscoverer.MainUI;
 import com.cys4.sensitivediscoverer.RegexScanner;
 import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.LogsTableModel;
-import com.cys4.sensitivediscoverer.ui.LogsTable;
+import com.cys4.sensitivediscoverer.ui.table.LogsTableModel;
+import com.cys4.sensitivediscoverer.ui.table.LogsTable;
 import com.cys4.sensitivediscoverer.ui.LogsTableContextMenu;
 import com.cys4.sensitivediscoverer.ui.PopupMenuButton;
 import com.cys4.sensitivediscoverer.utils.FileUtils;
@@ -31,7 +31,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 import static com.cys4.sensitivediscoverer.utils.Utils.createGsonBuilder;
 
 public class LoggerTab implements ApplicationTab {

@@ -1,12 +1,11 @@
-package com.cys4.sensitivediscoverer.ui;
+package com.cys4.sensitivediscoverer.ui.table;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
-import com.cys4.sensitivediscoverer.LogEntriesManager;
+import com.cys4.sensitivediscoverer.model.LogEntriesManager;
 import com.cys4.sensitivediscoverer.model.LogEntity;
-import com.cys4.sensitivediscoverer.model.LogsTableModel;
 
 import javax.swing.*;
 

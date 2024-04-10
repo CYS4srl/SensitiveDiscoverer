@@ -1,11 +1,12 @@
-package com.cys4.sensitivediscoverer.model;
+package com.cys4.sensitivediscoverer.ui.table;
 
-import com.cys4.sensitivediscoverer.LogEntriesManager;
+import com.cys4.sensitivediscoverer.model.LogEntriesManager;
+import com.cys4.sensitivediscoverer.model.LogEntity;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-import static com.cys4.sensitivediscoverer.Messages.getLocaleString;
+import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class LogsTableModel extends AbstractTableModel {
 

@@ -1,6 +1,9 @@
 package com.cys4.sensitivediscoverer.model;
 
-public class ScannerOptions {
+/**
+ * Options used by the RegexScanner for modifying its behaviour
+ */
+public class RegexScannerOptions {
 
     /**
      * Checkbox to skip responses not in scope
