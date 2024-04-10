@@ -36,12 +36,12 @@ The extension is available with a pre-defined set of Regular Expressions divided
 ### Features
 
 - Multithreaded scan of messages
+- Multi-step regex matching
 - Pre-defined sets of regexes
 - Many filters to skip irrelevant messages
 - Customizable regexes lists
 - Export findings to CSV/JSON files
 - Import/Export regexes lists from CSV/JSON files
-- Multi-step regex matching
 
 ### Screenshots
 
@@ -116,6 +116,7 @@ These are the actions available to manage the lists:
 - **Disable all**: enable all the regexes in the current section.
 - **List > Reset default list**: the list will be reset to the default list.
 - **List > Clear list**: the list will be emptied.
+- **List > Reset default list**: the list will be reset to the default one. 
 - **List > Open list...**: a pop-up will appear to import a list of regex or extensions from a `csv` or `json` file. For the required file format, refer to the [Importing Lists](#importing-lists) section.
 - **List > Save list...**: a pop-up will appear to save the current list of regex to a `csv` or `json` file.
 - **Regex > New regex**: a pop-up will appear to insert a new regex.
@@ -220,7 +221,12 @@ Check out [our site](https://cys4.com/) and [our blog](https://blog.cys4.com/) f
 
 The following is a list of sources for some regexes used in this extension. Many thanks to all!
 
+- https://learn.microsoft.com/en-us/purview/sit-sensitive-information-type-entity-definitions
+- https://docs.gitguardian.com/secrets-detection/secrets-detection-engine/detectors/supported_credentials
 - https://github.com/eth0izzle/shhgit
 - https://github.com/streaak/keyhacks
+- https://github.com/l4yton/RegHex
+- https://github.com/sdushantha/dora
+- https://github.com/trufflesecurity/trufflehog
 
-Additional references are kept directly in the regexes lists files.
+Additional references are also kept directly in the regexes lists files.
