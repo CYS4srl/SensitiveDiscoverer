@@ -1,8 +1,8 @@
 package com.cys4.sensitivediscoverer;
 
 import com.cys4.sensitivediscoverer.model.HttpSection;
-import com.cys4.sensitivediscoverer.model.RegexEntityJsonAdapter;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.RegexEntityJsonAdapter;
 import com.cys4.sensitivediscoverer.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
