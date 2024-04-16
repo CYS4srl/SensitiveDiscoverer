@@ -106,7 +106,7 @@ class FileUtilsTest {
                 {"description":"Test regex 4","regex":"(?i)example\\\\.app","refinerRegex":"[a-z\\\\-]{1,64}$","sections":["all"]}
                 ]
                 """;
-        FileUtils.importRegexListFromJSON(json, regexesList);
+        FileUtils.importRegexListFromJSON(List.of(json.split("\n")), regexesList);
         assertThat(regexesList).containsExactly(
                 // no refinerRegex
                 new RegexEntity("Test regex 1", "-----BEGIN", true, EnumSet.of(HttpSection.REQ_BODY, HttpSection.RES_HEADERS, HttpSection.RES_BODY), ""),

@@ -8,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -19,7 +18,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 import static com.cys4.sensitivediscoverer.utils.Utils.createGsonBuilder;
 
 public class FileUtils {
@@ -87,17 +85,20 @@ public class FileUtils {
         return createGsonBuilder().toJson(lines, tListEntries);
     }
 
-    public static void importRegexListFromFileCSV(String csvFilepath, List<RegexEntity> regexesList) {
-        List<String> lines = readLinesFromFile(csvFilepath);
-        if (Objects.isNull(lines)) return;
+    public static String importRegexListFromFile(String fileName, List<RegexEntity> regexEntities) {
+        List<String> lines = readLinesFromFile(fileName);
+        if (Objects.isNull(lines)) return "";
 
-        String alreadyAddedMsg = importRegexListFromCSV(lines, regexesList);
+        String alreadyAddedMsg = "";
+        if (fileName.toUpperCase().endsWith("JSON")) {
+            alreadyAddedMsg = FileUtils.importRegexListFromJSON(lines, regexEntities);
+        } else if (fileName.toUpperCase().endsWith("CSV")) {
+            alreadyAddedMsg = FileUtils.importRegexListFromCSV(lines, regexEntities);
+        }
 
-        SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
-                getLocaleString("options-list-open-alreadyPresentTitle"),
-                getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg));
+        return alreadyAddedMsg;
     }
+
 
     public static String importRegexListFromCSV(List<String> csvLines, List<RegexEntity> regexesList) {
         StringBuilder alreadyAddedMsg = new StringBuilder();
@@ -124,19 +125,8 @@ public class FileUtils {
         return alreadyAddedMsg.toString();
     }
 
-    public static void importRegexListFromFileJSON(String jsonFilepath, List<RegexEntity> regexesList) {
-        List<String> lines = readLinesFromFile(jsonFilepath);
-        if (Objects.isNull(lines)) return;
-
-        String alreadyAddedMsg = importRegexListFromJSON(String.join("", lines), regexesList);
-
-        SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
-                getLocaleString("options-list-open-alreadyPresentTitle"),
-                getLocaleString("options-list-open-alreadyPresentWarn"),
-                alreadyAddedMsg));
-    }
-
-    public static String importRegexListFromJSON(String json, List<RegexEntity> regexesList) {
+    public static String importRegexListFromJSON(List<String> jsonLines, List<RegexEntity> regexesList) {
+        String json = String.join("", jsonLines);
         Gson gson = new Gson();
         StringBuilder alreadyAddedMsg = new StringBuilder();
         Type tArrayListRegexEntity = new TypeToken<ArrayList<RegexEntityJsonAdapter>>() {

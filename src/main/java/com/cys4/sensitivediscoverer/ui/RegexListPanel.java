@@ -139,7 +139,7 @@ public class RegexListPanel {
         gbc.fill = GridBagConstraints.BOTH;
         containerCenter.add(scrollPane, gbc);
 
-        //Add Regex Popup Menu
+        // Add Regex Popup Menu
         regexTable.addMouseListener(createRegexPopupMenu(regexEntities, regexTable, containerCenter, tableModel));
 
         // buttons
@@ -342,11 +342,12 @@ public class RegexListPanel {
         menuItem.addActionListener(actionEvent -> {
             String fileName = SwingUtils.selectFile(options, true);
 
-            if (fileName.toUpperCase().endsWith("JSON")) {
-                FileUtils.importRegexListFromFileJSON(fileName, regexEntities);
-            } else if (fileName.toUpperCase().endsWith("CSV")) {
-                FileUtils.importRegexListFromFileCSV(fileName, regexEntities);
-            }
+            String alreadyAddedMsg = FileUtils.importRegexListFromFile(fileName, regexEntities);
+
+            SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
+                    getLocaleString("options-list-open-alreadyPresentTitle"),
+                    getLocaleString("options-list-open-alreadyPresentWarn"),
+                    alreadyAddedMsg));
 
             tableModel.fireTableDataChanged();
             tabPaneOptions.validate();

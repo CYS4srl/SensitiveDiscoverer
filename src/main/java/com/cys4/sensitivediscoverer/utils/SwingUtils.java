@@ -60,17 +60,17 @@ public class SwingUtils {
 
         fileChooser.setAcceptAllFileFilterUsed(false);
 
-        //add supported extensions
+        // add supported extensions
         extensionNames.stream()
                 .map(extensionName -> new FileNameExtensionFilter("." + extensionName, extensionName))
                 .forEachOrdered(fileChooser::addChoosableFileFilter);
 
-        //set window title to Open or Save
+        // set window title to Open or Save
         fileChooser.setDialogTitle(getLocaleString(openFile ?
                 "utils-linesFromFile-importFile"
                 : "utils-saveToFile-exportFile"));
 
-        //show the Open or Save window
+        // show the Open or Save window
         int userSelection = openFile ?
                 fileChooser.showOpenDialog(parentFrame) :
                 fileChooser.showSaveDialog(parentFrame);

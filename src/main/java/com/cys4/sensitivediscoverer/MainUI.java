@@ -3,6 +3,7 @@ package com.cys4.sensitivediscoverer;
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
+import com.cys4.sensitivediscoverer.model.UnloadingHandler;
 import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
 import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
 import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
@@ -14,7 +15,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Properties;
 
-import static com.cys4.sensitivediscoverer.utils.Utils.loadConfigFile;
+import static com.cys4.sensitivediscoverer.utils.Utils.*;
 
 public class MainUI {
     private final MontoyaApi burpApi;
@@ -31,16 +32,15 @@ public class MainUI {
 
         // parse configurations
         this.configProperties = loadConfigFile();
-        scannerOptions = new RegexScannerOptions();
-        scannerOptions.setConfigMaxResponseSize(Integer.parseInt(configProperties.getProperty("config.max_response_size")));
-        scannerOptions.setConfigNumberOfThreads(Integer.parseInt(configProperties.getProperty("config.number_of_threads")));
-        scannerOptions.setConfigRefineContextSize(Integer.parseInt(configProperties.getProperty("config.scanner.refine_context_size")));
-        scannerOptions.setFilterInScopeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.in_scope")));
-        scannerOptions.setFilterSkipMaxSizeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_max_size")));
-        scannerOptions.setFilterSkipMediaTypeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_media_type")));
 
-        this.generalRegexList = RegexSeeder.getGeneralRegexes();
-        this.extensionsRegexList = RegexSeeder.getExtensionRegexes();
+        //reload stored preferences
+        this.scannerOptions = loadScannerOptions(burpApi, this.configProperties);
+        this.generalRegexList = loadRegexList(burpApi);
+        this.extensionsRegexList = loadExtensionsRegexList(burpApi);
+
+        // enables data to survive reloading of the extension and Burp.
+        burpApi.extension().registerUnloadingHandler(
+                new UnloadingHandler(burpApi, scannerOptions, generalRegexList, extensionsRegexList));
     }
 
     public boolean isInterfaceInitialized() {
