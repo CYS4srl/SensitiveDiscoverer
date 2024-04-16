@@ -40,8 +40,12 @@ public class FileUtils {
         }
     }
 
-    public static void exportRegexListToFileCSV(String csvFile, List<RegexEntity> regexEntities) {
-        writeLinesToFile(csvFile, exportRegexListToCSV(regexEntities));
+    public static void exportRegexListToFile(String fileName, List<RegexEntity> regexEntities) {
+        if (fileName.toUpperCase().endsWith("JSON")) {
+            writeLinesToFile(fileName, exportRegexListToJson(regexEntities));
+        } else if (fileName.toUpperCase().endsWith("CSV")) {
+            writeLinesToFile(fileName, exportRegexListToCSV(regexEntities));
+        }
     }
 
     public static List<String> exportRegexListToCSV(List<RegexEntity> regexEntities) {
@@ -60,11 +64,7 @@ public class FileUtils {
         return lines;
     }
 
-    public static void exportRegexListToFileJSON(String jsonFile, List<RegexEntity> regexEntities) {
-        writeLinesToFile(jsonFile, List.of(exportRegexListToJson(regexEntities)));
-    }
-
-    public static String exportRegexListToJson(List<RegexEntity> regexEntities) {
+    public static List<String> exportRegexListToJson(List<RegexEntity> regexEntities) {
         List<JsonObject> lines;
         lines = regexEntities
                 .stream()
@@ -82,7 +82,7 @@ public class FileUtils {
 
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
-        return createGsonBuilder().toJson(lines, tListEntries);
+        return List.of(createGsonBuilder().toJson(lines, tListEntries));
     }
 
     public static String importRegexListFromFile(String fileName, List<RegexEntity> regexEntities) {

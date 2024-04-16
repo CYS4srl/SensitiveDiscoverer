@@ -323,12 +323,7 @@ public class RegexListPanel {
         List<String> options = Arrays.asList("JSON", "CSV");
         menuItem.addActionListener(actionEvent -> {
             String fileName = SwingUtils.selectFile(options, false);
-
-            if (fileName.toUpperCase().endsWith("JSON")) {
-                FileUtils.exportRegexListToFileJSON(fileName, regexEntities);
-            } else if (fileName.toUpperCase().endsWith("CSV")) {
-                FileUtils.exportRegexListToFileCSV(fileName, regexEntities);
-            }
+            FileUtils.exportRegexListToFile(fileName, regexEntities);
         });
 
         return menuItem;
@@ -341,7 +336,6 @@ public class RegexListPanel {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
             String fileName = SwingUtils.selectFile(options, true);
-
             String alreadyAddedMsg = FileUtils.importRegexListFromFile(fileName, regexEntities);
 
             SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(

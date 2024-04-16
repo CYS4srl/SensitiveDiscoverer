@@ -140,7 +140,7 @@ public class Utils {
     public static void saveRegexList(MontoyaApi burpApi, List<RegexEntity> regexEntities) {
         String defaultFileName = "current_regex_list.json";
         burpApi.persistence().preferences().setString("config.regex_list_file_name", defaultFileName);
-        FileUtils.exportRegexListToFileJSON(defaultFileName, regexEntities);
+        FileUtils.exportRegexListToFile(defaultFileName, regexEntities);
     }
 
     /**
@@ -172,7 +172,7 @@ public class Utils {
     public static void saveExtensionsRegexList(MontoyaApi burpApi, List<RegexEntity> extensionsRegexEntities) {
         String defaultFileName = "current_extensions_regex_list.json";
         burpApi.persistence().preferences().setString("config.extensions_regex_list_file_name", defaultFileName);
-        FileUtils.exportRegexListToFileJSON(defaultFileName, extensionsRegexEntities);
+        FileUtils.exportRegexListToFile(defaultFileName, extensionsRegexEntities);
     }
 
     public static String getExtensionVersion() {
