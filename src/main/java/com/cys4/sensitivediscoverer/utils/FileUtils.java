@@ -42,7 +42,7 @@ public class FileUtils {
 
     public static void exportRegexListToFile(String fileName, List<RegexEntity> regexEntities) {
         if (fileName.toUpperCase().endsWith("JSON")) {
-            writeLinesToFile(fileName, exportRegexListToJson(regexEntities));
+            writeLinesToFile(fileName, List.of(exportRegexListToJson(regexEntities)));
         } else if (fileName.toUpperCase().endsWith("CSV")) {
             writeLinesToFile(fileName, exportRegexListToCSV(regexEntities));
         }
@@ -64,7 +64,7 @@ public class FileUtils {
         return lines;
     }
 
-    public static List<String> exportRegexListToJson(List<RegexEntity> regexEntities) {
+    public static String exportRegexListToJson(List<RegexEntity> regexEntities) {
         List<JsonObject> lines;
         lines = regexEntities
                 .stream()
@@ -82,7 +82,7 @@ public class FileUtils {
 
         Type tListEntries = (new TypeToken<ArrayList<JsonObject>>() {
         }).getType();
-        return List.of(createGsonBuilder().toJson(lines, tListEntries));
+        return createGsonBuilder().toJson(lines, tListEntries);
     }
 
     public static String importRegexListFromFile(String fileName, List<RegexEntity> regexEntities) {
