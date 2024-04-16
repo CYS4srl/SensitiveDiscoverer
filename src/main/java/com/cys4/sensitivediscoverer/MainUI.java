@@ -3,7 +3,6 @@ package com.cys4.sensitivediscoverer;
 import burp.api.montoya.MontoyaApi;
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
-import com.cys4.sensitivediscoverer.model.UnloadingHandler;
 import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
 import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
 import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
@@ -33,14 +32,10 @@ public class MainUI {
         // parse configurations
         this.configProperties = loadConfigFile();
 
-        //reload stored preferences
+        // load stored preferences
         this.scannerOptions = loadScannerOptions(burpApi, this.configProperties);
         this.generalRegexList = loadRegexList(burpApi);
         this.extensionsRegexList = loadExtensionsRegexList(burpApi);
-
-        // enables data to survive reloading of the extension and Burp.
-        burpApi.extension().registerUnloadingHandler(
-                new UnloadingHandler(burpApi, scannerOptions, generalRegexList, extensionsRegexList));
     }
 
     public boolean isInterfaceInitialized() {

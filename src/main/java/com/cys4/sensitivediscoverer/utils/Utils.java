@@ -61,36 +61,21 @@ public class Utils {
      */
     public static RegexScannerOptions loadScannerOptions(MontoyaApi burpApi, Properties configProperties) {
         RegexScannerOptions scannerOptions = new RegexScannerOptions();
-
-        if (burpApi.persistence().preferences().integerKeys().contains("config.max_response_size"))
+        try {
             scannerOptions.setConfigMaxResponseSize(burpApi.persistence().preferences().getInteger("config.max_response_size"));
-        else
-            scannerOptions.setConfigMaxResponseSize(Integer.parseInt(configProperties.getProperty("config.max_response_size")));
-
-        if (burpApi.persistence().preferences().integerKeys().contains("config.number_of_threads"))
             scannerOptions.setConfigNumberOfThreads(burpApi.persistence().preferences().getInteger("config.number_of_threads"));
-        else
-            scannerOptions.setConfigNumberOfThreads(Integer.parseInt(configProperties.getProperty("config.number_of_threads")));
-
-        if (burpApi.persistence().preferences().integerKeys().contains("config.scanner.refine_context_size"))
             scannerOptions.setConfigRefineContextSize(burpApi.persistence().preferences().getInteger("config.scanner.refine_context_size"));
-        else
-            scannerOptions.setConfigRefineContextSize(Integer.parseInt(configProperties.getProperty("config.scanner.refine_context_size")));
-
-        if (burpApi.persistence().preferences().booleanKeys().contains("config.filter.in_scope"))
             scannerOptions.setFilterInScopeCheckbox(burpApi.persistence().preferences().getBoolean("config.filter.in_scope"));
-        else
-            scannerOptions.setFilterInScopeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.in_scope")));
-
-        if (burpApi.persistence().preferences().booleanKeys().contains("config.filter.skip_max_size"))
             scannerOptions.setFilterSkipMaxSizeCheckbox(burpApi.persistence().preferences().getBoolean("config.filter.skip_max_size"));
-        else
-            scannerOptions.setFilterSkipMaxSizeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_max_size")));
-
-        if (burpApi.persistence().preferences().booleanKeys().contains("config.filter.skip_media_type"))
             scannerOptions.setFilterSkipMediaTypeCheckbox(burpApi.persistence().preferences().getBoolean("config.filter.skip_media_type"));
-        else
+        } catch (Exception e) {
+            scannerOptions.setConfigMaxResponseSize(Integer.parseInt(configProperties.getProperty("config.max_response_size")));
+            scannerOptions.setConfigNumberOfThreads(Integer.parseInt(configProperties.getProperty("config.number_of_threads")));
+            scannerOptions.setConfigRefineContextSize(Integer.parseInt(configProperties.getProperty("config.scanner.refine_context_size")));
+            scannerOptions.setFilterInScopeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.in_scope")));
+            scannerOptions.setFilterSkipMaxSizeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_max_size")));
             scannerOptions.setFilterSkipMediaTypeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_media_type")));
+        }
 
         return scannerOptions;
     }
