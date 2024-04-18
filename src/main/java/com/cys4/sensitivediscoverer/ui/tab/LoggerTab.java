@@ -64,9 +64,7 @@ public class LoggerTab implements ApplicationTab {
         this.logEntriesManager = new LogEntriesManager();
         this.regexScanner = new RegexScanner(
                 this.mainUI.getBurpApi(),
-                this.mainUI.getScannerOptions(),
-                mainUI.getGeneralRegexList(),
-                mainUI.getExtensionsRegexList());
+                this.mainUI.getScannerOptions());
 
         // keep as last call
         this.panel = this.createPanel();

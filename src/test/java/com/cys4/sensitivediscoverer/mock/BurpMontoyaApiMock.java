@@ -25,6 +25,7 @@ public class BurpMontoyaApiMock implements MontoyaApi {
     private final Extension extension = new ExtensionMock();
     private final Proxy proxy = new ProxyMock();
     private final UserInterface userInterface = new UserInterfaceMock();
+    private final Persistence persistence = new PersistenceMock();
 
     @Override
     public Extension extension() {
@@ -39,6 +40,11 @@ public class BurpMontoyaApiMock implements MontoyaApi {
     @Override
     public UserInterface userInterface() {
         return this.userInterface;
+    }
+
+    @Override
+    public Persistence persistence() {
+        return this.persistence;
     }
 
     @Override
@@ -78,11 +84,6 @@ public class BurpMontoyaApiMock implements MontoyaApi {
 
     @Override
     public Organizer organizer() {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public Persistence persistence() {
         throw new NotImplementedException();
     }
 

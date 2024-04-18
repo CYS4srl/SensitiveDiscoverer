@@ -139,7 +139,7 @@ public class RegexListPanel {
         gbc.fill = GridBagConstraints.BOTH;
         containerCenter.add(scrollPane, gbc);
 
-        // Add Regex Popup Menu
+        // popup menu
         regexTable.addMouseListener(createRegexPopupMenu(regexEntities, regexTable, containerCenter, tableModel));
 
         // buttons
@@ -322,8 +322,8 @@ public class RegexListPanel {
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-save"));
         List<String> options = Arrays.asList("JSON", "CSV");
         menuItem.addActionListener(actionEvent -> {
-            String fileName = SwingUtils.selectFile(options, false);
-            FileUtils.exportRegexListToFile(fileName, regexEntities);
+            String filepath = SwingUtils.selectFile(options, false);
+            FileUtils.exportRegexListToFile(filepath, regexEntities);
         });
 
         return menuItem;
@@ -335,13 +335,24 @@ public class RegexListPanel {
         List<String> options = Arrays.asList("JSON", "CSV");
         JMenuItem menuItem = new JMenuItem(getLocaleString("options-list-open"));
         menuItem.addActionListener(actionEvent -> {
-            String fileName = SwingUtils.selectFile(options, true);
-            String alreadyAddedMsg = FileUtils.importRegexListFromFile(fileName, regexEntities);
+            StringBuilder message = new StringBuilder();
+            String filepath = SwingUtils.selectFile(options, true);
 
-            SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
-                    getLocaleString("options-list-open-alreadyPresentTitle"),
-                    getLocaleString("options-list-open-alreadyPresentWarn"),
-                    alreadyAddedMsg));
+            try {
+                FileUtils.importRegexListFromFile(filepath, regexEntities)
+                        .stream()
+                        .map(entity -> String.format("%s - %s\n", entity.getDescription(), entity.getRegex()))
+                        .forEach(message::append);
+                SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
+                        getLocaleString("options-list-open-alreadyPresentTitle"),
+                        getLocaleString("options-list-open-alreadyPresentWarn"),
+                        message.toString()));
+            } catch (Exception exception) {
+                SwingUtilities.invokeLater(() -> SwingUtils.showMessageDialog(
+                        getLocaleString("options-list-open-importErrorTitle"),
+                        getLocaleString("options-list-open-importErrorWarn"),
+                        exception.toString()));
+            }
 
             tableModel.fireTableDataChanged();
             tabPaneOptions.validate();

@@ -1,7 +1,6 @@
 package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.MontoyaApi;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
 import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 import com.cys4.sensitivediscoverer.ui.tab.AboutTab;
 import com.cys4.sensitivediscoverer.ui.tab.ApplicationTab;
@@ -11,15 +10,12 @@ import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 import java.util.Properties;
 
-import static com.cys4.sensitivediscoverer.utils.Utils.*;
+import static com.cys4.sensitivediscoverer.utils.Utils.loadConfigFile;
 
 public class MainUI {
     private final MontoyaApi burpApi;
-    private final List<RegexEntity> generalRegexList;
-    private final List<RegexEntity> extensionsRegexList;
     private final Properties configProperties;
     private final RegexScannerOptions scannerOptions;
     private JTabbedPane mainPanel;
@@ -28,14 +24,8 @@ public class MainUI {
     public MainUI(MontoyaApi burpApi) throws Exception {
         this.interfaceInitialized = false;
         this.burpApi = burpApi;
-
-        // parse configurations
         this.configProperties = loadConfigFile();
-
-        // load stored preferences
-        this.scannerOptions = loadScannerOptions(burpApi, this.configProperties);
-        this.generalRegexList = loadRegexList(burpApi);
-        this.extensionsRegexList = loadExtensionsRegexList(burpApi);
+        this.scannerOptions = new RegexScannerOptions(this.configProperties, this.burpApi.persistence().preferences());
     }
 
     public boolean isInterfaceInitialized() {
@@ -62,7 +52,7 @@ public class MainUI {
         mainPanel = new JTabbedPane();
         LoggerTab loggerTab = new LoggerTab(this);
         mainPanel.addTab(loggerTab.getTabName(), loggerTab.getPanel());
-        ApplicationTab optionsTab = new OptionsTab(this);
+        ApplicationTab optionsTab = new OptionsTab(this.getScannerOptions());
         mainPanel.addTab(optionsTab.getTabName(), optionsTab.getPanel());
         ApplicationTab aboutTab = new AboutTab();
         mainPanel.addTab(aboutTab.getTabName(), aboutTab.getPanel());
@@ -82,14 +72,6 @@ public class MainUI {
 
     public MontoyaApi getBurpApi() {
         return burpApi;
-    }
-
-    public List<RegexEntity> getGeneralRegexList() {
-        return generalRegexList;
-    }
-
-    public List<RegexEntity> getExtensionsRegexList() {
-        return extensionsRegexList;
     }
 
     /**

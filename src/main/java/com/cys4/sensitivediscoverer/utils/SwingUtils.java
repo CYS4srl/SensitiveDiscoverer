@@ -1,6 +1,7 @@
 package com.cys4.sensitivediscoverer.utils;
 
 import com.cys4.sensitivediscoverer.MainUI;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -10,8 +11,16 @@ import java.util.Objects;
 
 import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
+/**
+ * Utils to help with Swing related functionalities
+ */
 public class SwingUtils {
 
+    /**
+     * Asserts that the call to this method is done inside the Swing Event Dispatch Thread.
+     *
+     * @throws RuntimeException If the method is not called withing the Swing EDT.
+     */
     public static void assertIsEDT() throws RuntimeException {
         if (!SwingUtilities.isEventDispatchThread())
             throw new RuntimeException("method must be called on EDT");
@@ -60,28 +69,24 @@ public class SwingUtils {
 
         fileChooser.setAcceptAllFileFilterUsed(false);
 
-        // add supported extensions
         extensionNames.stream()
                 .map(extensionName -> new FileNameExtensionFilter("." + extensionName, extensionName))
                 .forEachOrdered(fileChooser::addChoosableFileFilter);
 
-        // set window title to Open or Save
-        fileChooser.setDialogTitle(getLocaleString(openFile ?
-                "utils-linesFromFile-importFile"
+        fileChooser.setDialogTitle(getLocaleString(openFile
+                ? "utils-linesFromFile-importFile"
                 : "utils-saveToFile-exportFile"));
 
-        // show the Open or Save window
-        int userSelection = openFile ?
-                fileChooser.showOpenDialog(parentFrame) :
-                fileChooser.showSaveDialog(parentFrame);
+        int userSelection = openFile
+                ? fileChooser.showOpenDialog(parentFrame)
+                : fileChooser.showSaveDialog(parentFrame);
 
         if (userSelection != JFileChooser.APPROVE_OPTION) return "";
 
         String exportFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+        String selectedExtension = fileChooser.getFileFilter().getDescription().toLowerCase();
 
-        String selectedExt = fileChooser.getFileFilter().getDescription().toLowerCase();
-
-        return exportFilePath.toLowerCase().endsWith(selectedExt) ? exportFilePath : exportFilePath + selectedExt;
+        return FilenameUtils.removeExtension(exportFilePath) + selectedExtension;
     }
 
     /**

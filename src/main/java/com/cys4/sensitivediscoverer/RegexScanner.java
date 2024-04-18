@@ -66,14 +66,11 @@ public class RegexScanner {
      */
     private JProgressBar progressBar;
 
-    public RegexScanner(MontoyaApi burpApi,
-                        RegexScannerOptions scannerOptions,
-                        List<RegexEntity> generalRegexList,
-                        List<RegexEntity> extensionsRegexList) {
+    public RegexScanner(MontoyaApi burpApi, RegexScannerOptions scannerOptions) {
         this.burpApi = burpApi;
         this.scannerOptions = scannerOptions;
-        this.generalRegexList = generalRegexList;
-        this.extensionsRegexList = extensionsRegexList;
+        this.generalRegexList = scannerOptions.getGeneralRegexList();
+        this.extensionsRegexList = scannerOptions.getExtensionsRegexList();
         this.interruptScan = false;
         this.progressBar = null;
     }

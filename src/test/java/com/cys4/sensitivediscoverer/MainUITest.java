@@ -56,12 +56,12 @@ class MainUITest {
 
     @Test
     void testGetGeneralRegexList() {
-        assertThat(this.mainUI.getGeneralRegexList()).isNotNull();
+        assertThat(this.mainUI.getScannerOptions().getGeneralRegexList()).isNotNull();
     }
 
     @Test
     void testGetExtensionsRegexList() {
-        assertThat(this.mainUI.getExtensionsRegexList()).isNotNull();
+        assertThat(this.mainUI.getScannerOptions().getExtensionsRegexList()).isNotNull();
     }
 
     @Test

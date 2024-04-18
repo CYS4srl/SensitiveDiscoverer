@@ -1,17 +1,15 @@
 package com.cys4.sensitivediscoverer.utils;
 
-import burp.api.montoya.MontoyaApi;
-import com.cys4.sensitivediscoverer.RegexSeeder;
-import com.cys4.sensitivediscoverer.model.RegexEntity;
-import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -52,114 +50,6 @@ public class Utils {
         return properties;
     }
 
-    /**
-     * Load scanner options from the Burp preferences store.
-     *
-     * @param burpApi          The MontoyaApi instance for accessing Burp Suite preference store functionality.
-     * @param configProperties The default options to load if persistent preferences are missing.
-     * @return The loaded scanner options object.
-     */
-    public static RegexScannerOptions loadScannerOptions(MontoyaApi burpApi, Properties configProperties) {
-        RegexScannerOptions scannerOptions = new RegexScannerOptions();
-        try {
-            scannerOptions.setConfigMaxResponseSize(burpApi.persistence().preferences().getInteger("config.max_response_size"));
-            scannerOptions.setConfigNumberOfThreads(burpApi.persistence().preferences().getInteger("config.number_of_threads"));
-            scannerOptions.setConfigRefineContextSize(burpApi.persistence().preferences().getInteger("config.scanner.refine_context_size"));
-            scannerOptions.setFilterInScopeCheckbox(burpApi.persistence().preferences().getBoolean("config.filter.in_scope"));
-            scannerOptions.setFilterSkipMaxSizeCheckbox(burpApi.persistence().preferences().getBoolean("config.filter.skip_max_size"));
-            scannerOptions.setFilterSkipMediaTypeCheckbox(burpApi.persistence().preferences().getBoolean("config.filter.skip_media_type"));
-        } catch (Exception e) {
-            scannerOptions.setConfigMaxResponseSize(Integer.parseInt(configProperties.getProperty("config.max_response_size")));
-            scannerOptions.setConfigNumberOfThreads(Integer.parseInt(configProperties.getProperty("config.number_of_threads")));
-            scannerOptions.setConfigRefineContextSize(Integer.parseInt(configProperties.getProperty("config.scanner.refine_context_size")));
-            scannerOptions.setFilterInScopeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.in_scope")));
-            scannerOptions.setFilterSkipMaxSizeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_max_size")));
-            scannerOptions.setFilterSkipMediaTypeCheckbox(Boolean.parseBoolean(configProperties.getProperty("config.filter.skip_media_type")));
-        }
-
-        return scannerOptions;
-    }
-
-
-    /**
-     * Save the scanner options in the Burp preference store.
-     *
-     * @param burpApi        The MontoyaApi instance for accessing Burp Suite preference store functionality.
-     * @param scannerOptions The options to save.
-     */
-    public static void saveScannerOptions(MontoyaApi burpApi, RegexScannerOptions scannerOptions) {
-        burpApi.persistence().preferences().setInteger("config.max_response_size", scannerOptions.getConfigMaxResponseSize());
-        burpApi.persistence().preferences().setInteger("config.number_of_threads", scannerOptions.getConfigNumberOfThreads());
-        burpApi.persistence().preferences().setInteger("config.scanner.refine_context_size", scannerOptions.getConfigRefineContextSize());
-        burpApi.persistence().preferences().setBoolean("config.filter.in_scope", scannerOptions.isFilterInScopeCheckbox());
-        burpApi.persistence().preferences().setBoolean("config.filter.skip_max_size", scannerOptions.isFilterSkipMaxSizeCheckbox());
-        burpApi.persistence().preferences().setBoolean("config.filter.skip_media_type", scannerOptions.isFilterSkipMediaTypeCheckbox());
-    }
-
-    /**
-     * Reads the regexes file name from the Burp preferences store and imports it.
-     * Loads the default general regex list in case of errors.
-     *
-     * @param burpApi The MontoyaApi instance for accessing Burp Suite preference store functionality.
-     * @return The loaded list of regexes.
-     */
-    public static List<RegexEntity> loadRegexList(MontoyaApi burpApi) {
-        List<RegexEntity> regexEntities = new ArrayList<>();
-
-        try {
-            String fileName = burpApi.persistence().preferences().getString("config.regex_list_file_name");
-            FileUtils.importRegexListFromFile(fileName, regexEntities);
-        } catch (Exception e) {
-            regexEntities = RegexSeeder.getGeneralRegexes();
-        }
-
-        return regexEntities;
-    }
-
-    /**
-     * Save the current regex list in a Json file and its name in the Burp preference store.
-     *
-     * @param burpApi       The MontoyaApi instance for accessing Burp Suite preference store functionality.
-     * @param regexEntities The regex list to save.
-     */
-    public static void saveRegexList(MontoyaApi burpApi, List<RegexEntity> regexEntities) {
-        String defaultFileName = "current_regex_list.json";
-        burpApi.persistence().preferences().setString("config.regex_list_file_name", defaultFileName);
-        FileUtils.exportRegexListToFile(defaultFileName, regexEntities);
-    }
-
-    /**
-     * Reads the extensions regexes file name from the Burp preferences store and imports it.
-     * Loads the default extensions regex list in case of errors.
-     *
-     * @param burpApi The MontoyaApi instance for accessing Burp Suite preference store functionality.
-     * @return The loaded list of extensions regexes.
-     */
-    public static List<RegexEntity> loadExtensionsRegexList(MontoyaApi burpApi) {
-        List<RegexEntity> extensionsRegexEntities = new ArrayList<>();
-
-        try {
-            String fileName = burpApi.persistence().preferences().getString("config.extensions_regex_list_file_name");
-            FileUtils.importRegexListFromFile(fileName, extensionsRegexEntities);
-        } catch (Exception e) {
-            extensionsRegexEntities = RegexSeeder.getExtensionRegexes();
-        }
-
-        return extensionsRegexEntities;
-    }
-
-    /**
-     * Save the current extensions regex list in a Json file and its name in the Burp preference store.
-     *
-     * @param burpApi                 The MontoyaApi instance for accessing Burp Suite preference store functionality.
-     * @param extensionsRegexEntities The regex list to save.
-     */
-    public static void saveExtensionsRegexList(MontoyaApi burpApi, List<RegexEntity> extensionsRegexEntities) {
-        String defaultFileName = "current_extensions_regex_list.json";
-        burpApi.persistence().preferences().setString("config.extensions_regex_list_file_name", defaultFileName);
-        FileUtils.exportRegexListToFile(defaultFileName, extensionsRegexEntities);
-    }
-
     public static String getExtensionVersion() {
         return Utils.class.getPackage().getImplementationVersion();
     }
@@ -183,5 +73,19 @@ public class Utils {
         return new GsonBuilder()
                 .disableHtmlEscaping()
                 .create();
+    }
+
+    /**
+     * Parse from JSON a list of objects of the same type
+     *
+     * @param json      A JSON string representing a list of objects of type T
+     * @param itemsType The type of the items in the list
+     * @param <T>       The type of the items in the list
+     * @return A List containing items of type T, parsed from the JSON string.
+     * @throws JsonSyntaxException If the JSON is invalid
+     */
+    public static <T> List<T> parseListFromJSON(String json, Class<T> itemsType) throws JsonSyntaxException {
+        Type typeOfT = TypeToken.getParameterized(List.class, itemsType).getType();
+        return new Gson().fromJson(json, typeOfT);
     }
 }
