@@ -509,7 +509,11 @@ public class LoggerTab implements ApplicationTab {
     private JButton createClearLogsButton(JScrollPane scrollPaneLogger) {
         JButton btnClearLogs = new JButton(getLocaleString("logger-clearLogs-label"));
         btnClearLogs.addActionListener(e -> {
-            int dialog = JOptionPane.showConfirmDialog(null, getLocaleString("logger-clearLogs-confirm"));
+            int dialog = JOptionPane.showConfirmDialog(
+                    null,
+                    getLocaleString("logger-clearLogs-message"),
+                    getLocaleString("logger-clearLogs-title"),
+                    JOptionPane.YES_NO_OPTION);
             if (dialog == JOptionPane.YES_OPTION) {
                 logEntriesManager.clear();
                 logsTableModel.fireTableDataChanged();

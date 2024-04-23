@@ -163,7 +163,11 @@ public class RegexEditDialog {
             sectionResBody.setSelected(defaults.contains(HttpSection.RES_BODY));
         }
 
-        int returnValue = JOptionPane.showConfirmDialog(parentComponent, mainPanel, dialogTitle, JOptionPane.OK_CANCEL_OPTION);
+        int returnValue = JOptionPane.showConfirmDialog(
+                parentComponent,
+                mainPanel,
+                dialogTitle,
+                JOptionPane.OK_CANCEL_OPTION);
         if (returnValue != JOptionPane.OK_OPTION) return false;
 
         List<HttpSection> sections = Arrays.asList(
