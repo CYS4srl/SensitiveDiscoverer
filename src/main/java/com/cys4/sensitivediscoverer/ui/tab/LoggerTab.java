@@ -95,6 +95,8 @@ public class LoggerTab implements ApplicationTab {
     private void preAnalysisOperations() {
         // disable components that shouldn't be used while scanning
         SwingUtilities.invokeLater(() -> SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent"));
+        // save current scan options
+        this.mainUI.getScannerOptions().saveToPersistentStorage();
     }
 
     /**
