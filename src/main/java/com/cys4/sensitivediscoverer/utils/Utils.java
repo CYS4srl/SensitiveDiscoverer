@@ -2,11 +2,15 @@ package com.cys4.sensitivediscoverer.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -69,5 +73,19 @@ public class Utils {
         return new GsonBuilder()
                 .disableHtmlEscaping()
                 .create();
+    }
+
+    /**
+     * Parse from JSON a list of objects of the same type
+     *
+     * @param json      A JSON string representing a list of objects of type T
+     * @param itemsType The type of the items in the list
+     * @param <T>       The type of the items in the list
+     * @return A List containing items of type T, parsed from the JSON string.
+     * @throws JsonSyntaxException If the JSON is invalid
+     */
+    public static <T> List<T> parseListFromJSON(String json, Class<T> itemsType) throws JsonSyntaxException {
+        Type typeOfT = TypeToken.getParameterized(List.class, itemsType).getType();
+        return new Gson().fromJson(json, typeOfT);
     }
 }

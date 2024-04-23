@@ -13,6 +13,8 @@ public class BurpExtender implements BurpExtension {
             mainUI.initializeUI();
 
             burpApi.extension().setName(mainUI.getExtensionName());
+            burpApi.extension().registerUnloadingHandler(() -> mainUI.getScannerOptions().saveToPersistentStorage());
+
             Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
                 burpApi.logging().logToError(throwable);
             });

@@ -64,9 +64,7 @@ public class LoggerTab implements ApplicationTab {
         this.logEntriesManager = new LogEntriesManager();
         this.regexScanner = new RegexScanner(
                 this.mainUI.getBurpApi(),
-                this.mainUI.getScannerOptions(),
-                mainUI.getGeneralRegexList(),
-                mainUI.getExtensionsRegexList());
+                this.mainUI.getScannerOptions());
 
         // keep as last call
         this.panel = this.createPanel();
@@ -97,6 +95,8 @@ public class LoggerTab implements ApplicationTab {
     private void preAnalysisOperations() {
         // disable components that shouldn't be used while scanning
         SwingUtilities.invokeLater(() -> SwingUtils.setEnabledRecursiveComponentsWithProperty(this.mainUI.getMainPanel(), false, "analysisDependent"));
+        // save current scan options
+        this.mainUI.getScannerOptions().saveToPersistentStorage();
     }
 
     /**

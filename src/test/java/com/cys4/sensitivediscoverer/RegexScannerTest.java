@@ -2,10 +2,12 @@ package com.cys4.sensitivediscoverer;
 
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import com.cys4.sensitivediscoverer.mock.BurpMontoyaApiMock;
+import com.cys4.sensitivediscoverer.mock.PreferencesMock;
 import com.cys4.sensitivediscoverer.mock.ProxyHttpRequestResponseMock;
 import com.cys4.sensitivediscoverer.mock.ProxyMock;
 import com.cys4.sensitivediscoverer.model.*;
 import com.cys4.sensitivediscoverer.utils.LoggerUtils;
+import com.cys4.sensitivediscoverer.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,11 +26,11 @@ class RegexScannerTest {
     private Consumer<LogEntity> logEntityConsumer;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         burpApi = new BurpMontoyaApiMock();
 
         //TODO test scanner options
-        scannerOptions = new RegexScannerOptions();
+        scannerOptions = new RegexScannerOptions(Utils.loadConfigFile(), new PreferencesMock());
         scannerOptions.setConfigMaxResponseSize(10000000);
         scannerOptions.setConfigNumberOfThreads(1);
         scannerOptions.setConfigRefineContextSize(64);
@@ -53,11 +55,12 @@ class RegexScannerTest {
 
         List<RegexEntity> generalRegexes = List.of(
                 new RegexEntity("Match test string", "test.{0,10}", true, HttpSection.ALL, ""));
-        List<RegexEntity> extensionsRegexes = List.of();
 
-        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
-                generalRegexes,
-                extensionsRegexes);
+        scannerOptions.getGeneralRegexList().clear();
+        scannerOptions.getGeneralRegexList().addAll(generalRegexes);
+        scannerOptions.getExtensionsRegexList().clear();
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions);
         regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(10);
@@ -88,11 +91,12 @@ class RegexScannerTest {
 
         List<RegexEntity> generalRegexes = List.of(
                 new RegexEntity("Match test string", "test.{0,10}", true, HttpSection.ALL, ""));
-        List<RegexEntity> extensionsRegexes = List.of();
 
-        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
-                generalRegexes,
-                extensionsRegexes);
+        scannerOptions.getGeneralRegexList().clear();
+        scannerOptions.getGeneralRegexList().addAll(generalRegexes);
+        scannerOptions.getExtensionsRegexList().clear();
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions);
         regexScanner.analyzeProxyHistory(logEntityConsumer);
         regexScanner.analyzeProxyHistory(logEntityConsumer);
 
@@ -121,11 +125,12 @@ class RegexScannerTest {
         List<RegexEntity> generalRegexes = List.of(
                 new RegexEntity("Match random string", "random", true, HttpSection.ALL, "")
         );
-        List<RegexEntity> extensionsRegexes = List.of();
 
-        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
-                generalRegexes,
-                extensionsRegexes);
+        scannerOptions.getGeneralRegexList().clear();
+        scannerOptions.getGeneralRegexList().addAll(generalRegexes);
+        scannerOptions.getExtensionsRegexList().clear();
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions);
         regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(0);
@@ -143,11 +148,12 @@ class RegexScannerTest {
 
         List<RegexEntity> generalRegexes = List.of(
                 new RegexEntity("Find subdomains of example.com", "example\\.com", true, HttpSection.ALL, "[a-z\\-\\.]{3,64}\\.$"));
-        List<RegexEntity> extensionsRegexes = List.of();
 
-        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions,
-                generalRegexes,
-                extensionsRegexes);
+        scannerOptions.getGeneralRegexList().clear();
+        scannerOptions.getGeneralRegexList().addAll(generalRegexes);
+        scannerOptions.getExtensionsRegexList().clear();
+
+        this.regexScanner = new RegexScanner(this.burpApi, this.scannerOptions);
         regexScanner.analyzeProxyHistory(logEntityConsumer);
 
         assertThat(logEntriesManager.size()).as("Check count of entries found").isEqualTo(2);

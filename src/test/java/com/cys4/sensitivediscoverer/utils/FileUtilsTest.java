@@ -39,14 +39,14 @@ class FileUtilsTest {
                 // no refinerRegex
                 new RegexEntity("Test regex 1", "-----BEGIN", true, EnumSet.of(HttpSection.REQ_BODY, HttpSection.RES_HEADERS, HttpSection.RES_BODY), ""),
                 // all
-                new RegexEntity("Test regex 2", "-----BEGIN", true, HttpSection.RES, ".+$"),
+                new RegexEntity("Test regex 2", "-----BEGIN", false, HttpSection.RES, ".+$"),
                 // empty section; no refinerRegex
                 new RegexEntity("Test regex 3", "-----BEGIN", true, EnumSet.noneOf(HttpSection.class), null),
                 // all
                 new RegexEntity("Test regex 4", "(?i)example\\.app", true, HttpSection.ALL, "[a-z\\-]{1,64}$")
         );
-        assertThat(FileUtils.exportRegexListToJson(regexes)).isEqualTo(
-                "[{\"description\":\"Test regex 1\",\"regex\":\"-----BEGIN\",\"sections\":[\"req_body\",\"res_headers\",\"res_body\"]},{\"description\":\"Test regex 2\",\"regex\":\"-----BEGIN\",\"refinerRegex\":\".+$\",\"sections\":[\"res_headers\",\"res_body\"]},{\"description\":\"Test regex 3\",\"regex\":\"-----BEGIN\",\"sections\":[]},{\"description\":\"Test regex 4\",\"regex\":\"(?i)example\\\\.app\",\"refinerRegex\":\"[a-z\\\\-]{1,64}$\",\"sections\":[\"req_url\",\"req_headers\",\"req_body\",\"res_headers\",\"res_body\"]}]"
+        assertThat(FileUtils.exportRegexListToJson(regexes, true)).isEqualTo(
+                "[{\"active\":true,\"description\":\"Test regex 1\",\"regex\":\"-----BEGIN\",\"sections\":[\"req_body\",\"res_headers\",\"res_body\"]},{\"active\":false,\"description\":\"Test regex 2\",\"regex\":\"-----BEGIN\",\"refinerRegex\":\".+$\",\"sections\":[\"res_headers\",\"res_body\"]},{\"active\":true,\"description\":\"Test regex 3\",\"regex\":\"-----BEGIN\",\"sections\":[]},{\"active\":true,\"description\":\"Test regex 4\",\"regex\":\"(?i)example\\\\.app\",\"refinerRegex\":\"[a-z\\\\-]{1,64}$\",\"sections\":[\"req_url\",\"req_headers\",\"req_body\",\"res_headers\",\"res_body\"]}]"
         );
     }
 
@@ -102,18 +102,18 @@ class FileUtilsTest {
                 [
                 {"description":"Test regex 1","regex":"-----BEGIN","sections":["req_body","res"]},
                 {"description":"Test regex 2","regex":"-----BEGIN","refinerRegex":".+"},
-                {"description":"Test regex 3","regex":"-----BEGIN","sections":[],"refinerRegex":""},
-                {"description":"Test regex 4","regex":"(?i)example\\\\.app","refinerRegex":"[a-z\\\\-]{1,64}$","sections":["all"]}
+                {"active":false,"description":"Test regex 3","regex":"-----BEGIN","sections":[],"refinerRegex":""},
+                {"active":true,"description":"Test regex 4","regex":"(?i)example\\\\.app","refinerRegex":"[a-z\\\\-]{1,64}$","sections":["all"]}
                 ]
                 """;
-        FileUtils.importRegexListFromJSON(json, regexesList);
+        FileUtils.importRegexListFromJSON(json, regexesList, true);
         assertThat(regexesList).containsExactly(
                 // no refinerRegex
                 new RegexEntity("Test regex 1", "-----BEGIN", true, EnumSet.of(HttpSection.REQ_BODY, HttpSection.RES_HEADERS, HttpSection.RES_BODY), ""),
                 // default sections
                 new RegexEntity("Test regex 2", "-----BEGIN", true, HttpSection.RES, ".+$"),
                 // no section/refinerRegex
-                new RegexEntity("Test regex 3", "-----BEGIN", true, EnumSet.noneOf(HttpSection.class), null),
+                new RegexEntity("Test regex 3", "-----BEGIN", false, EnumSet.noneOf(HttpSection.class), null),
                 // all
                 new RegexEntity("Test regex 4", "(?i)example\\.app", true, HttpSection.ALL, "[a-z\\-]{1,64}$")
         );

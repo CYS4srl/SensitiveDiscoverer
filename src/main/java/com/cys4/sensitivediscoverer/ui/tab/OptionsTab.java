@@ -11,18 +11,19 @@ import com.cys4.sensitivediscoverer.ui.RegexListPanel;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
 public class OptionsTab implements ApplicationTab {
     private static final String TAB_NAME = getLocaleString("tab-options");
     private final JPanel panel;
-    private final MainUI mainUI;
     private final RegexScannerOptions scannerOptions;
+    private final List<Runnable> resetOptionsListeners = new ArrayList<>();
 
-    public OptionsTab(MainUI mainUI) {
-        this.mainUI = mainUI;
-        this.scannerOptions = mainUI.getScannerOptions();
+    public OptionsTab(RegexScannerOptions scannerOptions) {
+        this.scannerOptions = scannerOptions;
 
         // leave as last call
         this.panel = this.createPanel();
@@ -88,7 +89,7 @@ public class OptionsTab implements ApplicationTab {
         RegexListPanel generalList = new RegexListPanel(
                 getLocaleString("options-generalList-title"),
                 getLocaleString("options-generalList-description"),
-                this.mainUI.getGeneralRegexList(),
+                this.scannerOptions.getGeneralRegexList(),
                 RegexSeeder::getGeneralRegexes);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -101,7 +102,7 @@ public class OptionsTab implements ApplicationTab {
         RegexListPanel extensionsList = new RegexListPanel(
                 getLocaleString("options-extensionsList-title"),
                 getLocaleString("options-extensionsList-description"),
-                this.mainUI.getExtensionsRegexList(),
+                this.scannerOptions.getExtensionsRegexList(),
                 RegexSeeder::getExtensionRegexes);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -115,14 +116,31 @@ public class OptionsTab implements ApplicationTab {
     private void createConfigurationPanels(JPanel boxHeader, OptionsScannerUpdateListener threadNumListener, OptionsScannerUpdateListener responseSizeListener) {
         GridBagConstraints gbc;
 
-        final JPanel filterPanel = createConfigurationFilterPanel();
+        final JPanel filterPanelWrapper = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.ipadx = 5;
         gbc.ipady = 5;
-        boxHeader.add(filterPanel, gbc);
+        boxHeader.add(filterPanelWrapper, gbc);
+        final JPanel filterPanel = createConfigurationFilterPanel();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        filterPanelWrapper.add(filterPanel, gbc);
+        final JButton resetAllOptionsButton = new JButton(getLocaleString("options-resetAll-button"));
+        resetAllOptionsButton.addActionListener(e -> {
+            scannerOptions.resetToDefaults(true, false);
+            resetOptionsListeners.forEach(Runnable::run);
+        });
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 2, 0, 2);
+        filterPanelWrapper.add(resetAllOptionsButton, gbc);
 
         final JPanel scannerPanel = createConfigurationScannerPanel(threadNumListener, responseSizeListener);
         gbc = new GridBagConstraints();
@@ -178,6 +196,7 @@ public class OptionsTab implements ApplicationTab {
 
     private JPanel createConfigurationFilterPanel() {
         GridBagConstraints gbc;
+        Runnable setValueFromOptions;
 
         final JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
@@ -192,8 +211,10 @@ public class OptionsTab implements ApplicationTab {
 
         JCheckBox inScopeCheckbox = new JCheckBox();
         inScopeCheckbox.setText(getLocaleString("options-filters-showOnlyInScopeItems"));
-        inScopeCheckbox.getModel().setSelected(scannerOptions.isFilterInScopeCheckbox());
+        setValueFromOptions = () -> inScopeCheckbox.getModel().setSelected(scannerOptions.isFilterInScopeCheckbox());
+        setValueFromOptions.run();
         inScopeCheckbox.addActionListener(e -> scannerOptions.setFilterInScopeCheckbox(inScopeCheckbox.getModel().isSelected()));
+        resetOptionsListeners.add(setValueFromOptions);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -202,8 +223,10 @@ public class OptionsTab implements ApplicationTab {
 
         JCheckBox skipMaxSizeCheckbox = new JCheckBox();
         skipMaxSizeCheckbox.setText(getLocaleString("options-filters-skipResponsesOverSetSize"));
-        skipMaxSizeCheckbox.getModel().setSelected(scannerOptions.isFilterSkipMaxSizeCheckbox());
+        setValueFromOptions = () -> skipMaxSizeCheckbox.getModel().setSelected(scannerOptions.isFilterSkipMaxSizeCheckbox());
+        setValueFromOptions.run();
         skipMaxSizeCheckbox.addActionListener(e -> scannerOptions.setFilterSkipMaxSizeCheckbox(skipMaxSizeCheckbox.getModel().isSelected()));
+        resetOptionsListeners.add(setValueFromOptions);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -212,8 +235,10 @@ public class OptionsTab implements ApplicationTab {
 
         JCheckBox skipMediaTypeCheckbox = new JCheckBox();
         skipMediaTypeCheckbox.setText(getLocaleString("options-filters-skipMediaTypeResponses"));
-        skipMediaTypeCheckbox.getModel().setSelected(scannerOptions.isFilterSkipMediaTypeCheckbox());
+        setValueFromOptions = () -> skipMediaTypeCheckbox.getModel().setSelected(scannerOptions.isFilterSkipMediaTypeCheckbox());
+        setValueFromOptions.run();
         skipMediaTypeCheckbox.addActionListener(e -> scannerOptions.setFilterSkipMediaTypeCheckbox(skipMediaTypeCheckbox.getModel().isSelected()));
+        resetOptionsListeners.add(setValueFromOptions);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -295,10 +320,12 @@ public class OptionsTab implements ApplicationTab {
 
 
         // setup values and listener
-        currentValueLabel.setText(String.valueOf(scannerOptions.getConfigMaxResponseSize()));
+        Runnable updateLabelText = () -> currentValueLabel.setText(String.valueOf(scannerOptions.getConfigMaxResponseSize()));
+        updateLabelText.run();
         updateListener.setCurrentValueLabel(currentValueLabel);
         updateListener.setUpdatedStatusField(updateValueField);
         updateValueButton.addActionListener(updateListener);
+        resetOptionsListeners.add(updateLabelText);
     }
 
     private void createOptionThreadsNumber(JPanel containerPanel, OptionsScannerUpdateListener updateListener) {
@@ -373,9 +400,11 @@ public class OptionsTab implements ApplicationTab {
 
 
         // setup values and listener
-        currentValueLabel.setText(String.valueOf(scannerOptions.getConfigNumberOfThreads()));
+        Runnable updateLabelText = () -> currentValueLabel.setText(String.valueOf(scannerOptions.getConfigNumberOfThreads()));
+        updateLabelText.run();
         updateListener.setCurrentValueLabel(currentValueLabel);
         updateListener.setUpdatedStatusField(updateValueField);
         updateValueButton.addActionListener(updateListener);
+        resetOptionsListeners.add(updateLabelText);
     }
 }
