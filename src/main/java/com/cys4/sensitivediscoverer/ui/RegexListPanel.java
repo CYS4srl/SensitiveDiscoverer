@@ -371,7 +371,7 @@ public class RegexListPanel {
                     null,
                     getLocaleString("options-list-clear-message"),
                     getLocaleString("options-list-clear-title"),
-                    JOptionPane.OK_CANCEL_OPTION);
+                    JOptionPane.YES_NO_OPTION);
             if (dialogRes != JOptionPane.OK_OPTION) return;
 
             if (!regexEntities.isEmpty()) {
@@ -394,7 +394,7 @@ public class RegexListPanel {
                     null,
                     getLocaleString("options-list-reset-message"),
                     getLocaleString("options-list-reset-title"),
-                    JOptionPane.OK_CANCEL_OPTION);
+                    JOptionPane.YES_NO_OPTION);
             if (dialogRes != JOptionPane.OK_OPTION) return;
 
             if (!regexEntities.isEmpty()) {
