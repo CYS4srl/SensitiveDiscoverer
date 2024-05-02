@@ -1,102 +1,151 @@
-/*
-Copyright (C) 2023 CYS4 Srl
-See the file 'LICENSE' for copying permission
-*/
 package com.cys4.sensitivediscoverer.model;
 
-import burp.IHttpRequestResponse;
+import burp.api.montoya.http.message.HttpHeader;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 
-import java.net.URL;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+/**
+ * A LogEntity represents the results of a successful match of a regex in a request/response.
+ * <p>
+ * <b>Note</b>:<br>
+ * LogEntity instance that reference a specific row in a table are usually named logEntry.
+ * </p>
+ * <p>
+ * <b>Dev notes</b>:<br>
+ * This entity contains immutable references to:
+ * <ul>
+ *  <li>the request object</li>
+ *  <li>the response object</li>
+ *  <li>the url of the request</li>
+ *  <li>the matched regex</li>
+ *  <li>the section where the regex matched</li>
+ *  <li>the results of the match</li>
+ * </ul>
+ * Some information, such as the URL, could be considered redundant but serves as a cache layer between the extension and the Burp APIs.
+ * Calling request.url() is slow, therefore a copy is kept here as the underlying request is not going to change.
+ */
 public class LogEntity {
-    private final int idRequest;
-    private final IHttpRequestResponse requestResponse;
-    private final URL url;
-    private final String regex;
+    private final HttpRequest request;
+    private final HttpResponse response;
+    private final RegexEntity regexEntity;
     /**
-     * string from the body that matches
+     * Section where the regex matched.
+     */
+    private final HttpSection matchedSection;
+    /**
+     * String matched with the regex on 1+ sections (specific sections not currently tracked).
      */
     private final String match;
-    private final String host;
-    private final int port;
-    private final boolean isSSL;
-    private final String description;
+    /**
+     * Cached value from request.url()
+     */
+    private String requestUrl;
+    /**
+     * Cached value from the response field
+     */
+    private String responseHeaders;
 
-    public LogEntity(IHttpRequestResponse requestResponse, int requestNumber, URL url, String description, String regex, String match) {
-        this.idRequest = requestNumber;
-        this.requestResponse = requestResponse;
-        this.url = url;
-        this.description = description;
-        this.regex = regex;
+    public LogEntity(HttpRequest request, HttpResponse httpResponse, RegexEntity regexEntity, HttpSection matchedSection, String match) {
+        this.request = request;
+        this.response = httpResponse;
+        this.regexEntity = regexEntity;
+        this.matchedSection = matchedSection;
         this.match = match;
-        this.host = requestResponse.getHttpService().getHost();
-        String protocol = requestResponse.getHttpService().getProtocol();
-        this.port = requestResponse.getHttpService().getPort();
-        this.isSSL = protocol.equals("https");
+        this.requestUrl = null;
+        this.responseHeaders = null;
     }
 
-    public int getIdRequest() {
-        return this.idRequest;
+    public RegexEntity getRegexEntity() {
+        return regexEntity;
     }
 
-    public URL getURL() {
-        return this.url;
-    }
-
-    public IHttpRequestResponse getRequestResponse() {
-        return requestResponse;
-    }
-
-    public String getRegex() {
-        return regex;
+    public HttpSection getMatchedSection() {
+        return matchedSection;
     }
 
     public String getMatch() {
         return match;
     }
 
-    public String getHost() {
-        return host;
+    public HttpRequest getRequest() {
+        return request;
     }
 
-    public int getPort() {
-        return port;
+    public HttpResponse getResponse() {
+        return response;
     }
 
-    public boolean isSSL() {
-        return isSSL;
+    /**
+     * The URL from the request.
+     * Cached version of request.url()
+     */
+    public String getRequestUrl() {
+        if (this.requestUrl == null) {
+            this.requestUrl = this.request.url();
+        }
+        return this.requestUrl;
+    }
+
+    /**
+     * The Headers of the response as a String with single headers separated by the usual CRLF.
+     * Cached version from response.headers()
+     */
+    private String getResponseHeaders() {
+        if (this.responseHeaders == null) {
+            this.responseHeaders = this.response.headers().stream().map(HttpHeader::toString).collect(Collectors.joining("\r\n"));
+        }
+        return this.responseHeaders;
+    }
+
+    /**
+     * The equals method is required for the de-duplication of results in the Logger table.
+     * When two LogEntity are equal, only one entry is kept in the Logger table.
+     * The current implementation consider two LogEntity equals when:
+     * - the matched content is the same;
+     * - the section of the match is the same;
+     * - the matched regex is the same;
+     * - the request URL is the same;
+     * - the response headers are the same. This should cover most of the cases as responses usually contain the Date header;
+     *
+     * @param o the object to check equality against this
+     * @return true if they are the same object instance or if all the conditions defined above are true;
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LogEntity logEntity = (LogEntity) o;
+
+        return Objects.equals(
+                this.getMatch(),
+                logEntity.getMatch()) &&
+                this.getMatchedSection() == logEntity.getMatchedSection() &&
+                Objects.equals(
+                        this.getRegexEntity(),
+                        logEntity.getRegexEntity()) &&
+                Objects.equals(
+                        this.getRequestUrl(),
+                        logEntity.getRequestUrl()) &&
+                Objects.equals(
+                        this.getResponseHeaders(),
+                        logEntity.getResponseHeaders());
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof LogEntity)) {
-            return false;
-        }
-
-        String firstUrl;
-        String secondUrl;
-
-        // avoiding useless entry of the same matches on the same site by confronting the non-query part of urls
-        if (this.url.getQuery() != null) {
-            firstUrl = this.url.toString().replace(this.url.getQuery(), "");
-        } else {
-            firstUrl = this.url.toString();
-        }
-        if (((LogEntity) o).url.getQuery() != null) {
-            secondUrl = ((LogEntity) o).url.toString().replace(((LogEntity) o).url.getQuery(), "");
-        } else {
-            secondUrl = ((LogEntity) o).url.toString();
-        }
-
-        return (((LogEntity) o).regex.equals(this.regex)) &&
-                firstUrl.equals(secondUrl) &&
-                ((LogEntity) o).match.equals(this.match);
+    public int hashCode() {
+        return Objects.hash(getRequest(), getResponse(), getRegexEntity(), getMatchedSection(), getMatch());
     }
 
-    public String getDescription() {
-        return this.description;
+    @Override
+    public String toString() {
+        return "LogEntity{" +
+                "url='" + getRequestUrl() + '\'' +
+                ", regex='" + regexEntity.getDescription() + '\'' +
+                ", section='" + getMatchedSection() + '\'' +
+                ", match='" + getMatch() + '\'' +
+                '}';
     }
 }

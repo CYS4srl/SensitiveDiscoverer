@@ -1,17 +1,28 @@
 package burp;
 
-import com.cys4.sensitivediscoverer.controller.Utils;
-import com.cys4.sensitivediscoverer.ui.MainUI;
+import burp.api.montoya.BurpExtension;
+import burp.api.montoya.MontoyaApi;
+import com.cys4.sensitivediscoverer.MainUI;
+import com.cys4.sensitivediscoverer.utils.Utils;
 
-public class BurpExtender implements IBurpExtender {
-
+public class BurpExtender implements BurpExtension {
     @Override
-    public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
-        MainUI mainUI = new MainUI(callbacks);
-        mainUI.initialize();
+    public void initialize(MontoyaApi burpApi) {
+        try {
+            MainUI mainUI = new MainUI(burpApi);
+            mainUI.initializeUI();
 
-        callbacks.setExtensionName(mainUI.getNameExtension());
+            burpApi.extension().setName(mainUI.getExtensionName());
+            burpApi.extension().registerUnloadingHandler(() -> mainUI.getScannerOptions().saveToPersistentStorage());
 
-        callbacks.printOutput("Extension loaded successfully!%nVersion loaded: %s".formatted(Utils.getExtensionVersion()));
+            Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+                burpApi.logging().logToError(throwable);
+            });
+
+            burpApi.logging().logToOutput("Extension loaded successfully!%nVersion loaded: %s".formatted(Utils.getExtensionVersion()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

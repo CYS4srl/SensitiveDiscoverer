@@ -3,382 +3,448 @@
     "active": true,
     "description": "1Password password manager database file",
     "regex": "\\.agilekeychain$",
-    "sections": ["req_url"]
+    "sections": ["req_url"],
+    "tests": ["test_file.agilekeychain"]
   },
   {
     "active": true,
     "description": "ASP configuration file",
     "regex": "\\.asa$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.asa"]
   },
   {
     "active": true,
     "description": "Apple Keychain database file",
     "regex": "\\.keychain$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.keychain"]
   },
   {
     "active": true,
     "description": "Azure service configuration schema file",
     "regex": "\\.cscfg$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.cscfg"]
   },
   {
     "active": true,
     "description": "Backup file",
     "regex": "\\.bak$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.bak"]
   },
   {
     "active": true,
     "description": "Certificate file",
     "regex": "\\.cer$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.cer"]
   },
   {
     "active": true,
     "description": "Certificate file",
     "regex": "\\.crt$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.crt"]
   },
   {
     "active": true,
     "description": "Certificate file",
     "regex": "\\.p7b$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.p7b"]
   },
   {
     "active": true,
     "description": "Compressed archive file",
     "regex": "\\.zip$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.zip"]
   },
   {
     "active": true,
     "description": "Compressed archive file",
     "regex": "\\.tar$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.tar"]
   },
   {
     "active": true,
     "description": "Compressed archive file",
     "regex": "\\.gz$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.gz"]
   },
   {
     "active": true,
     "description": "Compressed archive file",
     "regex": "\\.tgz$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.tgz"]
   },
   {
     "active": true,
     "description": "Compressed archive file",
     "regex": "\\.rar$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.rar"]
   },
   {
     "active": true,
     "description": "Configuration file",
     "regex": "\\.config$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.config"]
   },
   {
     "active": true,
     "description": "Day One journal file",
     "regex": "\\.dayone$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.dayone"]
   },
   {
     "active": true,
     "description": "Document file",
     "regex": "\\.docx$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.docx"]
   },
   {
     "active": true,
     "description": "Document file",
     "regex": "\\.doc$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.doc"]
   },
   {
     "active": true,
     "description": "Document file",
     "regex": "\\.rtf$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.rtf"]
   },
   {
     "active": true,
     "description": "Excel file",
     "regex": "\\.xlsx$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.xlsx"]
   },
   {
     "active": true,
     "description": "Excel file",
     "regex": "\\.xls$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.xls"]
   },
   {
     "active": true,
     "description": "Excel file",
     "regex": "\\.csv$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.csv"]
   },
   {
     "active": true,
     "description": "GnuCash database file",
     "regex": "\\.gnucash$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.gnucash"]
   },
   {
     "active": true,
     "description": "Include file",
     "regex": "\\.inc$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.inc"]
   },
   {
     "active": true,
     "description": "Java file",
     "regex": "\\.java$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.java"]
   },
   {
     "active": true,
     "description": "Java keystore file",
     "regex": "\\.jks$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.jks"]
   },
   {
     "active": true,
     "description": "KDE Wallet Manager database file",
     "regex": "\\.kwallet$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.kwallet"]
   },
   {
     "active": true,
     "description": "Little Snitch firewall configuration file",
     "regex": "\\.xpl$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.xpl"]
   },
   {
     "active": true,
     "description": "Log file",
     "regex": "\\.log$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.log"]
   },
   {
     "active": true,
     "description": "Microsoft BitLocker Trusted Platform Module password file",
     "regex": "\\.tpm$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.tpm"]
   },
   {
     "active": true,
     "description": "Microsoft BitLocker recovery key file",
     "regex": "\\.bek$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.bek"]
   },
   {
     "active": true,
     "description": "Microsoft SQL database file",
     "regex": "\\.mdf$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.mdf"]
   },
   {
     "active": true,
     "description": "Microsoft SQL server compact database file",
     "regex": "\\.sdf$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.sdf"]
   },
   {
     "active": true,
     "description": "Network traffic capture file",
     "regex": "\\.pcap$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.pcap"]
   },
   {
     "active": true,
     "description": "Old file",
     "regex": "\\.old$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.old"]
   },
   {
     "active": true,
     "description": "OpenVPN client configuration file",
     "regex": "\\.ovpn$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.ovpn"]
   },
   {
     "active": true,
     "description": "PDF file",
     "regex": "\\.pdf$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.pdf"]
   },
   {
     "active": true,
     "description": "PHP file",
     "regex": "\\.php$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.php"]
   },
   {
     "active": true,
     "description": "Password Safe database file",
     "regex": "\\.psafe3$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.psafe3"]
   },
   {
     "active": true,
     "description": "Potential configuration file",
     "regex": "\\.yml$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.yml"]
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
     "regex": "\\.pkcs12$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.pkcs12"]
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
     "regex": "\\.p12$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.p12"]
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
     "regex": "\\.pfx$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.pfx"]
   },
   {
     "active": true,
     "description": "Potential PGP public keyring",
-    "regex": "\\.pkr$"
+    "regex": "\\.pkr$",
+    "sections": ["req_url"],
+    "tests": ["test_file.pkr"]
   },
   {
     "active": true,
     "description": "Potential PGP secret keyring",
-    "regex": "\\.skr$"
+    "regex": "\\.skr$",
+    "sections": ["req_url"],
+    "tests": ["test_file.skr"]
   },
   {
     "active": true,
     "description": "Potential cryptographic key bundle",
     "regex": "\\.asc$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.asc"]
   },
   {
     "active": true,
     "description": "Potential cryptographic private key",
     "regex": "\\.pem$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.pem"]
   },
   {
     "active": true,
     "description": "Potential private key",
-    "regex": "otr.private_key$",
-	"sections": ["req_url"]
+    "regex": "\\.private_key$",
+	"sections": ["req_url"],
+    "tests": ["otr.private_key", "test_file.private_key"]
   },
   {
     "active": true,
     "description": "Presentation file",
     "regex": "\\.pptx$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.pptx"]
   },
   {
     "active": true,
     "description": "Presentation file",
     "regex": "\\.ppt$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.ppt"]
   },
   {
     "active": true,
     "description": "Python file",
     "regex": "\\.py$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.py"]
   },
   {
     "active": true,
     "description": "Remote Desktop connection file",
     "regex": "\\.rdp$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.rdp"]
   },
   {
     "active": true,
     "description": "Ruby On Rails file",
     "regex": "\\.rb$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.rb"]
   },
   {
     "active": true,
     "description": "SQLite database file",
     "regex": "\\.sqlite$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.sqlite"]
   },
   {
     "active": true,
     "description": "SQLite3 database file",
     "regex": "\\.sqlite3$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.sqlite3"]
   },
   {
     "active": true,
     "description": "Sequel Pro MySQL database manager bookmark file",
     "regex": "\\.plist$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.plist"]
   },
   {
     "active": true,
     "description": "Shell configuration file",
     "regex": "\\.exports$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.exports"]
   },
   {
     "active": true,
     "description": "Shell configuration file",
     "regex": "\\.functions$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.functions"]
   },
   {
     "active": true,
     "description": "Shell configuration file",
     "regex": "\\.extra$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.extra"]
   },
   {
     "active": true,
     "description": "Temporary file",
     "regex": "\\.tmp$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.tmp"]
   },
   {
     "active": true,
     "description": "Terraform variable config file",
-    "regex": "\\terraform.tfvars$",
-	"sections": ["req_url"]
+    "regex": "terraform\\.tfvars$",
+	"sections": ["req_url"],
+    "tests": ["terraform.tfvars"]
   },
   {
     "active": true,
     "description": "Text file",
     "regex": "\\.txt$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.txt"]
   },
   {
     "active": true,
     "description": "Tunnelblick VPN configuration file",
     "regex": "\\.tblk$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.tblk"]
   },
   {
     "active": true,
     "description": "Windows BitLocker full volume encrypted data file",
     "regex": "\\.fve$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.fve"]
   },
   {
     "active": true,
     "description": "XML file",
     "regex": "\\.xml$",
-	"sections": ["req_url"]
+	"sections": ["req_url"],
+    "tests": ["test_file.xml"]
   }
 ]
