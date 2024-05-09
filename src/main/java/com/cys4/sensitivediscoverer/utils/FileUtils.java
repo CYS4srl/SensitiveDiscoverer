@@ -63,12 +63,9 @@ public class FileUtils {
 
     public static void exportRegexListToFile(String filepath, List<RegexEntity> regexEntities) {
         switch (FilenameUtils.getExtension(filepath).toUpperCase()) {
-            case "JSON":
-                writeLinesToFile(filepath, List.of(exportRegexListToJson(regexEntities, false)));
-            case "CSV":
-                writeLinesToFile(filepath, exportRegexListToCSV(regexEntities));
-            default:
-                throw new NotImplementedException();
+            case "JSON" -> writeLinesToFile(filepath, List.of(exportRegexListToJson(regexEntities, false)));
+            case "CSV" -> writeLinesToFile(filepath, exportRegexListToCSV(regexEntities));
+            default -> throw new NotImplementedException();
         }
     }
 
