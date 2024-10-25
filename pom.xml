@@ -16,12 +16,17 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10.1</version>
+            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
             <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.16.1</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -131,4 +136,11 @@
         <name>CYS4</name>
         <url>https://cys4.com</url>
     </organization>
+    <repositories>
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+    </repositories>
 </project>
