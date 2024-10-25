@@ -2,7 +2,7 @@ package com.cys4.sensitivediscoverer.event;
 
 import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;
 
 import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;

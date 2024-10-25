@@ -1,6 +1,6 @@
 package com.cys4.sensitivediscoverer.ui.tab;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 
 public interface ApplicationTab {
     JPanel getPanel();

@@ -3,9 +3,19 @@ package com.cys4.sensitivediscoverer.utils;
 import com.cys4.sensitivediscoverer.MainUI;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.util.List;
 import java.util.Objects;
 

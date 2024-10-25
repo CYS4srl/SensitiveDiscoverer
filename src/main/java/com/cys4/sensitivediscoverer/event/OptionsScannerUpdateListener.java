@@ -2,7 +2,8 @@ package com.cys4.sensitivediscoverer.event;
 
 import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 
 public abstract class OptionsScannerUpdateListener implements ActionListener {
