@@ -8,9 +8,19 @@ import com.cys4.sensitivediscoverer.event.OptionsScannerUpdateNumThreadsListener
 import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 import com.cys4.sensitivediscoverer.ui.RegexListPanel;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 

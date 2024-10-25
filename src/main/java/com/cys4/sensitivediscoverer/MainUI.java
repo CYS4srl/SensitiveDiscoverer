@@ -8,8 +8,10 @@ import com.cys4.sensitivediscoverer.ui.tab.LoggerTab;
 import com.cys4.sensitivediscoverer.ui.tab.OptionsTab;
 import com.cys4.sensitivediscoverer.utils.SwingUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.Properties;
 
 import static com.cys4.sensitivediscoverer.utils.Utils.loadConfigFile;

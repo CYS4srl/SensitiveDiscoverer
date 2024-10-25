@@ -2,7 +2,7 @@ package com.cys4.sensitivediscoverer.ui.table;
 
 import com.cys4.sensitivediscoverer.model.RegexEntity;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 

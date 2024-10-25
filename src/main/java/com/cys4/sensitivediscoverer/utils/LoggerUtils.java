@@ -4,7 +4,7 @@ import com.cys4.sensitivediscoverer.model.LogEntity;
 import com.cys4.sensitivediscoverer.model.LogEntriesManager;
 import com.cys4.sensitivediscoverer.ui.table.LogsTableModel;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.util.function.Consumer;
 
 public class LoggerUtils {

@@ -1,6 +1,7 @@
 package com.cys4.sensitivediscoverer.ui.table;
 
-import javax.swing.*;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 /**
  * JTable for viewing a list of regexes

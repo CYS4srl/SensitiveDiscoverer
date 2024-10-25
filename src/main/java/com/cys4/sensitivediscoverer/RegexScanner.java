@@ -6,11 +6,16 @@ import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
-import com.cys4.sensitivediscoverer.model.*;
+import com.cys4.sensitivediscoverer.model.HttpRecord;
+import com.cys4.sensitivediscoverer.model.HttpSection;
+import com.cys4.sensitivediscoverer.model.LogEntity;
+import com.cys4.sensitivediscoverer.model.RegexEntity;
+import com.cys4.sensitivediscoverer.model.RegexScannerOptions;
 import com.cys4.sensitivediscoverer.utils.BurpUtils;
 import com.cys4.sensitivediscoverer.utils.ScannerUtils;
 
-import javax.swing.*;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;

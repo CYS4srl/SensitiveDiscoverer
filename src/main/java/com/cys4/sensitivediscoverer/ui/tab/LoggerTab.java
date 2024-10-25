@@ -26,6 +26,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -201,6 +202,7 @@ public class LoggerTab implements ApplicationTab {
         }));
         gbc = createGridConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         resultsFilterBar.add(totalCountValueLabel, gbc);
+
         JLabel resultsCountSeparator = new JLabel("│");
         gbc = createGridConstraints(3, 0, 0, 0, GridBagConstraints.HORIZONTAL);
         gbc.insets = new Insets(0, 10, 0, 10);
@@ -233,7 +235,24 @@ public class LoggerTab implements ApplicationTab {
         gbc.insets = new Insets(0, 10, 0, 0);
         resultsFilterBar.add(URLCheckbox, gbc);
 
-        Runnable doUpdateRowFilter = () -> updateRowFilter(searchField.getText(), regexCheckbox.isSelected(), matchCheckbox.isSelected(), URLCheckbox.isSelected());
+        JLabel filterUniqueSeparator = new JLabel("│");
+        gbc = createGridConstraints(9, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 10, 0, 0);
+        resultsFilterBar.add(filterUniqueSeparator, gbc);
+
+        JCheckBox UniqueCheckbox = new JCheckBox(getLocaleString("logger-uniqueResults-label"));
+        UniqueCheckbox.setSelected(false);
+        gbc = createGridConstraints(10, 0, 0, 0, GridBagConstraints.HORIZONTAL);
+        gbc.insets = new Insets(0, 10, 0, 0);
+        resultsFilterBar.add(UniqueCheckbox, gbc);
+
+        Runnable doUpdateRowFilter = () -> updateRowFilter(
+                searchField.getText(),
+                regexCheckbox.isSelected(),
+                matchCheckbox.isSelected(),
+                URLCheckbox.isSelected(),
+                UniqueCheckbox.isSelected()
+        );
         regexCheckbox.addActionListener(event -> doUpdateRowFilter.run());
         matchCheckbox.addActionListener(event -> doUpdateRowFilter.run());
         URLCheckbox.addActionListener(event -> doUpdateRowFilter.run());
@@ -253,6 +272,7 @@ public class LoggerTab implements ApplicationTab {
                 doUpdateRowFilter.run();
             }
         });
+        UniqueCheckbox.addActionListener(event -> doUpdateRowFilter.run());
 
         return resultsFilterBar;
     }
@@ -301,27 +321,35 @@ public class LoggerTab implements ApplicationTab {
     /**
      * Filter rows of LogsTable that contains text string
      *
-     * @param text         text to search
-     * @param includeRegex if true, also search in Regex column
-     * @param includeMatch if true, also search in Match column
-     * @param includeURL   if true, also search in URL column
+     * @param text          text to search
+     * @param includeRegex  if true, also search in Regex column
+     * @param includeMatch  if true, also search in Match column
+     * @param includeURL    if true, also search in URL column
+     * @param uniqueResults if true, remove duplicate results
      */
-    private void updateRowFilter(String text, boolean includeRegex, boolean includeMatch, boolean includeURL) {
+    private void updateRowFilter(String text, boolean includeRegex, boolean includeMatch, boolean includeURL, boolean uniqueResults) {
         SwingUtilities.invokeLater(() -> {
-            if (text.isBlank()) {
-                logsTableRowSorter.setRowFilter(null);
-            } else {
-                logsTableRowSorter.setRowFilter(new RowFilter<>() {
-                    @Override
-                    public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
-                        List<LogsTableModel.Column> places = new ArrayList<>();
-                        if (includeRegex) places.add(LogsTableModel.Column.REGEX);
-                        if (includeMatch) places.add(LogsTableModel.Column.MATCH);
-                        if (includeURL) places.add(LogsTableModel.Column.URL);
-                        return places.stream().anyMatch(column -> entry.getStringValue(column.getIndex()).toLowerCase().contains(text.toLowerCase()));
+            // hashmap to keep track of unique rows in the table
+            final HashSet<Integer> uniqueResultsMap = new HashSet<>();
+
+            logsTableRowSorter.setRowFilter(new RowFilter<>() {
+                @Override
+                public boolean include(Entry<? extends LogsTableModel, ? extends Integer> entry) {
+                    if (uniqueResults) {
+                        int hashcode = entry.getModel().getRowHashcode(entry.getIdentifier());
+                        if (uniqueResultsMap.contains(hashcode)) return false;
+                        uniqueResultsMap.add(hashcode);
                     }
-                });
-            }
+                    if (text.isBlank()) {
+                        return true;
+                    }
+                    List<LogsTableModel.Column> places = new ArrayList<>();
+                    if (includeRegex) places.add(LogsTableModel.Column.REGEX);
+                    if (includeMatch) places.add(LogsTableModel.Column.MATCH);
+                    if (includeURL) places.add(LogsTableModel.Column.URL);
+                    return places.stream().anyMatch(column -> entry.getStringValue(column.getIndex()).toLowerCase().contains(text.toLowerCase()));
+                }
+            });
         });
     }
 
