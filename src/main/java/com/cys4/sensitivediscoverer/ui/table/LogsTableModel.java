@@ -5,6 +5,7 @@ import com.cys4.sensitivediscoverer.model.LogEntriesManager;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
+import java.util.Objects;
 
 import static com.cys4.sensitivediscoverer.utils.Messages.getLocaleString;
 
@@ -47,6 +48,16 @@ public class LogsTableModel extends AbstractTableModel {
             case SECTION -> logEntity.getMatchedSection().toString();
             case MATCH -> logEntity.getMatch();
         };
+    }
+
+    public int getRowHashcode(int rowIndex) {
+        LogEntity logEntity = logEntries.get(rowIndex);
+        return Objects.hash(
+                logEntity.getRequestUrl(),
+                logEntity.getRegexEntity().getRegex(),
+                logEntity.getMatchedSection().toString(),
+                logEntity.getMatch()
+        );
     }
 
     /**
