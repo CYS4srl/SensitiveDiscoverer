@@ -3,7 +3,7 @@ ExtensionType: 1
 Name: Sensitive Discoverer
 RepoName: sensitive-discoverer
 ScreenVersion: 4.2.0
-SerialVersion: 8
+SerialVersion: 9
 MinPlatformVersion: 15
 ProOnly: False
 Author: CYS4
